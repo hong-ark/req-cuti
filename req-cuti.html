@@ -30,7 +30,7 @@
   <label for="nik">Masukkan NIK:</label>
   <input type="text" id="nik" placeholder="Contoh: 2012022847" />
 
-  <button onclick="cekNIK()">Cek Nama & Group Jadwal</button>
+  <button onclick="cekNIK()">Cek Nama & Group</button>
 
   <div id="hasil"></div>
 
@@ -52,13 +52,13 @@
       btnForm.style.display = "none";
 
       try {
-        const response = await fetch(`https://script.google.com/macros/s/AKfycbxnO1U_DSWwwYKi0RsFbBq-PYiK-xkum8LJbLyYINrFrb1W8Rap7-ogJz9CvV6TsqQA/exec?nik=${nik}`);
+        const response = await fetch(`https://script.google.com/macros/s/AKfycbz2Vcne0S9qUcVGCNan2ChqwcPdcqKbHVh3RdnCdK5e-UktyDu-uxVO_5uGccRQtctU/exec?nik=${nik}`);
         const data = await response.json();
 
         if (data.nama && data.group) {
           hasil.innerHTML = `
             ✅ Nama: <strong>${data.nama}</strong><br>
-            🗂️ Group Jadwal: <strong>${data.group}</strong>
+            📌 Group: <strong>${data.group}</strong>
           `;
           btnForm.style.display = "inline-block";
           btnForm.dataset.nama = data.nama;
@@ -79,8 +79,10 @@
       const nik = encodeURIComponent(btn.dataset.nik);
       const group = encodeURIComponent(btn.dataset.group);
 
+      // Link Google Form kamu
       const formURL = "https://docs.google.com/forms/d/e/1FAIpQLSeoJsdvN7htQSgUjDbT6I5StR1y0zLyFXM46-ZuLvO80D89bQ/viewform";
-      // ganti entry.xxx dengan ID field di Google Form
+
+      // Prefill dengan entry id masing-masing
       const prefillURL = `${formURL}?entry.448590851=${nik}&entry.1346383944=${nama}&entry.1841657487=${group}`;
 
       window.location.href = prefillURL;
