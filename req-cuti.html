@@ -52,7 +52,7 @@
       btnForm.style.display = "none";
 
       try {
-        const response = await fetch(`https://script.google.com/macros/s/AKfycbz2Vcne0S9qUcVGCNan2ChqwcPdcqKbHVh3RdnCdK5e-UktyDu-uxVO_5uGccRQtctU/exec?nik=${nik}`);
+        const response = await fetch(`https://script.google.com/macros/s/AKfycbz2Vcne0S9qUcVGCNan2ChqwcPdcqKbHVh3RdnCdK5e-UktyDu-uxVO_5uGccRQtctU/exec`);
         const data = await response.json();
 
         if (data.nama && data.group) {
@@ -91,3 +91,4 @@
 
 </body>
 </html>
+
