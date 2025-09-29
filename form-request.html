@@ -5,21 +5,46 @@
   <title>REQUEST LIBUR / CUTI JADWAL BULAN DEPAN</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
       padding: 20px;
-      background: #f5f5f5;
+      background: linear-gradient(135deg, #6dd5ed, #2193b0);
+      min-height: 100vh;
+      color: #333;
+    }
+    .container {
+      background: #fff;
+      padding: 30px 40px;
+      border-radius: 15px;
+      max-width: 600px;
+      margin: auto;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
     }
     h2 {
       text-align: center;
-      color: #2193b0;
+      margin-bottom: 20px;
+      font-size: 22px;
+      font-weight: bold;
+      background: linear-gradient(90deg, #2193b0, #6dd5ed);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
-    .field { margin-bottom: 20px; }
-    label { font-weight: bold; display: block; margin-bottom: 6px; }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
     input, select {
-      padding: 8px;
       width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 8px;
       border: 1px solid #ccc;
-      border-radius: 6px;
+      font-size: 15px;
+    }
+    input[readonly] {
+      background: #f5f5f5;
+      font-weight: bold;
     }
     .calendar {
       display: grid;
@@ -27,144 +52,159 @@
       gap: 5px;
       margin-top: 10px;
     }
-    .calendar button {
-      padding: 10px;
-      border: none;
+    .day {
+      padding: 8px;
+      text-align: center;
+      border: 1px solid #ccc;
       border-radius: 6px;
       cursor: pointer;
-      background: #eee;
-      transition: 0.3s;
+      user-select: none;
     }
-    .calendar button.selected { background: #28a745; color: white; }
-    .calendar button:hover { background: #2193b0; color: white; }
-    .submit-btn {
+    .day:hover {
+      background: #eee;
+    }
+    .day.selected {
       background: #28a745;
-      color: white;
+      color: #fff;
       font-weight: bold;
-      padding: 12px;
+    }
+    .submit-btn {
+      margin-top: 25px;
       width: 100%;
+      padding: 12px;
       border: none;
       border-radius: 8px;
-      cursor: pointer;
       font-size: 16px;
+      font-weight: bold;
+      color: #fff;
+      background: #2193b0;
+      cursor: pointer;
+      transition: 0.3s;
     }
-    .submit-btn:hover { background: #1e7e34; }
+    .submit-btn:hover {
+      background: #18657a;
+    }
   </style>
 </head>
 <body>
 
-  <h2>REQUEST LIBUR / CUTI JADWAL BULAN DEPAN</h2>
+  <div class="container">
+    <h2>REQUEST LIBUR / CUTI JADWAL BULAN DEPAN</h2>
 
-  <!-- Data dari halaman NIK -->
-  <div class="field">
-    <label>NIK:</label>
-    <input id="nik" type="text" readonly />
-  </div>
-  <div class="field">
-    <label>Nama:</label>
-    <input id="nama" type="text" readonly />
-  </div>
-  <div class="field">
-    <label>Group:</label>
-    <input id="group" type="text" readonly />
-  </div>
+    <form id="requestForm">
+      <label>NIK</label>
+      <input type="text" id="nik" name="nik" readonly>
 
-  <!-- Kalender Libur -->
-  <div class="field">
-    <label>Pilih Request Libur (boleh lebih dari 1):</label>
-    <div id="calendar-libur" class="calendar"></div>
-  </div>
+      <label>Nama</label>
+      <input type="text" id="nama" name="nama" readonly>
 
-  <!-- Kalender Cuti -->
-  <div class="field">
-    <label>Pilih Request Cuti (boleh lebih dari 1):</label>
-    <div id="calendar-cuti" class="calendar"></div>
-  </div>
+      <label>Group</label>
+      <input type="text" id="group" name="group" readonly>
 
-  <!-- Ekstrakurikuler -->
-  <div class="field">
-    <label>Ekstrakurikuler yang diikuti:</label>
-    <select id="ekstra">
-      <option value="">-- Pilih --</option>
-      <option value="FUTSAL">FUTSAL</option>
-      <option value="BADMINTON">BADMINTON</option>
-      <option value="FUTSAL & BADMINTON">FUTSAL & BADMINTON</option>
-      <option value="TIDAK MENGIKUTI">TIDAK MENGIKUTI</option>
-    </select>
-  </div>
+      <label>Request Libur</label>
+      <div id="calendar-libur" class="calendar"></div>
+      <input type="hidden" name="libur[]" id="liburInput">
 
-  <button class="submit-btn" onclick="submitForm()">KIRIM REQUEST</button>
+      <label>Request Cuti</label>
+      <div id="calendar-cuti" class="calendar"></div>
+      <input type="hidden" name="cuti[]" id="cutiInput">
+
+      <label>Ekstrakulikuler yang diikuti</label>
+      <select name="ekstrakulikuler" required>
+        <option value="">-- Pilih --</option>
+        <option value="Futsal">Futsal</option>
+        <option value="Badminton">Badminton</option>
+        <option value="Futsal & Badminton">Futsal & Badminton</option>
+        <option value="Tidak Mengikuti">Tidak Mengikuti</option>
+      </select>
+
+      <button type="submit" class="submit-btn">Kirim Request</button>
+    </form>
+  </div>
 
 <script>
-const scriptURL = "https://script.google.com/macros/s/AKfycbwG9sxBKZn5WF1P2mieKbKLhFGyURh6O5FY2i8cZ9JAZz_EbKxoavk4kuUtlCgkSFV_/exec"; // ganti dengan URL Apps Script
+/* -------- AMBIL PARAMETER DARI URL (nama, nik, group) -------- */
+const urlParams = new URLSearchParams(window.location.search);
+document.getElementById("nik").value = urlParams.get("nik") || "";
+document.getElementById("nama").value = urlParams.get("nama") || "";
+document.getElementById("group").value = urlParams.get("group") || "";
 
-let liburSelected = [];
-let cutiSelected = [];
-
-// ambil param dari URL
-function getParam(key){ return new URLSearchParams(window.location.search).get(key); }
-document.getElementById("nik").value = getParam("nik") || "";
-document.getElementById("nama").value = getParam("nama") || "";
-document.getElementById("group").value = getParam("group") || "";
-
-// generate kalender bulan depan
-function generateCalendar(containerId, selectedArray) {
-  const container = document.getElementById(containerId);
+/* -------- GENERATE KALENDER BULAN DEPAN -------- */
+function generateCalendar(containerId, inputId) {
   const today = new Date();
   const year = today.getMonth() === 11 ? today.getFullYear() + 1 : today.getFullYear();
-  const month = (today.getMonth() + 1) % 12; // bulan depan
-  const firstDay = new Date(year, month, 1).getDay();
-  const lastDate = new Date(year, month + 1, 0).getDate();
+  const month = (today.getMonth() + 1) % 12; // bulan berikutnya
 
+  const container = document.getElementById(containerId);
   container.innerHTML = "";
-  for (let i = 0; i < firstDay; i++) {
-    container.innerHTML += "<div></div>";
+
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month + 1, 0);
+  const startDay = firstDay.getDay(); // 0 = Minggu
+  const totalDays = lastDay.getDate();
+
+  // kosong sebelum tgl 1
+  for (let i = 0; i < startDay; i++) {
+    container.appendChild(document.createElement("div"));
   }
-  for (let d = 1; d <= lastDate; d++) {
-    const dateStr = String(d).padStart(2, "0") + "-" + String(month+1).padStart(2,"0") + "-" + year;
-    const btn = document.createElement("button");
-    btn.innerText = d;
-    btn.onclick = () => {
-      if (selectedArray.includes(dateStr)) {
-        selectedArray.splice(selectedArray.indexOf(dateStr),1);
-        btn.classList.remove("selected");
+
+  const selected = new Set();
+
+  for (let d = 1; d <= totalDays; d++) {
+    const day = document.createElement("div");
+    day.className = "day";
+    day.textContent = d;
+
+    day.addEventListener("click", () => {
+      const dateStr = `${String(d).padStart(2,"0")}-${String(month+1).padStart(2,"0")}-${year}`;
+      if (selected.has(dateStr)) {
+        selected.delete(dateStr);
+        day.classList.remove("selected");
       } else {
-        selectedArray.push(dateStr);
-        btn.classList.add("selected");
+        selected.add(dateStr);
+        day.classList.add("selected");
       }
-    };
-    container.appendChild(btn);
+      document.getElementById(inputId).value = Array.from(selected).join(",");
+    });
+
+    container.appendChild(day);
   }
 }
-generateCalendar("calendar-libur", liburSelected);
-generateCalendar("calendar-cuti", cutiSelected);
 
-// kirim data
-function submitForm(){
-  const nik = document.getElementById("nik").value;
-  const nama = document.getElementById("nama").value;
-  const group = document.getElementById("group").value;
-  const ekstra = document.getElementById("ekstra").value;
+generateCalendar("calendar-libur", "liburInput");
+generateCalendar("calendar-cuti", "cutiInput");
 
-  if(!ekstra){ alert("Pilih Ekstrakurikuler!"); return; }
+/* -------- SUBMIT FORM KE GOOGLE SCRIPT -------- */
+document.getElementById("requestForm").addEventListener("submit", async function(e) {
+  e.preventDefault();
 
-  fetch(scriptURL,{
-    method:"POST",
-    body: JSON.stringify({
-      nik: nik,
-      nama: nama,
-      group: group,
-      libur: liburSelected,
-      cuti: cutiSelected,
-      ekstra: ekstra
-    })
-  }).then(r=>r.json()).then(res=>{
-    if(res.status==="success") alert("✅ Data berhasil disimpan!");
-    else alert("❌ Gagal menyimpan.");
-  }).catch(err=>{
-    alert("⚠️ Error: "+err);
-  });
-}
+  const payload = {
+    nik: document.getElementById("nik").value,
+    nama: document.getElementById("nama").value,
+    group: document.getElementById("group").value,
+    libur: document.getElementById("liburInput").value ? document.getElementById("liburInput").value.split(",") : [],
+    cuti: document.getElementById("cutiInput").value ? document.getElementById("cutiInput").value.split(",") : [],
+    ekstrakulikuler: this.ekstrakulikuler.value
+  };
+
+  try {
+    const res = await fetch("https://script.google.com/macros/s/AKfycbwG9sxBKZn5WF1P2mieKbKLhFGyURh6O5FY2i8cZ9JAZz_EbKxoavk4kuUtlCgkSFV_/exec", {
+      method: "POST",
+      body: JSON.stringify(payload),
+      headers: {"Content-Type": "application/json"}
+    });
+
+    const result = await res.json();
+    if (result.status === "success") {
+      alert("✅ Request berhasil disimpan!");
+      this.reset();
+    } else {
+      alert("⚠️ Gagal: " + JSON.stringify(result));
+    }
+  } catch (err) {
+    alert("❌ Error: " + err);
+  }
+});
 </script>
 
 </body>
