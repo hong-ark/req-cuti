@@ -3,57 +3,86 @@
 <head>
   <meta charset="UTF-8">
   <title>REQUEST LIBUR / CUTI JADWAL BULAN DEPAN</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #f4f6f9;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       margin: 0;
-      padding: 20px;
+      padding: 0;
+      background: linear-gradient(135deg, #74ebd5, #ACB6E5);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding-top: 40px;
     }
     .container {
-      max-width: 650px;
-      margin: auto;
       background: #fff;
       padding: 25px 30px;
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      border-radius: 15px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+      width: 480px;
+      max-width: 95%;
+      animation: fadeIn 0.6s ease-in-out;
     }
     h2 {
       text-align: center;
       margin-bottom: 20px;
-      color: #333;
+      font-size: 20px;
+      font-weight: bold;
+      background: linear-gradient(90deg, #2193b0, #6dd5ed);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
     label {
-      display: block;
-      margin-top: 12px;
       font-weight: bold;
-      color: #555;
+      display: block;
+      margin-top: 15px;
+      margin-bottom: 8px;
+      color: #333;
     }
     input, select {
       width: 100%;
       padding: 10px;
-      margin-top: 5px;
-      border-radius: 6px;
       border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 15px;
       box-sizing: border-box;
     }
-    input[readonly] {
-      background: #eee;
+    .calendar {
+      border: 1px solid #ccc;
+      padding: 10px;
+      border-radius: 8px;
+      margin-top: 8px;
     }
     button {
-      margin-top: 20px;
       width: 100%;
       padding: 12px;
-      background: #007BFF;
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
+      margin-top: 20px;
       font-size: 16px;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+      background: #2193b0;
+      color: #fff;
     }
     button:hover {
-      background: #0056b3;
+      background: #18657a;
+    }
+    .success {
+      color: green;
+      margin-top: 15px;
+      text-align: center;
+    }
+    .error {
+      color: red;
+      margin-top: 15px;
+      text-align: center;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
@@ -61,6 +90,7 @@
   <div class="container">
     <h2>REQUEST LIBUR / CUTI JADWAL BULAN DEPAN</h2>
     <form id="requestForm">
+      <!-- Data karyawan otomatis dari halaman input NIK -->
       <label>NIK</label>
       <input type="text" id="nik" name="nik" readonly>
 
@@ -70,82 +100,109 @@
       <label>Group</label>
       <input type="text" id="group" name="group" readonly>
 
-      <label>Request Libur</label>
+      <!-- Pilihan tanggal -->
+      <label>Request Libur:</label>
       <input type="text" id="libur" name="libur" placeholder="Pilih tanggal libur" readonly>
+      <div id="calendar-libur" class="calendar"></div>
 
-      <label>Request Cuti</label>
+      <label>Request Cuti:</label>
       <input type="text" id="cuti" name="cuti" placeholder="Pilih tanggal cuti" readonly>
+      <div id="calendar-cuti" class="calendar"></div>
 
-      <label>Ekstrakurikuler yang diikuti</label>
+      <!-- Ekstrakulikuler -->
+      <label>Ekstrakulikuler yang diikuti:</label>
       <select id="ekstrakulikuler" name="ekstrakulikuler" required>
         <option value="">-- Pilih --</option>
-        <option value="Futsal">Futsal</option>
-        <option value="Badminton">Badminton</option>
-        <option value="Futsal & Badminton">Futsal & Badminton</option>
-        <option value="Tidak Mengikuti">Tidak Mengikuti</option>
+        <option value="FUTSAL">FUTSAL</option>
+        <option value="BADMINTON">BADMINTON</option>
+        <option value="FUTSAL & BADMINTON">FUTSAL & BADMINTON</option>
+        <option value="TIDAK MENGIKUTI">TIDAK MENGIKUTI</option>
       </select>
 
-      <button type="submit">Kirim</button>
+      <button type="submit">KIRIM</button>
+      <div id="status"></div>
     </form>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script>
+    // === URL WebApp kamu ===
     const scriptURL = "https://script.google.com/macros/s/AKfycbz1_dtlMVATeze7SUaQMAyzrmwMctYRrxoOApjyOPoMdBTCAM_soMvqjLCQUEVqjjb_/exec";
 
-    // === Ambil data dari query string (NIK, Nama, Group) ===
+    // Ambil query param dari input-nik.html
     const params = new URLSearchParams(window.location.search);
-    document.getElementById("nik").value = params.get("nik") || "";
-    document.getElementById("nama").value = params.get("nama") || "";
+    document.getElementById("nik").value   = params.get("nik")   || "";
+    document.getElementById("nama").value  = params.get("nama")  || "";
     document.getElementById("group").value = params.get("group") || "";
 
-    // === Flatpickr untuk multi-date ===
-    const nextMonth = new Date();
-    nextMonth.setMonth(nextMonth.getMonth() + 1);
+    // === Buat kalender sederhana ===
+    function renderCalendar(containerId, inputId) {
+      const container = document.getElementById(containerId);
+      const input = document.getElementById(inputId);
 
-    flatpickr("#libur", {
-      mode: "multiple",
-      dateFormat: "d-m-Y",
-      defaultDate: [],
-      minDate: new Date(nextMonth.getFullYear(), nextMonth.getMonth(), 1),
-      maxDate: new Date(nextMonth.getFullYear(), nextMonth.getMonth() + 1, 0)
-    });
+      const today = new Date();
+      const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+      const year = nextMonth.getFullYear();
+      const month = nextMonth.getMonth();
 
-    flatpickr("#cuti", {
-      mode: "multiple",
-      dateFormat: "d-m-Y",
-      defaultDate: [],
-      minDate: new Date(nextMonth.getFullYear(), nextMonth.getMonth(), 1),
-      maxDate: new Date(nextMonth.getFullYear(), nextMonth.getMonth() + 1, 0)
-    });
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
+      const totalDays = lastDay.getDate();
+
+      container.innerHTML = "";
+      for (let d = 1; d <= totalDays; d++) {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.textContent = d;
+        btn.style.margin = "2px";
+        btn.style.width = "36px";
+        btn.style.height = "36px";
+        btn.style.borderRadius = "50%";
+        btn.style.border = "1px solid #2193b0";
+        btn.style.background = "#fff";
+        btn.style.cursor = "pointer";
+
+        btn.addEventListener("click", () => {
+          let selected = input.value ? input.value.split(", ") : [];
+          const dateStr = `${d}-${month+1}-${year}`;
+          if (selected.includes(dateStr)) {
+            selected = selected.filter(x => x !== dateStr);
+            btn.style.background = "#fff";
+            btn.style.color = "#000";
+          } else {
+            selected.push(dateStr);
+            btn.style.background = "#2193b0";
+            btn.style.color = "#fff";
+          }
+          input.value = selected.join(", ");
+        });
+
+        container.appendChild(btn);
+      }
+    }
+
+    renderCalendar("calendar-libur", "libur");
+    renderCalendar("calendar-cuti", "cuti");
 
     // === Submit Form ===
     document.getElementById("requestForm").addEventListener("submit", function(e) {
       e.preventDefault();
+      const status = document.getElementById("status");
+      status.textContent = "⏳ Mengirim data...";
 
-      const data = {
-        nik: document.getElementById("nik").value,
-        nama: document.getElementById("nama").value,
-        group: document.getElementById("group").value,
-        libur: document.getElementById("libur").value.split(",").map(d => d.trim()).filter(d => d),
-        cuti: document.getElementById("cuti").value.split(",").map(d => d.trim()).filter(d => d),
-        ekstrakulikuler: document.getElementById("ekstrakulikuler").value
-      };
+      const formData = new FormData(this);
 
-      fetch(scriptURL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
-      })
-      .then(res => res.json())
-      .then(res => {
-        alert("✅ Data berhasil dikirim!");
-        document.getElementById("requestForm").reset();
-      })
-      .catch(err => {
-        console.error(err);
-        alert("❌ Gagal mengirim data!");
-      });
+      fetch(scriptURL, { method: "POST", body: formData })
+        .then(res => res.text())
+        .then(res => {
+          status.textContent = "✅ Data berhasil dikirim!";
+          status.className = "success";
+          this.reset();
+        })
+        .catch(err => {
+          console.error(err);
+          status.textContent = "❌ Gagal mengirim data!";
+          status.className = "error";
+        });
     });
   </script>
 </body>
