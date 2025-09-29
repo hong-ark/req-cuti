@@ -2,7 +2,8 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Form Request Libur / Cuti</title>
+  <title>REQUEST LIBUR / CUTI JADWAL BULAN DEPAN</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -11,10 +12,10 @@
       padding: 20px;
     }
     .container {
-      max-width: 600px;
+      max-width: 650px;
       margin: auto;
       background: #fff;
-      padding: 20px 30px;
+      padding: 25px 30px;
       border-radius: 10px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
@@ -29,13 +30,16 @@
       font-weight: bold;
       color: #555;
     }
-    input, select, textarea {
+    input, select {
       width: 100%;
       padding: 10px;
       margin-top: 5px;
       border-radius: 6px;
       border: 1px solid #ccc;
       box-sizing: border-box;
+    }
+    input[readonly] {
+      background: #eee;
     }
     button {
       margin-top: 20px;
@@ -55,38 +59,67 @@
 </head>
 <body>
   <div class="container">
-    <h2>Form Request Libur / Cuti</h2>
+    <h2>REQUEST LIBUR / CUTI JADWAL BULAN DEPAN</h2>
     <form id="requestForm">
-      <label for="nik">NIK</label>
-      <input type="text" id="nik" name="nik" required>
+      <label>NIK</label>
+      <input type="text" id="nik" name="nik" readonly>
 
-      <label for="nama">Nama</label>
-      <input type="text" id="nama" name="nama" required>
+      <label>Nama</label>
+      <input type="text" id="nama" name="nama" readonly>
 
-      <label for="group">Group</label>
-      <select id="group" name="group" required>
-        <option value="">-- Pilih Group --</option>
-        <option value="A">Group A</option>
-        <option value="B">Group B</option>
-        <option value="C">Group C</option>
+      <label>Group</label>
+      <input type="text" id="group" name="group" readonly>
+
+      <label>Request Libur</label>
+      <input type="text" id="libur" name="libur" placeholder="Pilih tanggal libur" readonly>
+
+      <label>Request Cuti</label>
+      <input type="text" id="cuti" name="cuti" placeholder="Pilih tanggal cuti" readonly>
+
+      <label>Ekstrakurikuler yang diikuti</label>
+      <select id="ekstrakulikuler" name="ekstrakulikuler" required>
+        <option value="">-- Pilih --</option>
+        <option value="Futsal">Futsal</option>
+        <option value="Badminton">Badminton</option>
+        <option value="Futsal & Badminton">Futsal & Badminton</option>
+        <option value="Tidak Mengikuti">Tidak Mengikuti</option>
       </select>
-
-      <label for="libur">Tanggal Libur (pisahkan dengan koma)</label>
-      <input type="text" id="libur" name="libur" placeholder="Contoh: 01-11-2025, 02-11-2025">
-
-      <label for="cuti">Tanggal Cuti (pisahkan dengan koma)</label>
-      <input type="text" id="cuti" name="cuti" placeholder="Contoh: 05-11-2025">
-
-      <label for="ekstrakulikuler">Ekstrakurikuler</label>
-      <input type="text" id="ekstrakulikuler" name="ekstrakulikuler" placeholder="Contoh: Futsal">
 
       <button type="submit">Kirim</button>
     </form>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script>
     const scriptURL = "https://script.google.com/macros/s/AKfycbz1_dtlMVATeze7SUaQMAyzrmwMctYRrxoOApjyOPoMdBTCAM_soMvqjLCQUEVqjjb_/exec";
 
+    // === Ambil data dari query string (NIK, Nama, Group) ===
+    const params = new URLSearchParams(window.location.search);
+    document.getElementById("nik").value = params.get("nik") || "";
+    document.getElementById("nama").value = params.get("nama") || "";
+    document.getElementById("group").value = params.get("group") || "";
+
+    // === Flatpickr untuk multi-date ===
+    const nextMonth = new Date();
+    nextMonth.setMonth(nextMonth.getMonth() + 1);
+
+    flatpickr("#libur", {
+      mode: "multiple",
+      dateFormat: "d-m-Y",
+      defaultDate: [],
+      minDate: new Date(nextMonth.getFullYear(), nextMonth.getMonth(), 1),
+      maxDate: new Date(nextMonth.getFullYear(), nextMonth.getMonth() + 1, 0)
+    });
+
+    flatpickr("#cuti", {
+      mode: "multiple",
+      dateFormat: "d-m-Y",
+      defaultDate: [],
+      minDate: new Date(nextMonth.getFullYear(), nextMonth.getMonth(), 1),
+      maxDate: new Date(nextMonth.getFullYear(), nextMonth.getMonth() + 1, 0)
+    });
+
+    // === Submit Form ===
     document.getElementById("requestForm").addEventListener("submit", function(e) {
       e.preventDefault();
 
