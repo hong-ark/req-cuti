@@ -167,7 +167,7 @@ const scriptURL = "https://script.google.com/macros/s/AKfycbyrVWiH3HUNiNwdWR-Ash
 const quotaURL = scriptURL;
 const MAX_KUOTA_HARIAN = 2; // Harus sama dengan MAX_PER_DAY di Apps Script
 
-// Variabel untuk menyimpan objek datepicker (BARU DITAMBAHKAN)
+// POSISI PERBAIKAN: Deklarasi variabel untuk menyimpan objek datepicker (global)
 let datepickerLibur = null;
 let datepickerCuti = null; 
 
@@ -209,7 +209,7 @@ async function fetchFullDays() {
     }
 }
 
-// Inisialisasi datepicker (DIREVISI: Sekarang menyimpan objek datepicker)
+// Inisialisasi datepicker (Memastikan objek datepicker tersimpan ke variabel global)
 function initDatepicker(selector, disabledDays) {
     const today = new Date();
     const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
@@ -243,7 +243,7 @@ function initDatepicker(selector, disabledDays) {
         readOnly: true
     });
     
-    // Simpan objek datepicker ke variabel global
+    // Menyimpan objek datepicker yang baru dibuat
     if (selector === '#libur') {
         datepickerLibur = dp;
     } else if (selector === '#cuti') {
@@ -259,33 +259,33 @@ async function initializeApp() {
 }
 initializeApp();
 
-// Submit form (DIREVISI: Mengambil nilai Libur/Cuti secara manual)
+// Submit form (FIXED: Mengambil nilai Libur/Cuti secara manual menggunakan .formattedDate)
 document.getElementById("requestForm").addEventListener("submit", function(e){
   e.preventDefault();
   const status = document.getElementById("status");
   status.textContent = "⏳ Mengirim data...";
   status.className = "";
 
-  // Mengambil data secara manual untuk menghindari masalah format tanggal
-  const formData = new FormData();
+  // Mengambil data secara manual untuk memastikan format tanggal yang benar
+  const formData = new FormData();
 
-  formData.append('nik', document.getElementById("nik").value);
-  formData.append('nama', document.getElementById("nama").value);
-  formData.append('group', document.getElementById("group").value);
-  formData.append('requestLainnya', document.getElementById("requestLainnya").value);
-  formData.append('ekstrakulikuler', document.getElementById("ekstrakulikuler").value);
+  formData.append('nik', document.getElementById("nik").value);
+  formData.append('nama', document.getElementById("nama").value);
+  formData.append('group', document.getElementById("group").value);
+  formData.append('requestLainnya', document.getElementById("requestLainnya").value);
+  formData.append('ekstrakulikuler', document.getElementById("ekstrakulikuler").value);
 
-  // BARIS PENTING: Ambil nilai Libur/Cuti langsung dari objek datepicker
-  const liburValue = datepickerLibur ? datepickerLibur.formattedDate : document.getElementById("libur").value;
-  const cutiValue = datepickerCuti ? datepickerCuti.formattedDate : document.getElementById("cuti").value;
+  // BARIS KRITIS: Ambil nilai Libur/Cuti menggunakan properti .formattedDate
+  const liburValue = datepickerLibur ? datepickerLibur.formattedDate : "";
+  const cutiValue = datepickerCuti ? datepickerCuti.formattedDate : "";
 
-  formData.append('libur', liburValue || "");
-  formData.append('cuti', cutiValue || "");
+  formData.append('libur', liburValue || "");
+  formData.append('cuti', cutiValue || "");
 
   fetch(scriptURL, { method: "POST", body: formData })
     .then(res=>res.text())
     .then(resText=>{
-      // POIN 2: Menangkap dan merevisi pesan Kuota Penuh dari Apps Script
+      // Menangkap dan merevisi pesan Kuota Penuh dari Apps Script
       if (resText.includes("Gagal: Kuota untuk tanggal") && resText.includes("sudah penuh (maksimal OFF")) {
           const match = resText.match(/tanggal\s+(\d+)\s+sudah/);
           const blockedDay = match ? match[1] : "xx";
