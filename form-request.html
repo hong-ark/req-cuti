@@ -15,22 +15,23 @@
       min-height: 100vh;
       display: flex;
       justify-content: center;
-      align-items: flex-start;
-      padding-top: 40px;
+      /* REVISI: Ubah agar konten berada di tengah vertikal */
+      align-items: center; 
+      padding: 40px 0; /* Tambahkan padding atas dan bawah */
     }
     .container {
       background: #fff;
-      padding: 25px 30px;
+      padding: 40px; /* REVISI: Perbesar padding di dalam kontainer */
       border-radius: 15px;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.2);
-      width: 480px;
-      max-width: 95%;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3); /* REVISI: Shadow lebih dalam */
+      width: 600px; /* REVISI: Perbesar lebar kontainer dari 480px menjadi 600px */
+      max-width: 90%; /* REVISI: Beri sedikit ruang pada layar kecil */
       animation: fadeIn 0.6s ease-in-out;
     }
     h2 {
       text-align: center;
-      margin-bottom: 20px;
-      font-size: 20px;
+      margin-bottom: 25px; /* REVISI: Jarak lebih lebar */
+      font-size: 24px; /* REVISI: Ukuran font judul lebih besar */
       font-weight: bold;
       background: linear-gradient(90deg, #2193b0, #6dd5ed);
       -webkit-background-clip: text;
@@ -39,30 +40,25 @@
     label {
       font-weight: bold;
       display: block;
-      margin-top: 15px;
+      margin-top: 18px; /* REVISI: Jarak antar elemen lebih lega */
       margin-bottom: 8px;
       color: #333;
+      font-size: 16px;
     }
     input, select {
       width: 100%;
-      padding: 10px;
+      padding: 12px; /* REVISI: Padding input lebih besar */
       border: 1px solid #ccc;
       border-radius: 8px;
-      font-size: 15px;
+      font-size: 16px; /* REVISI: Ukuran font input lebih besar */
       box-sizing: border-box;
     }
-    /* Hapus style .calendar karena tidak digunakan lagi untuk tombol harian */
-    /* .calendar {
-      border: 1px solid #ccc;
-      padding: 10px;
-      border-radius: 8px;
-      margin-top: 8px;
-    } */
+    /* .calendar style dihapus karena tidak digunakan lagi */
     button {
       width: 100%;
-      padding: 12px;
-      margin-top: 20px;
-      font-size: 16px;
+      padding: 15px; /* REVISI: Tombol submit lebih besar */
+      margin-top: 30px; /* REVISI: Jarak tombol lebih jauh */
+      font-size: 18px; /* REVISI: Ukuran font tombol lebih besar */
       font-weight: bold;
       border: none;
       border-radius: 8px;
@@ -105,9 +101,11 @@
 
             <label>Request Libur (Klik kotak input):</label>
       <input type="text" id="libur" name="libur" placeholder="Pilih tanggal libur" readonly>
-            <label>Request Cuti (Klik kotak input):</label>
+
+      <label>Request Cuti (Klik kotak input):</label>
       <input type="text" id="cuti" name="cuti" placeholder="Pilih tanggal cuti" readonly>
-                  <label>Ekstrakulikuler yang diikuti:</label>
+
+            <label>Ekstrakulikuler yang diikuti:</label>
       <select id="ekstrakulikuler" name="ekstrakulikuler" required>
         <option value="">-- Pilih --</option>
         <option value="FUTSAL">FUTSAL</option>
@@ -133,20 +131,15 @@
     document.getElementById("nama").value  = params.get("nama")  || "";
     document.getElementById("group").value = params.get("group") || "";
 
-    // === INISIALISASI DATEPICKER BARU ===
-    // Fungsi inisialisasi Datepicker
+    // === INISIALISASI DATEPICKER ===
     function initDatepicker(selector) {
         const today = new Date();
         const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
         
         new AirDatepicker(selector, {
-            // Pilihan untuk memilih banyak tanggal
             multipleDates: true,
-            // Pemisah tanggal di kotak input
             multipleDatesSeparator: ', ', 
-            // Format tanggal yang dikirim ke Apps Script (d-m-yyyy)
             dateFormat: 'd-m-yyyy', 
-            // Atur bahasa ke Indonesia
             locale: {
                 days: ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'],
                 daysShort: ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'],
@@ -158,19 +151,14 @@
                 dateFormat: 'dd/MM/yyyy',
                 firstDay: 0
             },
-            // Mulai kalender pada bulan depan
             startDate: nextMonth,
-            // Batasi tampilan kalender hanya untuk bulan depan (opsional)
             minDate: nextMonth, 
             maxDate: new Date(nextMonth.getFullYear(), nextMonth.getMonth() + 1, 0),
-            // Atur posisi pop-up kalender
             position: 'bottom left',
-            // Pastikan input hanya bisa diisi dari kalender (read-only)
             readOnly: true
         });
     }
 
-    // Panggil inisialisasi untuk Libur dan Cuti
     initDatepicker('#libur');
     initDatepicker('#cuti');
 
