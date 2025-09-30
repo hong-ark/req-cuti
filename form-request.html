@@ -7,125 +7,125 @@
 
 <style>
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  margin: 0;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: linear-gradient(135deg, #6dd5ed, #2193b0);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #6dd5ed, #2193b0);
 }
 .container {
-  background: #fff;
-  padding: 40px 35px;
-  border-radius: 15px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-  width: 420px;
-  max-width: 95%;
-  animation: fadeIn 0.6s ease-in-out;
+  background: #fff;
+  padding: 40px 35px;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  width: 420px;
+  max-width: 95%;
+  animation: fadeIn 0.6s ease-in-out;
 }
 h2 {
-  text-align: center;
-  margin-bottom: 25px;
-  font-size: 22px;
-  font-weight: bold;
-  background: linear-gradient(90deg, #2193b0, #6dd5ed);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  text-align: center;
+  margin-bottom: 25px;
+  font-size: 22px;
+  font-weight: bold;
+  background: linear-gradient(90deg, #2193b0, #6dd5ed);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 label {
-  display: block;
-  margin-bottom: 8px;
-  text-align: left;
-  font-weight: bold;
-  color: #444;
+  display: block;
+  margin-bottom: 8px;
+  text-align: left;
+  font-weight: bold;
+  color: #444;
 }
 input, select {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 16px;
-  margin-bottom: 15px;
-  box-sizing: border-box;
-  transition: border 0.3s, box-shadow 0.3s;
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 16px;
+  margin-bottom: 15px;
+  box-sizing: border-box;
+  transition: border 0.3s, box-shadow 0.3s;
 }
 input:focus, select:focus {
-  border-color: #2193b0;
-  outline: none;
-  box-shadow: 0 0 5px rgba(33,147,176,0.5);
-  background-color: #fff;
+  border-color: #2193b0;
+  outline: none;
+  box-shadow: 0 0 5px rgba(33,147,176,0.5);
+  background-color: #fff;
 }
 input[readonly] {
-  background-color: #eee;
-  cursor: default;
+  background-color: #eee;
+  cursor: default;
 }
 button {
-  width: 100%;
-  padding: 14px;
-  margin-top: 20px;
-  font-size: 16px;
-  font-weight: bold;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s;
+  width: 100%;
+  padding: 14px;
+  margin-top: 20px;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
 }
 button.submit-btn {
-  background: #28a745;
-  color: #fff;
+  background: #28a745;
+  color: #fff;
 }
 button.submit-btn:hover { background: #1e7e34; }
 #status {
-  margin-top: 20px;
-  font-weight: bold;
-  color: #333;
-  min-height: 30px;
-  text-align: center;
+  margin-top: 20px;
+  font-weight: bold;
+  color: #333;
+  min-height: 30px;
+  text-align: center;
 }
 .success { color: #28a745; }
 .error { color: #dc3545; }
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 </style>
 </head>
 <body>
 
 <div class="container">
-  <h2>REQUEST LIBUR / CUTI JADWAL BULAN DEPAN</h2>
+  <h2>REQUEST LIBUR / CUTI JADWAL BULAN DEPAN</h2>
 
-  <form id="requestForm">
+  <form id="requestForm">
 
-    <label>NIK</label>
-    <input type="text" id="nik" name="nik" readonly>
+    <label>NIK</label>
+    <input type="text" id="nik" name="nik" readonly>
 
-    <label>Nama</label>
-    <input type="text" id="nama" name="nama" readonly>
+    <label>Nama</label>
+    <input type="text" id="nama" name="nama" readonly>
 
-    <label>Group</label>
-    <input type="text" id="group" name="group" readonly>
+    <label>Group</label>
+    <input type="text" id="group" name="group" readonly>
 
-    <label>Request Libur (Klik kotak input)</label>
-    <input type="text" id="libur" name="libur" placeholder="Pilih tanggal libur" readonly>
+    <label>Request Libur (Klik kotak input)</label>
+    <input type="text" id="libur" name="libur" placeholder="Pilih tanggal libur" readonly>
 
-    <label>Request Cuti (Klik kotak input)</label>
-    <input type="text" id="cuti" name="cuti" placeholder="Pilih tanggal cuti" readonly>
+    <label>Request Cuti (Klik kotak input)</label>
+    <input type="text" id="cuti" name="cuti" placeholder="Pilih tanggal cuti" readonly>
 
-    <label>Ekstrakulikuler yang diikuti</label>
-    <select id="ekstrakulikuler" name="ekstrakulikuler" required>
-      <option value="">-- Pilih --</option>
-      <option value="FUTSAL">FUTSAL</option>
-      <option value="BADMINTON">BADMINTON</option>
-      <option value="FUTSAL & BADMINTON">FUTSAL & BADMINTON</option>
-      <option value="TIDAK MENGIKUTI">TIDAK MENGIKUTI</option>
-    </select>
+    <label>Ekstrakulikuler yang diikuti</label>
+    <select id="ekstrakulikuler" name="ekstrakulikuler" required>
+      <option value="">-- Pilih --</option>
+      <option value="FUTSAL">FUTSAL</option>
+      <option value="BADMINTON">BADMINTON</option>
+      <option value="FUTSAL & BADMINTON">FUTSAL & BADMINTON</option>
+      <option value="TIDAK MENGIKUTI">TIDAK MENGIKUTI</option>
+    </select>
 
-    <button type="submit" class="submit-btn">KIRIM</button>
-    <div id="status"></div>
+    <button type="submit" class="submit-btn">KIRIM</button>
+    <div id="status"></div>
 
-  </form>
+  </form>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/air-datepicker@3.5.0/air-datepicker.min.js"></script>
@@ -141,59 +141,62 @@ document.getElementById("group").value = params.get("group") || "";
 
 // Inisialisasi datepicker
 function initDatepicker(selector) {
-  const today = new Date();
-  const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
-  new AirDatepicker(selector, {
-    multipleDates: true,
-    multipleDatesSeparator: ', ',
-    dateFormat: 'd-m-yyyy',
-    locale: {
-      days: ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'],
-      daysShort: ['Min','Sen','Sel','Rab','Kam','Jum','Sab'],
-      daysMin: ['Mg','Sn','Sl','Rb','Km','Jm','Sb'],
-      months: ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'],
-      monthsShort: ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'],
-      today: 'Hari Ini',
-      clear: 'Bersihkan',
-      dateFormat: 'dd/MM/yyyy',
-      firstDay: 0
-    },
-    startDate: nextMonth,
-    minDate: nextMonth,
-    maxDate: new Date(nextMonth.getFullYear(), nextMonth.getMonth() + 1, 0),
-    position: 'bottom left',
-    readOnly: true
-  });
+  const today = new Date();
+  const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+  new AirDatepicker(selector, {
+    multipleDates: true,
+    multipleDatesSeparator: ', ',
+    // === PERUBAHAN UTAMA DI SINI ===
+    // Mengubah format output HANYA menjadi Hari 'd'
+    dateFormat: 'd', 
+    // ===============================
+    locale: {
+      days: ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'],
+      daysShort: ['Min','Sen','Sel','Rab','Kam','Jum','Sab'],
+      daysMin: ['Mg','Sn','Sl','Rb','Km','Jm','Sb'],
+      months: ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'],
+      monthsShort: ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'],
+      today: 'Hari Ini',
+      clear: 'Bersihkan',
+      dateFormat: 'dd/MM/yyyy',
+      firstDay: 0
+    },
+    startDate: nextMonth,
+    minDate: nextMonth,
+    maxDate: new Date(nextMonth.getFullYear(), nextMonth.getMonth() + 1, 0),
+    position: 'bottom left',
+    readOnly: true
+  });
 }
 initDatepicker('#libur');
 initDatepicker('#cuti');
 
 // Submit form
 document.getElementById("requestForm").addEventListener("submit", function(e){
-  e.preventDefault();
-  const status = document.getElementById("status");
-  status.textContent = "⏳ Mengirim data...";
-  status.className = "";
+  e.preventDefault();
+  const status = document.getElementById("status");
+  status.textContent = "⏳ Mengirim data...";
+  status.className = "";
 
-  const formData = new FormData(this);
+  const formData = new FormData(this);
 
-  fetch(scriptURL, { method: "POST", body: formData })
-    .then(res => res.text())
-    .then(resText => {
-      if(resText.trim() === "Sukses") {
-        status.textContent = "✅ Data berhasil dikirim!";
-        status.className = "success";
-        this.reset();
-      } else {
-        const errorMsg = resText.includes("Gagal") ? resText : "Gagal mengirim data! (Respons Apps Script tidak valid)";
-        status.textContent = `❌ ${errorMsg.substring(0, 100)}`;
-        status.className = "error";
-      }
-    })
-    .catch(err => {
-      status.textContent = "❌ Gagal mengirim data! (Cek koneksi internet atau URL Web App)";
-      status.className = "error";
-    });
+  fetch(scriptURL, { method: "POST", body: formData })
+    .then(res => res.text())
+    .then(resText => {
+      if(resText.trim() === "Sukses") {
+        status.textContent = "✅ Data berhasil dikirim!";
+        status.className = "success";
+        this.reset();
+      } else {
+        const errorMsg = resText.includes("Gagal") ? resText : "Gagal mengirim data! (Respons Apps Script tidak valid)";
+        status.textContent = `❌ ${errorMsg.substring(0, 100)}`;
+        status.className = "error";
+      }
+    })
+    .catch(err => {
+      status.textContent = "❌ Gagal mengirim data! (Cek koneksi internet atau URL Web App)";
+      status.className = "error";
+    });
 });
 </script>
 </body>
