@@ -169,7 +169,7 @@ const MAX_KUOTA_HARIAN = 2; // Harus sama dengan MAX_PER_DAY di Apps Script
 
 // POSISI PERBAIKAN: Deklarasi variabel untuk menyimpan objek datepicker (global)
 let datepickerLibur = null;
-let datepickerCuti = null; 
+let datepickerCuti = null; 
 
 // Array nama bulan untuk Header (POIN 3)
 const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", 
@@ -242,13 +242,13 @@ function initDatepicker(selector, disabledDays) {
         position: 'bottom left',
         readOnly: true
     });
-    
-    // Menyimpan objek datepicker yang baru dibuat
-    if (selector === '#libur') {
-        datepickerLibur = dp;
-    } else if (selector === '#cuti') {
-        datepickerCuti = dp;
-    }
+    
+    // Menyimpan objek datepicker yang baru dibuat
+    if (selector === '#libur') {
+        datepickerLibur = dp;
+    } else if (selector === '#cuti') {
+        datepickerCuti = dp;
+    }
 }
 
 // Inisialisasi saat load
@@ -259,14 +259,14 @@ async function initializeApp() {
 }
 initializeApp();
 
-// Submit form (FIXED: Mengambil nilai Libur/Cuti secara manual menggunakan .formattedDate)
+// Submit form (REVISI FINAL DENGAN FALLBACK YANG KUAT)
 document.getElementById("requestForm").addEventListener("submit", function(e){
   e.preventDefault();
   const status = document.getElementById("status");
   status.textContent = "⏳ Mengirim data...";
   status.className = "";
 
-  // Mengambil data secara manual untuk memastikan format tanggal yang benar
+  // Mengambil data secara manual
   const formData = new FormData();
 
   formData.append('nik', document.getElementById("nik").value);
@@ -275,10 +275,25 @@ document.getElementById("requestForm").addEventListener("submit", function(e){
   formData.append('requestLainnya', document.getElementById("requestLainnya").value);
   formData.append('ekstrakulikuler', document.getElementById("ekstrakulikuler").value);
 
-  // BARIS KRITIS: Ambil nilai Libur/Cuti menggunakan properti .formattedDate
-  const liburValue = datepickerLibur ? datepickerLibur.formattedDate : "";
-  const cutiValue = datepickerCuti ? datepickerCuti.formattedDate : "";
+  // LOGIKA PENGAMBILAN NILAI LIBUR (Dengan Fallback ke Nilai Input)
+  let liburValue = "";
+  if (datepickerLibur && datepickerLibur.formattedDate) {
+    liburValue = datepickerLibur.formattedDate;
+  } else {
+      // Fallback: Ambil nilai langsung dari input field jika datepicker.formattedDate gagal/kosong
+      liburValue = document.getElementById("libur").value;
+  }
+    
+  // LOGIKA PENGAMBILAN NILAI CUTI (Dengan Fallback ke Nilai Input)
+  let cutiValue = "";
+  if (datepickerCuti && datepickerCuti.formattedDate) {
+    cutiValue = datepickerCuti.formattedDate;
+  } else {
+      // Fallback: Ambil nilai langsung dari input field jika datepicker.formattedDate gagal/kosong
+      cutiValue = document.getElementById("cuti").value;
+  }
 
+  // Append nilai yang sudah diperiksa (pastikan string kosong jika tidak ada pilihan)
   formData.append('libur', liburValue || "");
   formData.append('cuti', cutiValue || "");
 
