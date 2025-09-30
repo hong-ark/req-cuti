@@ -17,6 +17,7 @@ body {
   background: linear-gradient(135deg, #74ebd5, #ACB6E5);
   padding: 20px;
 }
+
 .container {
   background: #fff;
   padding: 35px 30px 40px;
@@ -27,6 +28,7 @@ body {
   animation: fadeIn 0.6s ease-in-out;
   position: relative;
 }
+
 .container::before {
   content: "";
   position: absolute;
@@ -38,6 +40,7 @@ body {
   transform: rotate(25deg);
   pointer-events: none;
 }
+
 h2 {
   text-align: center;
   margin-bottom: 25px;
@@ -47,7 +50,12 @@ h2 {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
+
 label {
   display: block;
   margin-bottom: 6px;
@@ -55,6 +63,7 @@ label {
   font-weight: 600;
   color: #444;
 }
+
 input, select {
   width: 100%;
   padding: 12px 14px;
@@ -66,16 +75,19 @@ input, select {
   transition: all 0.3s ease;
   background-color: #fdfdfd;
 }
+
 input:focus, select:focus {
   border-color: #4e54c8;
   box-shadow: 0 0 8px rgba(78,84,200,0.3);
   background-color: #fff;
   outline: none;
 }
+
 input[readonly] {
   background-color: #f3f3f3;
   color: #555;
 }
+
 button[type="submit"] {
   width: 100%;
   padding: 14px;
@@ -90,10 +102,12 @@ button[type="submit"] {
   color: #fff;
   box-shadow: 0 6px 15px rgba(17,153,142,0.35);
 }
+
 button[type="submit"]:hover {
   transform: translateY(-2px);
   box-shadow: 0 10px 20px rgba(17,153,142,0.45);
 }
+
 #status {
   margin-top: 18px;
   text-align: center;
@@ -103,8 +117,10 @@ button[type="submit"]:hover {
   padding: 6px;
   border-radius: 8px;
 }
+
 .success { color: #155724; background: #d4edda; border: 1px solid #c3e6cb; }
 .error   { color: #721c24; background: #f8d7da; border: 1px solid #f5c6cb; }
+
 #footer {
   font-size: 11px;
   color: #666;
@@ -112,6 +128,7 @@ button[type="submit"]:hover {
   margin-top: 20px;
   line-height: 1.4;
 }
+
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(-15px); }
   to { opacity: 1; transform: translateY(0); }
@@ -133,16 +150,16 @@ button[type="submit"]:hover {
     <label>Group</label>
     <input type="text" id="group" name="group" readonly>
 
-    <label>Request Libur</label>
+    <label>Request Libur (Klik kotak input)</label>
     <input type="text" id="libur" name="libur" placeholder="Pilih tanggal libur" readonly>
 
-    <label>Request Cuti</label>
+    <label>Request Cuti (Klik kotak input)</label>
     <input type="text" id="cuti" name="cuti" placeholder="Pilih tanggal cuti" readonly>
 
     <label>Request Lainnya</label>
     <input type="text" id="requestLainnya" name="requestLainnya" placeholder="Jawaban singkat, maks 80 karakter" maxlength="80">
 
-    <label>Ekstrakulikuler</label>
+    <label>Ekstrakulikuler yang diikuti</label>
     <select id="ekstrakulikuler" name="ekstrakulikuler" required>
       <option value="">-- Pilih --</option>
       <option value="FUTSAL">FUTSAL</option>
@@ -163,16 +180,13 @@ button[type="submit"]:hover {
 
 <script src="https://cdn.jsdelivr.net/npm/air-datepicker@3.5.0/air-datepicker.min.js"></script>
 <script>
-const scriptURL = "PASTE_WEB_APP_URL"; 
+/* === KONFIGURASI SCRIPT === */
+const scriptURL = "https://script.google.com/macros/s/AKfycbyrVWiH3HUNiNwdWR-AshygBO1yHv4ltdNeUgkcJS5ZyrBJsILxjRFjTd-YzXNTSUtF/exec";
 const quotaURL = scriptURL;
-const MAX_KUOTA_HARIAN = 21;
-
-const LIMIT_DAY = 16;
-const LIMIT_HOUR = 23;
-const LIMIT_MINUTE = 59;
+const MAX_KUOTA_HARIAN = 21; // ✅ revisi: kuota maksimal per hari
 
 let datepickerLibur = null;
-let datepickerCuti = null; 
+let datepickerCuti = null;
 
 const monthNames = ["Januari","Februari","Maret","April","Mei","Juni",
                     "Juli","Agustus","September","Oktober","November","Desember"];
@@ -207,16 +221,15 @@ async function fetchFullDays() {
 function initDatepicker(selector, disabledDays) {
   const today = new Date();
   const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+  const disabledDates = disabledDays.map(day => new Date(nextMonth.getFullYear(), nextMonth.getMonth(), parseInt(day)));
 
   if (document.querySelector(selector).datepicker) document.querySelector(selector).datepicker.destroy();
 
   const dp = new AirDatepicker(selector, {
     multipleDates: true,
     multipleDatesSeparator: ', ',
-    dateFormat: 'd-MM', // format D-MM
-    disabledDates: disabledDays.map(day => {
-      return new Date(nextMonth.getFullYear(), nextMonth.getMonth(), parseInt(day));
-    }),
+    dateFormat: 'd-MM', // tampilkan 1-11, 2-11
+    disabledDates: disabledDates,
     locale: {
       days: ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'],
       daysShort: ['Min','Sen','Sel','Rab','Kam','Jum','Sab'],
@@ -246,22 +259,9 @@ async function initializeApp() {
 }
 initializeApp();
 
-function checkDeadline() {
-  const now = new Date();
-  const deadline = new Date(now.getFullYear(), now.getMonth(), LIMIT_DAY, LIMIT_HOUR, LIMIT_MINUTE, 59);
-  return now <= deadline;
-}
-
 document.getElementById("requestForm").addEventListener("submit", function(e){
   e.preventDefault();
   const status = document.getElementById("status");
-
-  if (!checkDeadline()) {
-    status.textContent = `❌ Form ditutup (batas input ${LIMIT_DAY} ${monthNames[new Date().getMonth()]} jam ${LIMIT_HOUR}:${LIMIT_MINUTE}).`;
-    status.className = "error";
-    return;
-  }
-
   status.textContent = "⏳ Mengirim data...";
   status.className = "";
 
@@ -277,15 +277,17 @@ document.getElementById("requestForm").addEventListener("submit", function(e){
   fetch(scriptURL, { method: "POST", body: formData })
     .then(res=>res.text())
     .then(resText=>{
-      if (resText.includes("Gagal: Kuota untuk tanggal")) {
-        status.textContent = "❌ " + resText;
+      if (resText.includes("Gagal: Kuota untuk tanggal") && resText.includes("sudah penuh")) {
+        const match = resText.match(/tanggal\s+([\d-]+)\s+sudah/);
+        const blockedDay = match ? match[1] : "xx";
+        status.textContent = `❌ Kuota penuh tanggal ${blockedDay} (maks ${MAX_KUOTA_HARIAN}).`;
         status.className = "error";
       } else if(resText.trim().startsWith("Sukses")) {
         status.textContent = "✅ "+resText.trim();
         status.className = "success";
         setTimeout(initializeApp, 500);
       } else {
-        status.textContent = "❌ "+resText;
+        status.textContent = "❌ "+(resText.includes("Gagal") ? resText : "Gagal mengirim data!");
         status.className = "error";
       }
     })
