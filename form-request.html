@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/air-datepicker@3.5.0/air-datepicker.min.css">
 
 <style>
-/* --- STYLE CSS MODERN --- */
+/* === STYLE CLEAN MODERN === */
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   margin: 0;
@@ -41,71 +41,53 @@ body {
   pointer-events: none;
 }
 
-.header {
+h2 {
   text-align: center;
   margin-bottom: 25px;
-}
-.header img {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  object-fit: cover;
-  margin-bottom: 10px;
-}
-.header h2 {
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 700;
   background: linear-gradient(90deg, #4e54c8, #8f94fb);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  letter-spacing: 0.5px;
+  letter-spacing: 1px;
 }
 
-.form-group {
-  margin-bottom: 16px;
-  position: relative;
-}
-.form-group label {
+label {
   display: block;
   margin-bottom: 6px;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   color: #444;
 }
-.form-group input,
-.form-group select {
+
+input, select {
   width: 100%;
-  padding: 12px 14px 12px 40px;
+  padding: 12px 14px;
   border: 1px solid #ddd;
   border-radius: 10px;
   font-size: 14px;
+  margin-bottom: 16px;
   box-sizing: border-box;
   transition: all 0.3s ease;
   background-color: #fdfdfd;
 }
-.form-group input:focus,
-.form-group select:focus {
+
+input:focus, select:focus {
   border-color: #4e54c8;
   box-shadow: 0 0 8px rgba(78,84,200,0.3);
   background-color: #fff;
   outline: none;
 }
-.form-group input[readonly] {
+
+input[readonly] {
   background-color: #f3f3f3;
   color: #555;
-}
-.form-group i {
-  position: absolute;
-  top: 38px;
-  left: 12px;
-  color: #888;
-  font-size: 15px;
 }
 
 button[type="submit"] {
   width: 100%;
   padding: 14px;
-  margin-top: 8px;
+  margin-top: 5px;
   font-size: 15px;
   font-weight: 600;
   border: none;
@@ -116,6 +98,7 @@ button[type="submit"] {
   color: #fff;
   box-shadow: 0 6px 15px rgba(17,153,142,0.35);
 }
+
 button[type="submit"]:hover {
   transform: translateY(-2px);
   box-shadow: 0 10px 20px rgba(17,153,142,0.45);
@@ -130,6 +113,7 @@ button[type="submit"]:hover {
   padding: 6px;
   border-radius: 8px;
 }
+
 .success { color: #155724; background: #d4edda; border: 1px solid #c3e6cb; }
 .error   { color: #721c24; background: #f8d7da; border: 1px solid #f5c6cb; }
 
@@ -146,67 +130,41 @@ button[type="submit"]:hover {
   to { opacity: 1; transform: translateY(0); }
 }
 </style>
-<!-- Tambahkan ikon dari fontawesome -->
-<script src="https://kit.fontawesome.com/2d3e32b9b4.js" crossorigin="anonymous"></script>
 </head>
 <body>
 
 <div class="container">
-  <div class="header">
-    <img src="https://via.placeholder.com/60" alt="Logo"> <!-- Ganti dengan logo asli -->
-    <h2 id="header-text">REQUEST LIBUR / CUTI JADWAL BULAN DEPAN</h2>
-  </div>
+  <h2 id="header-text">REQUEST LIBUR / CUTI JADWAL BULAN DEPAN</h2>
 
   <form id="requestForm">
-    <div class="form-group">
-      <label>NIK</label>
-      <i class="fa-solid fa-id-card"></i>
-      <input type="text" id="nik" name="nik" readonly>
-    </div>
+    <label>NIK</label>
+    <input type="text" id="nik" name="nik" readonly>
 
-    <div class="form-group">
-      <label>Nama</label>
-      <i class="fa-solid fa-user"></i>
-      <input type="text" id="nama" name="nama" readonly>
-    </div>
+    <label>Nama</label>
+    <input type="text" id="nama" name="nama" readonly>
 
-    <div class="form-group">
-      <label>Group</label>
-      <i class="fa-solid fa-people-group"></i>
-      <input type="text" id="group" name="group" readonly>
-    </div>
+    <label>Group</label>
+    <input type="text" id="group" name="group" readonly>
 
-    <div class="form-group">
-      <label>Request Libur (Klik kotak input)</label>
-      <i class="fa-solid fa-calendar-day"></i>
-      <input type="text" id="libur" name="libur" placeholder="Pilih tanggal libur" readonly>
-    </div>
+    <label>Request Libur (Klik kotak input)</label>
+    <input type="text" id="libur" name="libur" placeholder="Pilih tanggal libur" readonly>
 
-    <div class="form-group">
-      <label>Request Cuti (Klik kotak input)</label>
-      <i class="fa-solid fa-plane-departure"></i>
-      <input type="text" id="cuti" name="cuti" placeholder="Pilih tanggal cuti" readonly>
-    </div>
+    <label>Request Cuti (Klik kotak input)</label>
+    <input type="text" id="cuti" name="cuti" placeholder="Pilih tanggal cuti" readonly>
 
-    <div class="form-group">
-      <label>Request Lainnya</label>
-      <i class="fa-solid fa-pen"></i>
-      <input type="text" id="requestLainnya" name="requestLainnya" placeholder="Jawaban singkat, maks 80 karakter" maxlength="80">
-    </div>
+    <label>Request Lainnya</label>
+    <input type="text" id="requestLainnya" name="requestLainnya" placeholder="Jawaban singkat, maks 80 karakter" maxlength="80">
 
-    <div class="form-group">
-      <label>Ekstrakulikuler yang diikuti</label>
-      <i class="fa-solid fa-futbol"></i>
-      <select id="ekstrakulikuler" name="ekstrakulikuler" required>
-        <option value="">-- Pilih --</option>
-        <option value="FUTSAL">FUTSAL</option>
-        <option value="BADMINTON">BADMINTON</option>
-        <option value="FUTSAL & BADMINTON">FUTSAL & BADMINTON</option>
-        <option value="TIDAK MENGIKUTI">TIDAK MENGIKUTI</option>
-      </select>
-    </div>
+    <label>Ekstrakulikuler yang diikuti</label>
+    <select id="ekstrakulikuler" name="ekstrakulikuler" required>
+      <option value="">-- Pilih --</option>
+      <option value="FUTSAL">FUTSAL</option>
+      <option value="BADMINTON">BADMINTON</option>
+      <option value="FUTSAL & BADMINTON">FUTSAL & BADMINTON</option>
+      <option value="TIDAK MENGIKUTI">TIDAK MENGIKUTI</option>
+    </select>
 
-    <button type="submit">🚀 KIRIM REQUEST</button>
+    <button type="submit">KIRIM REQUEST</button>
     <div id="status"></div>
 
     <div id="footer">
@@ -216,10 +174,124 @@ button[type="submit"]:hover {
   </form>
 </div>
 
-<!-- script JS tetap sama, tidak diubah -->
 <script src="https://cdn.jsdelivr.net/npm/air-datepicker@3.5.0/air-datepicker.min.js"></script>
 <script>
-/* === Script kamu tetap sama, hanya dipindahkan === */
+/* === SCRIPT GAS === */
+const scriptURL = "https://script.google.com/macros/s/AKfycbyrVWiH3HUNiNwdWR-AshygBO1yHv4ltdNeUgkcJS5ZyrBJsILxjRFjTd-YzXNTSUtF/exec";
+const quotaURL = scriptURL;
+const MAX_KUOTA_HARIAN = 2;
+
+let datepickerLibur = null;
+let datepickerCuti = null;
+
+const monthNames = ["Januari","Februari","Maret","April","Mei","Juni",
+                    "Juli","Agustus","September","Oktober","November","Desember"];
+
+(function updateHeader() {
+  const today = new Date();
+  const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+  const nextMonthName = monthNames[nextMonth.getMonth()];
+  const headerText = `REQUEST LIBUR / CUTI BULAN ${nextMonthName.toUpperCase()}`;
+  document.getElementById('header-text').textContent = headerText;
+  document.getElementById('page-title').textContent = headerText;
+})();
+
+const params = new URLSearchParams(window.location.search);
+document.getElementById("nik").value = params.get("nik") || "";
+document.getElementById("nama").value = params.get("nama") || "";
+document.getElementById("group").value = params.get("group") || "";
+
+let fullDaysList = [];
+
+async function fetchFullDays() {
+  try {
+    const response = await fetch(quotaURL);
+    if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
+    return await response.json();
+  } catch(e) {
+    console.error("Gagal mengambil kuota:", e);
+    return [];
+  }
+}
+
+function initDatepicker(selector, disabledDays) {
+  const today = new Date();
+  const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+  const disabledDates = disabledDays.map(day => new Date(nextMonth.getFullYear(), nextMonth.getMonth(), parseInt(day)));
+
+  if (document.querySelector(selector).datepicker) document.querySelector(selector).datepicker.destroy();
+
+  const dp = new AirDatepicker(selector, {
+    multipleDates: true,
+    multipleDatesSeparator: ', ',
+    dateFormat: 'd',
+    disabledDates: disabledDates,
+    locale: {
+      days: ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'],
+      daysShort: ['Min','Sen','Sel','Rab','Kam','Jum','Sab'],
+      daysMin: ['Mg','Sn','Sl','Rb','Km','Jm','Sb'],
+      months: monthNames,
+      monthsShort: monthNames.map(m => m.substring(0, 3)),
+      today: 'Hari Ini',
+      clear: 'Bersihkan',
+      dateFormat: 'dd/MM/yyyy',
+      firstDay: 0
+    },
+    startDate: nextMonth,
+    minDate: nextMonth,
+    maxDate: new Date(nextMonth.getFullYear(), nextMonth.getMonth() + 1, 0),
+    position: 'bottom left',
+    readOnly: true
+  });
+
+  if (selector === '#libur') datepickerLibur = dp;
+  else if (selector === '#cuti') datepickerCuti = dp;
+}
+
+async function initializeApp() {
+  fullDaysList = await fetchFullDays();
+  initDatepicker('#libur', fullDaysList);
+  initDatepicker('#cuti', fullDaysList);
+}
+initializeApp();
+
+document.getElementById("requestForm").addEventListener("submit", function(e){
+  e.preventDefault();
+  const status = document.getElementById("status");
+  status.textContent = "⏳ Mengirim data...";
+  status.className = "";
+
+  const formData = new FormData();
+  formData.append('nik', document.getElementById("nik").value);
+  formData.append('nama', document.getElementById("nama").value);
+  formData.append('group', document.getElementById("group").value);
+  formData.append('requestLainnya', document.getElementById("requestLainnya").value);
+  formData.append('ekstrakulikuler', document.getElementById("ekstrakulikuler").value);
+  formData.append('libur', document.getElementById("libur").value || "");
+  formData.append('cuti', document.getElementById("cuti").value || "");
+
+  fetch(scriptURL, { method: "POST", body: formData })
+    .then(res=>res.text())
+    .then(resText=>{
+      if (resText.includes("Gagal: Kuota untuk tanggal") && resText.includes("sudah penuh")) {
+        const match = resText.match(/tanggal\s+(\d+)\s+sudah/);
+        const blockedDay = match ? match[1] : "xx";
+        status.textContent = `❌ Kuota penuh tanggal ${blockedDay} (maks ${MAX_KUOTA_HARIAN}).`;
+        status.className = "error";
+      } else if(resText.trim().startsWith("Sukses")) {
+        status.textContent = "✅ "+resText.trim();
+        status.className = "success";
+        setTimeout(initializeApp, 500);
+      } else {
+        status.textContent = "❌ "+(resText.includes("Gagal") ? resText : "Gagal mengirim data!");
+        status.className = "error";
+      }
+    })
+    .catch(()=>{
+      status.textContent = "❌ Gagal mengirim data! Cek koneksi atau URL Web App";
+      status.className = "error";
+    });
+});
 </script>
 </body>
 </html>
