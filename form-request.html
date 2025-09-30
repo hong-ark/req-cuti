@@ -10,40 +10,43 @@
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       margin: 0;
-      height: 100vh; /* Pastikan tinggi penuh untuk centering vertikal */
+      height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      /* Mengadopsi gradien dari req-cuti.html untuk konsistensi */
+      /* Gradien yang cerah dan modern */
       background: linear-gradient(135deg, #6dd5ed, #2193b0); 
-      padding: 40px 0; /* Memberi ruang jika konten melebihi tinggi layar */
+      padding: 40px 0;
+      /* Memastikan form tidak terpotong pada layar yang lebih pendek */
+      overflow-y: auto; 
     }
     .container {
       background: #fff;
-      /* Padding dilebarkan agar lebih lega */
+      /* Padding yang nyaman */
       padding: 40px 50px; 
       border-radius: 15px;
-      /* Box shadow ditingkatkan untuk efek pop-up yang lebih baik */
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3); 
-      /* Lebar yang lebih ideal untuk form yang lebih panjang */
-      width: 550px; 
+      /* Shadow yang dalam dan profesional */
+      box-shadow: 0 15px 40px rgba(0,0,0,0.4); 
+      /* Lebar yang ideal untuk tampilan form potret */
+      width: 500px; 
       max-width: 90%; 
       animation: fadeIn 0.6s ease-in-out;
     }
     h2 {
       text-align: center;
-      /* Jarak dan ukuran yang konsisten dengan req-cuti.html */
       margin-bottom: 30px; 
-      font-size: 24px; 
+      font-size: 26px; /* Judul sedikit lebih besar */
       font-weight: bold;
+      /* Gradien warna pada teks */
       background: linear-gradient(90deg, #2193b0, #6dd5ed);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+      letter-spacing: 0.5px;
     }
     label {
       font-weight: bold;
       display: block;
-      margin-top: 20px; /* Jarak antar field lebih lega */
+      margin-top: 20px; 
       margin-bottom: 8px;
       color: #333;
       font-size: 16px;
@@ -51,44 +54,53 @@
     input, select {
       width: 100%;
       padding: 12px;
-      border: 1px solid #ccc;
+      border: 1px solid #ddd; /* Border lebih soft */
       border-radius: 8px;
       font-size: 16px; 
       box-sizing: border-box;
-      transition: border 0.3s;
+      transition: border 0.3s, box-shadow 0.3s;
+      background-color: #f9f9f9; /* Background input sedikit abu-abu */
     }
     input:focus, select:focus {
-      /* Efek focus konsisten dengan req-cuti.html */
       border-color: #2193b0;
       outline: none;
-      box-shadow: 0 0 5px rgba(33, 147, 176, 0.5);
+      /* Efek glow yang halus saat focus */
+      box-shadow: 0 0 8px rgba(33, 147, 176, 0.4);
     }
-    /* Hapus style .calendar */
+    /* Styling untuk input yang readonly agar terlihat berbeda */
+    input[readonly] {
+      background-color: #eee;
+      cursor: default;
+    }
     button[type="submit"] {
       width: 100%;
-      padding: 15px; /* Tombol submit lebih besar */
-      margin-top: 35px; /* Jarak tombol submit lebih jauh */
+      padding: 15px; 
+      margin-top: 40px; /* Jarak tombol submit lebih jauh */
       font-size: 18px; 
       font-weight: bold;
       border: none;
       border-radius: 8px;
       cursor: pointer;
       transition: all 0.3s;
-      background: #2193b0;
+      /* Warna tombol yang kontras */
+      background: #2193b0; 
       color: #fff;
     }
     button[type="submit"]:hover {
       background: #18657a;
+      box-shadow: 0 4px 15px rgba(33, 147, 176, 0.5);
     }
     .success {
-      color: green;
-      margin-top: 15px;
+      color: #28a745; /* Hijau sukses yang standar */
+      margin-top: 20px;
       text-align: center;
+      font-size: 16px;
     }
     .error {
-      color: red;
-      margin-top: 15px;
+      color: #dc3545; /* Merah error yang standar */
+      margin-top: 20px;
       text-align: center;
+      font-size: 16px;
     }
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(-20px); }
