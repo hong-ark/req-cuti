@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>REQUEST LIBUR / CUTI JADWAL BULAN NOVEMBER 2025</title>
+<title>REQUEST LIBUR / CUTI JADWAL BULAN DEPAN</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/air-datepicker@3.5.0/air-datepicker.min.css">
 
 <style>
@@ -18,8 +18,8 @@ body {
 .container {
   background: #fff;
   padding: 40px 35px;
-  border-radius: 20px;
-  box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+  border-radius: 25px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.25);
   width: 450px;
   max-width: 95%;
   animation: fadeIn 0.6s ease-in-out;
@@ -40,7 +40,7 @@ body {
 h2 {
   text-align: center;
   margin-bottom: 30px;
-  font-size: 26px;
+  font-size: 28px;
   font-weight: bold;
   background: linear-gradient(90deg, #2193b0, #6dd5ed);
   -webkit-background-clip: text;
@@ -58,7 +58,7 @@ input, select {
   width: 100%;
   padding: 12px 15px;
   border: 1px solid #ddd;
-  border-radius: 10px;
+  border-radius: 12px;
   font-size: 15px;
   margin-bottom: 15px;
   box-sizing: border-box;
@@ -68,7 +68,7 @@ input, select {
 input:focus, select:focus {
   border-color: #2193b0;
   outline: none;
-  box-shadow: 0 0 8px rgba(33,147,176,0.4);
+  box-shadow: 0 0 10px rgba(33,147,176,0.4);
   background-color: #fff;
 }
 input[readonly] {
@@ -77,21 +77,21 @@ input[readonly] {
 }
 button[type="submit"] {
   width: 100%;
-  padding: 15px;
+  padding: 16px;
   margin-top: 25px;
   font-size: 17px;
   font-weight: bold;
   border: none;
-  border-radius: 10px;
+  border-radius: 12px;
   cursor: pointer;
   transition: all 0.3s ease;
   background: linear-gradient(90deg, #28a745, #3ad971);
   color: #fff;
-  box-shadow: 0 5px 15px rgba(40,167,69,0.4);
+  box-shadow: 0 5px 18px rgba(40,167,69,0.4);
 }
 button[type="submit"]:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(40,167,69,0.5);
+  box-shadow: 0 8px 25px rgba(40,167,69,0.5);
 }
 #status {
   margin-top: 20px;
@@ -148,71 +148,67 @@ button[type="submit"]:hover {
 
 <script src="https://cdn.jsdelivr.net/npm/air-datepicker@3.5.0/air-datepicker.min.js"></script>
 <script>
-const scriptURL = "https://script.google.com/macros/s/AKfycbytbYQmZcRybIKwmzJETyJbid4yVO3fB26a1kSZR4wu87iir-qri0eYOh6KkyYpsydF/exec";
+// URL Apps Script untuk submit form
+const scriptURL = "https://script.google.com/macros/s/AKfycbzTJM3oEXKS80Zs4ldw9XU2mA5zmHWxy2NY97ztSbG-cz483uZqBNqhW2NLPwD7pjQ-/exec";
 
-// Ambil query params dari halaman sebelumnya
+// Ambil query params NIK/Nama/Group
 const params = new URLSearchParams(window.location.search);
 document.getElementById("nik").value = params.get("nik") || "";
 document.getElementById("nama").value = params.get("nama") || "";
 document.getElementById("group").value = params.get("group") || "";
 
-let fullDaysList = [];
-
-async function fetchFullDays() {
-    try {
-        const response = await fetch(scriptURL);
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error("Gagal mengambil data kuota:", error);
-        return [];
+// Inisialisasi datepicker
+function initDatepicker(selector){
+  const today = new Date();
+  const nextMonth = new Date(today.getFullYear(), today.getMonth()+1, 1);
+  new AirDatepicker(selector, {
+    multipleDates: true,
+    multipleDatesSeparator: ', ',
+    dateFormat: 'd',
+    startDate: nextMonth,
+    minDate: nextMonth,
+    maxDate: new Date(nextMonth.getFullYear(), nextMonth.getMonth()+1,0),
+    position: 'bottom left',
+    readOnly: true,
+    locale: {
+      days: ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'],
+      daysShort: ['Min','Sen','Sel','Rab','Kam','Jum','Sab'],
+      daysMin: ['Mg','Sn','Sl','Rb','Km','Jm','Sb'],
+      months: ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'],
+      monthsShort: ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'],
+      today: 'Hari Ini',
+      clear: 'Bersihkan',
+      dateFormat: 'dd/MM/yyyy',
+      firstDay: 0
     }
+  });
 }
+initDatepicker('#libur');
+initDatepicker('#cuti');
 
-function initDatepicker(selector, disabledDays) {
-    const today = new Date();
-    const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
-    const disabledDates = disabledDays.map(day => new Date(nextMonth.getFullYear(), nextMonth.getMonth(), parseInt(day)));
-    if (document.querySelector(selector).datepicker) document.querySelector(selector).datepicker.destroy();
-    new AirDatepicker(selector, {
-        multipleDates: true,
-        multipleDatesSeparator: ', ',
-        dateFormat: 'd',
-        disabledDates: disabledDates,
-        locale: {
-            days: ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'],
-            daysShort: ['Min','Sen','Sel','Rab','Kam','Jum','Sab'],
-            daysMin: ['Mg','Sn','Sl','Rb','Km','Jm','Sb'],
-            months: ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'],
-            monthsShort: ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'],
-            today: 'Hari Ini',
-            clear: 'Bersihkan',
-            dateFormat: 'dd/MM/yyyy',
-            firstDay: 0
-        },
-        startDate: nextMonth,
-        minDate: nextMonth,
-        maxDate: new Date(nextMonth.getFullYear(), nextMonth.getMonth() + 1, 0),
-        position: 'bottom left',
-        readOnly: true
-    });
-}
-
-async function initializeApp() {
-    fullDaysList = await fetchFullDays();
-    initDatepicker('#libur', fullDaysList);
-    initDatepicker('#cuti', fullDaysList);
-}
-
-initializeApp();
-
+// Submit form
 document.getElementById("requestForm").addEventListener("submit", function(e){
   e.preventDefault();
   const status = document.getElementById("status");
   status.textContent = "⏳ Mengirim data...";
   status.className = "";
 
-  const formData = new FormData(this);
-
-  fetch(
+  fetch(scriptURL, { method:"POST", body:new FormData(this) })
+    .then(res=>res.text())
+    .then(resText=>{
+      if(resText.trim().startsWith("Sukses")){
+        status.textContent = "✅ "+resText.trim();
+        status.className = "success";
+      } else {
+        status.textContent = "❌ "+resText.trim();
+        status.className = "error";
+      }
+    })
+    .catch(err=>{
+      status.textContent = "❌ Gagal mengirim data! Cek koneksi atau URL Web App";
+      status.className = "error";
+    });
+});
+</script>
+</body>
+</html>
