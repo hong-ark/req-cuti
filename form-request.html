@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <title>REQUEST LIBUR / CUTI JADWAL BULAN DEPAN</title>
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/air-datepicker@3.5.0/air-datepicker.min.css">
+  
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -48,12 +51,13 @@
       font-size: 15px;
       box-sizing: border-box;
     }
-    .calendar {
+    /* Hapus style .calendar karena tidak digunakan lagi untuk tombol harian */
+    /* .calendar {
       border: 1px solid #ccc;
       padding: 10px;
       border-radius: 8px;
       margin-top: 8px;
-    }
+    } */
     button {
       width: 100%;
       padding: 12px;
@@ -99,15 +103,11 @@
       <label>Group</label>
       <input type="text" id="group" name="group" readonly>
 
-            <label>Request Libur:</label>
+            <label>Request Libur (Klik kotak input):</label>
       <input type="text" id="libur" name="libur" placeholder="Pilih tanggal libur" readonly>
-      <div id="calendar-libur" class="calendar"></div>
-
-      <label>Request Cuti:</label>
+            <label>Request Cuti (Klik kotak input):</label>
       <input type="text" id="cuti" name="cuti" placeholder="Pilih tanggal cuti" readonly>
-      <div id="calendar-cuti" class="calendar"></div>
-
-            <label>Ekstrakulikuler yang diikuti:</label>
+                  <label>Ekstrakulikuler yang diikuti:</label>
       <select id="ekstrakulikuler" name="ekstrakulikuler" required>
         <option value="">-- Pilih --</option>
         <option value="FUTSAL">FUTSAL</option>
@@ -121,88 +121,78 @@
     </form>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/air-datepicker@3.5.0/air-datepicker.min.js"></script>
+
   <script>
-    // === URL WebApp kamu (SUDAH DIREVISI) ===
+    // Pastikan URL Apps Script ini sudah benar
     const scriptURL = "https://script.google.com/macros/s/AKfycbwtzbk4MV7Oo2oQ50YNL8bOXf2V_NMvq59jr0GQyptm0dlNXTeQ7AnWTnDE330Jy6cz/exec";
 
-    // Ambil query param dari halaman sebelumnya (input-nik.html)
+    // Ambil query param dari halaman sebelumnya
     const params = new URLSearchParams(window.location.search);
     document.getElementById("nik").value   = params.get("nik")   || "";
     document.getElementById("nama").value  = params.get("nama")  || "";
     document.getElementById("group").value = params.get("group") || "";
 
-    // === Buat kalender sederhana ===
-    function renderCalendar(containerId, inputId) {
-      const container = document.getElementById(containerId);
-      const input = document.getElementById(inputId);
+    // === INISIALISASI DATEPICKER BARU ===
+    // Fungsi inisialisasi Datepicker
+    function initDatepicker(selector) {
+        const today = new Date();
+        const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+        
+        new AirDatepicker(selector, {
+            // Pilihan untuk memilih banyak tanggal
+            multipleDates: true,
+            // Pemisah tanggal di kotak input
+            multipleDatesSeparator: ', ', 
+            // Format tanggal yang dikirim ke Apps Script (d-m-yyyy)
+            dateFormat: 'd-m-yyyy', 
+            // Atur bahasa ke Indonesia
+            locale: {
+                days: ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'],
+                daysShort: ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'],
+                daysMin: ['Mg', 'Sn', 'Sl', 'Rb', 'Km', 'Jm', 'Sb'],
+                months: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'],
+                monthsShort: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
+                today: 'Hari Ini',
+                clear: 'Bersihkan',
+                dateFormat: 'dd/MM/yyyy',
+                firstDay: 0
+            },
+            // Mulai kalender pada bulan depan
+            startDate: nextMonth,
+            // Batasi tampilan kalender hanya untuk bulan depan (opsional)
+            minDate: nextMonth, 
+            maxDate: new Date(nextMonth.getFullYear(), nextMonth.getMonth() + 1, 0),
+            // Atur posisi pop-up kalender
+            position: 'bottom left',
+            // Pastikan input hanya bisa diisi dari kalender (read-only)
+            readOnly: true
+        });
+    }
 
-      const today = new Date();
-      // Targetkan bulan depan
-      const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
-      const year = nextMonth.getFullYear();
-      const month = nextMonth.getMonth();
+    // Panggil inisialisasi untuk Libur dan Cuti
+    initDatepicker('#libur');
+    initDatepicker('#cuti');
 
-      const lastDay = new Date(year, month + 1, 0);
-      const totalDays = lastDay.getDate();
-
-      container.innerHTML = "";
-      for (let d = 1; d <= totalDays; d++) {
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.textContent = d;
-        btn.style.margin = "2px";
-        btn.style.width = "36px";
-        btn.style.height = "36px";
-        btn.style.borderRadius = "50%";
-        btn.style.border = "1px solid #2193b0";
-        btn.style.background = "#fff";
-        btn.style.cursor = "pointer";
-
-        btn.addEventListener("click", () => {
-          let selected = input.value ? input.value.split(", ") : [];
-          // Format tanggal yang dikirim ke Apps Script
-          const dateStr = `${d}-${month+1}-${year}`; 
-          
-          if (selected.includes(dateStr)) {
-            selected = selected.filter(x => x !== dateStr);
-            btn.style.background = "#fff";
-            btn.style.color = "#000";
-          } else {
-            selected.push(dateStr);
-            btn.style.background = "#2193b0";
-            btn.style.color = "#fff";
-          }
-          input.value = selected.join(", ");
-        });
-
-        container.appendChild(btn);
-      }
-    }
-
-    renderCalendar("calendar-libur", "libur");
-    renderCalendar("calendar-cuti", "cuti");
-
-    // === Submit Form (SUDAH DIREVISI) ===
+    // === Submit Form ===
     document.getElementById("requestForm").addEventListener("submit", function(e) {
       e.preventDefault();
       const status = document.getElementById("status");
       status.textContent = "⏳ Mengirim data...";
-      status.className = ""; // Bersihkan status class sebelumnya
+      status.className = ""; 
 
       const formData = new FormData(this);
 
       fetch(scriptURL, { method: "POST", body: formData })
-        .then(res => res.text()) // Ambil respons Apps Script sebagai teks
+        .then(res => res.text())
         .then(resText => {
-            // Periksa apakah Apps Script mengembalikan teks "Sukses"
+            // Periksa teks respons dari Apps Script
             if (resText.trim() === "Sukses") {
                 status.textContent = "✅ Data berhasil dikirim!";
                 status.className = "success";
                 this.reset();
             } else {
-                // Tampilkan pesan error yang dikirim oleh Apps Script
                 console.error("Error dari Apps Script:", resText);
-                // Batasi panjang pesan agar tidak terlalu lebar
                 const errorMsg = resText.includes("Gagal") ? resText : "Gagal mengirim data! (Respons Apps Script tidak valid)";
                 status.textContent = `❌ ${errorMsg.substring(0, 100)}`;
                 status.className = "error";
