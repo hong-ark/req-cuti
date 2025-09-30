@@ -14,20 +14,16 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      /* Gradien yang cerah dan modern */
+      /* Gradien background yang konsisten */
       background: linear-gradient(135deg, #6dd5ed, #2193b0); 
       padding: 40px 0;
-      /* Memastikan form tidak terpotong pada layar yang lebih pendek */
       overflow-y: auto; 
     }
     .container {
       background: #fff;
-      /* Padding yang nyaman */
       padding: 40px 50px; 
       border-radius: 15px;
-      /* Shadow yang dalam dan profesional */
       box-shadow: 0 15px 40px rgba(0,0,0,0.4); 
-      /* Lebar yang ideal untuk tampilan form potret */
       width: 500px; 
       max-width: 90%; 
       animation: fadeIn 0.6s ease-in-out;
@@ -35,9 +31,8 @@
     h2 {
       text-align: center;
       margin-bottom: 30px; 
-      font-size: 26px; /* Judul sedikit lebih besar */
+      font-size: 26px; 
       font-weight: bold;
-      /* Gradien warna pada teks */
       background: linear-gradient(90deg, #2193b0, #6dd5ed);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -46,43 +41,49 @@
     label {
       font-weight: bold;
       display: block;
-      margin-top: 20px; 
+      /* Margin lebih besar untuk pemisahan antar field */
+      margin-top: 25px; 
       margin-bottom: 8px;
       color: #333;
       font-size: 16px;
     }
     input, select {
-      width: 100%;
+      /* Memastikan elemen mengisi lebar penuh */
+      width: 100%; 
       padding: 12px;
-      border: 1px solid #ddd; /* Border lebih soft */
+      border: 1px solid #ddd;
       border-radius: 8px;
       font-size: 16px; 
       box-sizing: border-box;
       transition: border 0.3s, box-shadow 0.3s;
-      background-color: #f9f9f9; /* Background input sedikit abu-abu */
+      background-color: #f9f9f9;
     }
     input:focus, select:focus {
       border-color: #2193b0;
       outline: none;
-      /* Efek glow yang halus saat focus */
       box-shadow: 0 0 8px rgba(33, 147, 176, 0.4);
     }
-    /* Styling untuk input yang readonly agar terlihat berbeda */
     input[readonly] {
       background-color: #eee;
       cursor: default;
     }
+    /* Hapus semua pengaturan display: inline-block atau float yang mungkin menyebabkan elemen bersusun horizontal */
+    
+    /* Grouping untuk input NIK/Nama/Group yang readonly */
+    .readonly-group label {
+        margin-top: 15px; /* Kurangi margin antar field readonly */
+    }
+
     button[type="submit"] {
       width: 100%;
       padding: 15px; 
-      margin-top: 40px; /* Jarak tombol submit lebih jauh */
+      margin-top: 40px; 
       font-size: 18px; 
       font-weight: bold;
       border: none;
       border-radius: 8px;
       cursor: pointer;
       transition: all 0.3s;
-      /* Warna tombol yang kontras */
       background: #2193b0; 
       color: #fff;
     }
@@ -91,13 +92,13 @@
       box-shadow: 0 4px 15px rgba(33, 147, 176, 0.5);
     }
     .success {
-      color: #28a745; /* Hijau sukses yang standar */
+      color: #28a745; 
       margin-top: 20px;
       text-align: center;
       font-size: 16px;
     }
     .error {
-      color: #dc3545; /* Merah error yang standar */
+      color: #dc3545; 
       margin-top: 20px;
       text-align: center;
       font-size: 16px;
@@ -112,29 +113,32 @@
   <div class="container">
     <h2>REQUEST LIBUR / CUTI JADWAL BULAN DEPAN</h2>
     <form id="requestForm">
-            <label>NIK</label>
-      <input type="text" id="nik" name="nik" readonly>
+        
+        <div class="readonly-group">
+            <label>NIK</label>
+            <input type="text" id="nik" name="nik" readonly>
 
-      <label>Nama</label>
-      <input type="text" id="nama" name="nama" readonly>
+            <label>Nama</label>
+            <input type="text" id="nama" name="nama" readonly>
 
-      <label>Group</label>
-      <input type="text" id="group" name="group" readonly>
+            <label>Group</label>
+            <input type="text" id="group" name="group" readonly>
+        </div>
+        
+                <label>Request Libur (Klik kotak input):</label>
+        <input type="text" id="libur" name="libur" placeholder="Pilih tanggal libur" readonly>
 
-            <label>Request Libur (Klik kotak input):</label>
-      <input type="text" id="libur" name="libur" placeholder="Pilih tanggal libur" readonly>
+                <label>Request Cuti (Klik kotak input):</label>
+        <input type="text" id="cuti" name="cuti" placeholder="Pilih tanggal cuti" readonly>
 
-      <label>Request Cuti (Klik kotak input):</label>
-      <input type="text" id="cuti" name="cuti" placeholder="Pilih tanggal cuti" readonly>
-
-            <label>Ekstrakulikuler yang diikuti:</label>
-      <select id="ekstrakulikuler" name="ekstrakulikuler" required>
-        <option value="">-- Pilih --</option>
-        <option value="FUTSAL">FUTSAL</option>
-        <option value="BADMINTON">BADMINTON</option>
-        <option value="FUTSAL & BADMINTON">FUTSAL & BADMINTON</option>
-        <option value="TIDAK MENGIKUTI">TIDAK MENGIKUTI</option>
-      </select>
+                <label>Ekstrakulikuler yang diikuti:</label>
+        <select id="ekstrakulikuler" name="ekstrakulikuler" required>
+          <option value="">-- Pilih --</option>
+          <option value="FUTSAL">FUTSAL</option>
+          <option value="BADMINTON">BADMINTON</option>
+          <option value="FUTSAL & BADMINTON">FUTSAL & BADMINTON</option>
+          <option value="TIDAK MENGIKUTI">TIDAK MENGIKUTI</option>
+        </select>
 
       <button type="submit">KIRIM</button>
       <div id="status"></div>
