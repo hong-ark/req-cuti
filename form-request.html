@@ -10,28 +10,31 @@
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       margin: 0;
-      padding: 0;
-      background: linear-gradient(135deg, #74ebd5, #ACB6E5);
-      min-height: 100vh;
+      height: 100vh; /* Pastikan tinggi penuh untuk centering vertikal */
       display: flex;
       justify-content: center;
-      /* REVISI: Ubah agar konten berada di tengah vertikal */
-      align-items: center; 
-      padding: 40px 0; /* Tambahkan padding atas dan bawah */
+      align-items: center;
+      /* Mengadopsi gradien dari req-cuti.html untuk konsistensi */
+      background: linear-gradient(135deg, #6dd5ed, #2193b0); 
+      padding: 40px 0; /* Memberi ruang jika konten melebihi tinggi layar */
     }
     .container {
       background: #fff;
-      padding: 40px; /* REVISI: Perbesar padding di dalam kontainer */
+      /* Padding dilebarkan agar lebih lega */
+      padding: 40px 50px; 
       border-radius: 15px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3); /* REVISI: Shadow lebih dalam */
-      width: 600px; /* REVISI: Perbesar lebar kontainer dari 480px menjadi 600px */
-      max-width: 90%; /* REVISI: Beri sedikit ruang pada layar kecil */
+      /* Box shadow ditingkatkan untuk efek pop-up yang lebih baik */
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3); 
+      /* Lebar yang lebih ideal untuk form yang lebih panjang */
+      width: 550px; 
+      max-width: 90%; 
       animation: fadeIn 0.6s ease-in-out;
     }
     h2 {
       text-align: center;
-      margin-bottom: 25px; /* REVISI: Jarak lebih lebar */
-      font-size: 24px; /* REVISI: Ukuran font judul lebih besar */
+      /* Jarak dan ukuran yang konsisten dengan req-cuti.html */
+      margin-bottom: 30px; 
+      font-size: 24px; 
       font-weight: bold;
       background: linear-gradient(90deg, #2193b0, #6dd5ed);
       -webkit-background-clip: text;
@@ -40,25 +43,32 @@
     label {
       font-weight: bold;
       display: block;
-      margin-top: 18px; /* REVISI: Jarak antar elemen lebih lega */
+      margin-top: 20px; /* Jarak antar field lebih lega */
       margin-bottom: 8px;
       color: #333;
       font-size: 16px;
     }
     input, select {
       width: 100%;
-      padding: 12px; /* REVISI: Padding input lebih besar */
+      padding: 12px;
       border: 1px solid #ccc;
       border-radius: 8px;
-      font-size: 16px; /* REVISI: Ukuran font input lebih besar */
+      font-size: 16px; 
       box-sizing: border-box;
+      transition: border 0.3s;
     }
-    /* .calendar style dihapus karena tidak digunakan lagi */
-    button {
+    input:focus, select:focus {
+      /* Efek focus konsisten dengan req-cuti.html */
+      border-color: #2193b0;
+      outline: none;
+      box-shadow: 0 0 5px rgba(33, 147, 176, 0.5);
+    }
+    /* Hapus style .calendar */
+    button[type="submit"] {
       width: 100%;
-      padding: 15px; /* REVISI: Tombol submit lebih besar */
-      margin-top: 30px; /* REVISI: Jarak tombol lebih jauh */
-      font-size: 18px; /* REVISI: Ukuran font tombol lebih besar */
+      padding: 15px; /* Tombol submit lebih besar */
+      margin-top: 35px; /* Jarak tombol submit lebih jauh */
+      font-size: 18px; 
       font-weight: bold;
       border: none;
       border-radius: 8px;
@@ -67,7 +77,7 @@
       background: #2193b0;
       color: #fff;
     }
-    button:hover {
+    button[type="submit"]:hover {
       background: #18657a;
     }
     .success {
