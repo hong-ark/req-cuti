@@ -105,11 +105,11 @@ button[type="submit"]:hover {
 .success { color: #28a745; }
 .error { color: #dc3545; }
 #footer { /* CSS untuk Footer */
-    font-size: 10px;
-    color: #666;
-    text-align: center;
-    margin-top: 20px;
-    line-height: 1.4;
+    font-size: 10px;
+    color: #666;
+    text-align: center;
+    margin-top: 20px;
+    line-height: 1.4;
 }
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(-20px); }
@@ -139,7 +139,7 @@ button[type="submit"]:hover {
     <label>Request Cuti (Klik kotak input)</label>
     <input type="text" id="cuti" name="cuti" placeholder="Pilih tanggal cuti" readonly>
 
-        <label>REQUEST LAINYA:</label>
+        <label>REQUEST LAINYA:</label>
     <input type="text" id="requestLainnya" name="requestLainnya" placeholder="Jawaban singkat, maks 80 karakter" maxlength="80">
 
     <label>Ekstrakulikuler yang diikuti</label>
@@ -153,10 +153,10 @@ button[type="submit"]:hover {
 
     <button type="submit">KIRIM</button>
     <div id="status"></div>
-    
-    <div id="footer">
-        Silakan Request Jadwal sesuai keperluan saja. Inputan bisa direvisi / diganti berulang kali, Jadi manfaatkan dengan Bijak. Hong !!
-    </div>
+    
+    <div id="footer">
+        Silakan Request Jadwal sesuai keperluan saja. Inputan bisa direvisi / diganti berulang kali, Jadi manfaatkan dengan Bijak. Hong !!
+    </div>
   </form>
 </div>
 
@@ -167,19 +167,24 @@ const scriptURL = "https://script.google.com/macros/s/AKfycbyrVWiH3HUNiNwdWR-Ash
 const quotaURL = scriptURL;
 const MAX_KUOTA_HARIAN = 2; // Harus sama dengan MAX_PER_DAY di Apps Script
 
+// Variabel untuk menyimpan objek datepicker (BARU DITAMBAHKAN)
+let datepickerLibur = null;
+let datepickerCuti = null; 
+
 // Array nama bulan untuk Header (POIN 3)
-const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", 
-                    "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", 
+                    "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
 
 // POIN 3: Update Header Web
 (function updateHeader() {
-    const today = new Date();
-    const nextMonthIndex = (today.getMonth() + 1) % 12;
-    const nextMonthName = monthNames[nextMonthIndex];
-    
-    const headerText = `REQUEST LIBUR / CUTI BULAN ${nextMonthName.toUpperCase()}`;
-    document.getElementById('header-text').textContent = headerText;
-    document.getElementById('page-title').textContent = headerText; // Update title browser juga
+    const today = new Date();
+    const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+    const nextMonthIndex = nextMonth.getMonth();
+    const nextMonthName = monthNames[nextMonthIndex];
+    
+    const headerText = `REQUEST LIBUR / CUTI BULAN ${nextMonthName.toUpperCase()}`;
+    document.getElementById('header-text').textContent = headerText;
+    document.getElementById('page-title').textContent = headerText; // Update title browser juga
 })();
 
 
@@ -204,7 +209,7 @@ async function fetchFullDays() {
     }
 }
 
-// Inisialisasi datepicker
+// Inisialisasi datepicker (DIREVISI: Sekarang menyimpan objek datepicker)
 function initDatepicker(selector, disabledDays) {
     const today = new Date();
     const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
@@ -212,13 +217,13 @@ function initDatepicker(selector, disabledDays) {
 
     if (document.querySelector(selector).datepicker) document.querySelector(selector).datepicker.destroy();
 
-    new AirDatepicker(selector, {
+    const dp = new AirDatepicker(selector, {
         multipleDates: true,
         multipleDatesSeparator: ', ',
         dateFormat: 'd',
         disabledDates: disabledDates,
-        
-        // Locale diperbarui menggunakan array monthNames yang sudah didefinisikan
+        
+        // Locale diperbarui menggunakan array monthNames yang sudah didefinisikan
         locale: {
             days: ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'],
             daysShort: ['Min','Sen','Sel','Rab','Kam','Jum','Sab'],
@@ -230,13 +235,20 @@ function initDatepicker(selector, disabledDays) {
             dateFormat: 'dd/MM/yyyy',
             firstDay: 0
         },
-        
+        
         startDate: nextMonth,
         minDate: nextMonth,
         maxDate: new Date(nextMonth.getFullYear(), nextMonth.getMonth() + 1, 0),
         position: 'bottom left',
         readOnly: true
     });
+    
+    // Simpan objek datepicker ke variabel global
+    if (selector === '#libur') {
+        datepickerLibur = dp;
+    } else if (selector === '#cuti') {
+        datepickerCuti = dp;
+    }
 }
 
 // Inisialisasi saat load
@@ -247,24 +259,40 @@ async function initializeApp() {
 }
 initializeApp();
 
-// Submit form
+// Submit form (DIREVISI: Mengambil nilai Libur/Cuti secara manual)
 document.getElementById("requestForm").addEventListener("submit", function(e){
   e.preventDefault();
   const status = document.getElementById("status");
   status.textContent = "⏳ Mengirim data...";
   status.className = "";
 
-  fetch(scriptURL, { method: "POST", body: new FormData(this) })
+  // Mengambil data secara manual untuk menghindari masalah format tanggal
+  const formData = new FormData();
+
+  formData.append('nik', document.getElementById("nik").value);
+  formData.append('nama', document.getElementById("nama").value);
+  formData.append('group', document.getElementById("group").value);
+  formData.append('requestLainnya', document.getElementById("requestLainnya").value);
+  formData.append('ekstrakulikuler', document.getElementById("ekstrakulikuler").value);
+
+  // BARIS PENTING: Ambil nilai Libur/Cuti langsung dari objek datepicker
+  const liburValue = datepickerLibur ? datepickerLibur.formattedDate : document.getElementById("libur").value;
+  const cutiValue = datepickerCuti ? datepickerCuti.formattedDate : document.getElementById("cuti").value;
+
+  formData.append('libur', liburValue || "");
+  formData.append('cuti', cutiValue || "");
+
+  fetch(scriptURL, { method: "POST", body: formData })
     .then(res=>res.text())
     .then(resText=>{
-      // POIN 2: Menangkap dan merevisi pesan Kuota Penuh dari Apps Script
-      if (resText.includes("Gagal: Kuota untuk tanggal") && resText.includes("sudah penuh (maksimal OFF")) {
-          const match = resText.match(/tanggal\s+(\d+)\s+sudah/);
-          const blockedDay = match ? match[1] : "xx";
-          
-          status.textContent = 
-              `❌ Gagal Input: Kuota Libur/Cuti untuk tanggal ${blockedDay} sudah penuh (maksimal OFF ${MAX_KUOTA_HARIAN} hari). Tidak dapat merevisi/menambah request Anda.`;
-          status.className = "error";
+      // POIN 2: Menangkap dan merevisi pesan Kuota Penuh dari Apps Script
+      if (resText.includes("Gagal: Kuota untuk tanggal") && resText.includes("sudah penuh (maksimal OFF")) {
+          const match = resText.match(/tanggal\s+(\d+)\s+sudah/);
+          const blockedDay = match ? match[1] : "xx";
+          
+          status.textContent = 
+              `❌ Gagal Input: Kuota Libur/Cuti untuk tanggal ${blockedDay} sudah penuh (maksimal OFF ${MAX_KUOTA_HARIAN} hari). Tidak dapat merevisi/menambah request Anda.`;
+          status.className = "error";
 
       } else if(resText.trim().startsWith("Sukses")) {
         status.textContent = "✅ "+resText.trim();
@@ -284,4 +312,3 @@ document.getElementById("requestForm").addEventListener("submit", function(e){
 </script>
 </body>
 </html>
-
