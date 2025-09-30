@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/air-datepicker@3.5.0/air-datepicker.min.css">
 
 <style>
-/* === STYLE CLEAN MODERN === */
+/* --- STYLE CSS MODERN --- */
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   margin: 0;
@@ -50,6 +50,10 @@ h2 {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 label {
@@ -176,10 +180,10 @@ button[type="submit"]:hover {
 
 <script src="https://cdn.jsdelivr.net/npm/air-datepicker@3.5.0/air-datepicker.min.js"></script>
 <script>
-/* === SCRIPT GAS === */
+/* === KONFIGURASI SCRIPT === */
 const scriptURL = "https://script.google.com/macros/s/AKfycbyrVWiH3HUNiNwdWR-AshygBO1yHv4ltdNeUgkcJS5ZyrBJsILxjRFjTd-YzXNTSUtF/exec";
 const quotaURL = scriptURL;
-const MAX_KUOTA_HARIAN = 2;
+const MAX_KUOTA_HARIAN = 21; // ✅ revisi: kuota maksimal per hari
 
 let datepickerLibur = null;
 let datepickerCuti = null;
@@ -224,7 +228,7 @@ function initDatepicker(selector, disabledDays) {
   const dp = new AirDatepicker(selector, {
     multipleDates: true,
     multipleDatesSeparator: ', ',
-    dateFormat: 'd',
+    dateFormat: 'd-MM', // tampilkan 1-11, 2-11
     disabledDates: disabledDates,
     locale: {
       days: ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'],
@@ -274,7 +278,7 @@ document.getElementById("requestForm").addEventListener("submit", function(e){
     .then(res=>res.text())
     .then(resText=>{
       if (resText.includes("Gagal: Kuota untuk tanggal") && resText.includes("sudah penuh")) {
-        const match = resText.match(/tanggal\s+(\d+)\s+sudah/);
+        const match = resText.match(/tanggal\s+([\d-]+)\s+sudah/);
         const blockedDay = match ? match[1] : "xx";
         status.textContent = `❌ Kuota penuh tanggal ${blockedDay} (maks ${MAX_KUOTA_HARIAN}).`;
         status.className = "error";
