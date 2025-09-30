@@ -220,7 +220,7 @@ function initDatepicker(selector, disabledDays) {
     const dp = new AirDatepicker(selector, {
         multipleDates: true,
         multipleDatesSeparator: ', ',
-        dateFormat: 'd',
+        dateFormat: 'd', // Format 'd' penting untuk memastikan input berisi hari saja (1, 2, 3)
         disabledDates: disabledDates,
         
         // Locale diperbarui menggunakan array monthNames yang sudah didefinisikan
@@ -259,7 +259,7 @@ async function initializeApp() {
 }
 initializeApp();
 
-// Submit form (REVISI FINAL DENGAN FALLBACK YANG KUAT)
+// Submit form (REVISI FINAL PALING SEDERHANA DAN KUAT)
 document.getElementById("requestForm").addEventListener("submit", function(e){
   e.preventDefault();
   const status = document.getElementById("status");
@@ -275,25 +275,11 @@ document.getElementById("requestForm").addEventListener("submit", function(e){
   formData.append('requestLainnya', document.getElementById("requestLainnya").value);
   formData.append('ekstrakulikuler', document.getElementById("ekstrakulikuler").value);
 
-  // LOGIKA PENGAMBILAN NILAI LIBUR (Dengan Fallback ke Nilai Input)
-  let liburValue = "";
-  if (datepickerLibur && datepickerLibur.formattedDate) {
-    liburValue = datepickerLibur.formattedDate;
-  } else {
-      // Fallback: Ambil nilai langsung dari input field jika datepicker.formattedDate gagal/kosong
-      liburValue = document.getElementById("libur").value;
-  }
+  // BARIS KRITIS FIX: Ambil nilai Libur/Cuti LANGSUNG dari elemen input.
+  // Karena Datepicker sudah mengisi nilai yang benar ke elemen input.
+  const liburValue = document.getElementById("libur").value;
+  const cutiValue = document.getElementById("cuti").value;
     
-  // LOGIKA PENGAMBILAN NILAI CUTI (Dengan Fallback ke Nilai Input)
-  let cutiValue = "";
-  if (datepickerCuti && datepickerCuti.formattedDate) {
-    cutiValue = datepickerCuti.formattedDate;
-  } else {
-      // Fallback: Ambil nilai langsung dari input field jika datepicker.formattedDate gagal/kosong
-      cutiValue = document.getElementById("cuti").value;
-  }
-
-  // Append nilai yang sudah diperiksa (pastikan string kosong jika tidak ada pilihan)
   formData.append('libur', liburValue || "");
   formData.append('cuti', cutiValue || "");
 
