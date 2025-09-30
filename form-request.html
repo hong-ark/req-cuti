@@ -4,9 +4,10 @@
 <meta charset="UTF-8">
 <title id="page-title">REQUEST LIBUR / CUTI JADWAL BULAN DEPAN</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/air-datepicker@3.5.0/air-datepicker.min.css">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet"> 
 
 <style>
-/* --- STYLE CSS MODERN (TIDAK ADA PERUBAHAN) --- */
+/* --- STYLE CSS LEBIH ELEGAN DAN TERSTRUKTUR --- */
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   margin: 0;
@@ -14,98 +15,135 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(135deg, #74ebd5, #ACB6E5);
+  /* Soft Blue/Purple Gradient */
+  background: linear-gradient(135deg, #e0f7fa, #c5cae9);
   padding: 20px;
 }
 
 .container {
   background: #fff;
-  padding: 35px 30px 40px;
-  border-radius: 20px;
-  box-shadow: 0 12px 35px rgba(0,0,0,0.15);
-  width: 480px;
-  max-width: 100%;
+  padding: 40px 35px;
+  border-radius: 25px;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+  width: 500px; /* Lebar sedikit diperbesar */
+  max-width: 95%;
   animation: fadeIn 0.6s ease-in-out;
   position: relative;
-}
-
-.container::before {
-  content: "";
-  position: absolute;
-  width: 180%;
-  height: 180%;
-  background: radial-gradient(circle at top left, rgba(172,182,229,0.15), transparent 70%);
-  top: -50%;
-  left: -50%;
-  transform: rotate(25deg);
-  pointer-events: none;
+  border: 1px solid #eee; /* Sedikit outline halus */
 }
 
 h2 {
   text-align: center;
-  margin-bottom: 25px;
-  font-size: 24px;
+  margin-bottom: 30px;
+  font-size: 26px;
   font-weight: 700;
-  background: linear-gradient(90deg, #4e54c8, #8f94fb);
+  /* Warna Header lebih tegas */
+  background: linear-gradient(90deg, #3f51b5, #5c6bc0);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 10px;
 }
 
+/* KELOMPOK INPUT READONLY (NIK, NAMA, GROUP) */
+.readonly-group {
+  border-bottom: 1px dashed #cfd8dc;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+}
+.readonly-group label {
+  color: #757575; /* Label lebih redup */
+}
+
+/* Style untuk semua label */
 label {
   display: block;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
   font-size: 14px;
   font-weight: 600;
   color: #444;
+  transition: color 0.2s;
+}
+label:hover {
+  color: #3f51b5; /* Efek hover pada label */
 }
 
+/* Style untuk semua input/select */
+.input-group {
+  position: relative;
+  margin-bottom: 16px;
+}
 input, select {
   width: 100%;
   padding: 12px 14px;
+  padding-left: 40px; /* Ruang untuk ikon */
   border: 1px solid #ddd;
   border-radius: 10px;
-  font-size: 14px;
-  margin-bottom: 16px;
+  font-size: 15px;
   box-sizing: border-box;
   transition: all 0.3s ease;
-  background-color: #fdfdfd;
+  background-color: #fcfcfc;
+}
+
+/* Ikon di dalam input */
+.input-icon {
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  transform: translateY(-50%);
+  color: #9e9e9e;
+  font-size: 16px;
+  pointer-events: none;
 }
 
 input:focus, select:focus {
-  border-color: #4e54c8;
-  box-shadow: 0 0 8px rgba(78,84,200,0.3);
+  border-color: #3f51b5;
+  box-shadow: 0 0 10px rgba(63,81,181,0.2);
   background-color: #fff;
   outline: none;
 }
 
+/* Style khusus untuk input readonly */
 input[readonly] {
-  background-color: #f3f3f3;
-  color: #555;
+  background-color: #fafafa;
+  color: #333;
+  cursor: default;
+  border-style: dashed;
+  border-color: #e0e0e0;
+}
+input[readonly]:focus {
+  box-shadow: none;
+  border-color: #e0e0e0;
 }
 
+
+/* TOMBOL SUBMIT */
 button[type="submit"] {
   width: 100%;
-  padding: 14px;
-  margin-top: 5px;
-  font-size: 15px;
-  font-weight: 600;
+  padding: 15px;
+  margin-top: 25px;
+  font-size: 16px;
+  font-weight: 700;
   border: none;
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.3s ease;
-  background: linear-gradient(90deg, #11998e, #38ef7d);
+  /* Warna Tombol lebih cerah */
+  background: linear-gradient(90deg, #00b0ff, #00e5ff); 
   color: #fff;
-  box-shadow: 0 6px 15px rgba(17,153,142,0.35);
+  box-shadow: 0 8px 20px rgba(0, 176, 255, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
 }
 
 button[type="submit"]:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(17,153,142,0.45);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 25px rgba(0, 176, 255, 0.5);
 }
 
 #status {
@@ -114,19 +152,19 @@ button[type="submit"]:hover {
   font-size: 14px;
   font-weight: 500;
   min-height: 28px;
-  padding: 6px;
-  border-radius: 8px;
+  padding: 8px;
+  border-radius: 10px;
 }
 
-.success { color: #155724; background: #d4edda; border: 1px solid #c3e6cb; }
-.error   { color: #721c24; background: #f8d7da; border: 1px solid #f5c6cb; }
+.success { color: #155724; background: #e8f5e9; border: 1px solid #c8e6c9; }
+.error   { color: #b71c1c; background: #ffebee; border: 1px solid #ffcdd2; }
 
 #footer {
   font-size: 11px;
-  color: #666;
+  color: #757575;
   text-align: center;
-  margin-top: 20px;
-  line-height: 1.4;
+  margin-top: 30px;
+  line-height: 1.5;
 }
 
 @keyframes fadeIn {
@@ -138,37 +176,61 @@ button[type="submit"]:hover {
 <body>
 
 <div class="container">
-  <h2 id="header-text">REQUEST LIBUR / CUTI JADWAL BULAN DEPAN</h2>
+  <h2 id="header-text"><i class="fas fa-calendar-alt"></i> REQUEST LIBUR / CUTI JADWAL BULAN DEPAN</h2>
 
   <form id="requestForm">
-    <label>NIK</label>
-    <input type="text" id="nik" name="nik" readonly>
+    
+    <div class="readonly-group">
+      <label>NIK</label>
+      <div class="input-group">
+        <i class="input-icon fas fa-id-card"></i>
+        <input type="text" id="nik" name="nik" readonly>
+      </div>
 
-    <label>Nama</label>
-    <input type="text" id="nama" name="nama" readonly>
+      <label>Nama</label>
+      <div class="input-group">
+        <i class="input-icon fas fa-user"></i>
+        <input type="text" id="nama" name="nama" readonly>
+      </div>
 
-    <label>Group</label>
-    <input type="text" id="group" name="group" readonly>
+      <label>Group</label>
+      <div class="input-group">
+        <i class="input-icon fas fa-users"></i>
+        <input type="text" id="group" name="group" readonly>
+      </div>
+    </div>
 
-    <label>Request Libur (Klik kotak input)</label>
-    <input type="text" id="libur" name="libur" placeholder="Pilih tanggal libur" readonly>
+    <label>Request Libur (Pilih Tanggal)</label>
+    <div class="input-group">
+      <i class="input-icon far fa-calendar-check"></i>
+      <input type="text" id="libur" name="libur" placeholder="Klik untuk memilih tanggal libur" readonly>
+    </div>
 
-    <label>Request Cuti (Klik kotak input)</label>
-    <input type="text" id="cuti" name="cuti" placeholder="Pilih tanggal cuti" readonly>
+    <label>Request Cuti (Pilih Tanggal)</label>
+    <div class="input-group">
+      <i class="input-icon fas fa-umbrella-beach"></i>
+      <input type="text" id="cuti" name="cuti" placeholder="Klik untuk memilih tanggal cuti" readonly>
+    </div>
 
     <label>Request Lainnya</label>
-    <input type="text" id="requestLainnya" name="requestLainnya" placeholder="Jawaban singkat, maks 80 karakter" maxlength="80">
+    <div class="input-group">
+      <i class="input-icon fas fa-comment-dots"></i>
+      <input type="text" id="requestLainnya" name="requestLainnya" placeholder="Jawaban singkat, maks 80 karakter" maxlength="80">
+    </div>
 
     <label>Ekstrakulikuler yang diikuti</label>
-    <select id="ekstrakulikuler" name="ekstrakulikuler" required>
-      <option value="">-- Pilih --</option>
-      <option value="FUTSAL">FUTSAL</option>
-      <option value="BADMINTON">BADMINTON</option>
-      <option value="FUTSAL & BADMINTON">FUTSAL & BADMINTON</option>
-      <option value="TIDAK MENGIKUTI">TIDAK MENGIKUTI</option>
-    </select>
+    <div class="input-group">
+      <i class="input-icon fas fa-futbol"></i>
+      <select id="ekstrakulikuler" name="ekstrakulikuler" required>
+        <option value="">-- Pilih --</option>
+        <option value="FUTSAL">FUTSAL</option>
+        <option value="BADMINTON">BADMINTON</option>
+        <option value="FUTSAL & BADMINTON">FUTSAL & BADMINTON</option>
+        <option value="TIDAK MENGIKUTI">TIDAK MENGIKUTI</option>
+      </select>
+    </div>
 
-    <button type="submit">KIRIM REQUEST</button>
+    <button type="submit"><i class="fas fa-paper-plane"></i> KIRIM REQUEST</button>
     <div id="status"></div>
 
     <div id="footer">
@@ -180,10 +242,10 @@ button[type="submit"]:hover {
 
 <script src="https://cdn.jsdelivr.net/npm/air-datepicker@3.5.0/air-datepicker.min.js"></script>
 <script>
-// === URL Apps Script (DIPERBARUI) ===
+// === URL Apps Script (DIPERBARUI DENGAN MAX KUOTA 21) ===
 const scriptURL = "https://script.google.com/macros/s/AKfycbyrVWiH3HUNiNwdWR-AshygBO1yHv4ltdNeUgkcJS5ZyrBJsILxjRFjTd-YzXNTSUtF/exec";
 const quotaURL = scriptURL;
-const MAX_KUOTA_HARIAN = 2; // Harus sesuai dengan GAS
+const MAX_KUOTA_HARIAN = 21; // Disesuaikan dengan perubahan GAS
 
 let datepickerLibur = null;
 let datepickerCuti = null; 
@@ -196,7 +258,7 @@ const monthNames = ["Januari","Februari","Maret","April","Mei","Juni",
   const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
   const nextMonthName = monthNames[nextMonth.getMonth()];
   const headerText = `REQUEST LIBUR / CUTI BULAN ${nextMonthName.toUpperCase()}`;
-  document.getElementById('header-text').textContent = headerText;
+  document.getElementById('header-text').innerHTML = `<i class="fas fa-calendar-alt"></i> ${headerText}`;
   document.getElementById('page-title').textContent = headerText;
 })();
 
@@ -221,7 +283,6 @@ async function fetchFullDays() {
 function initDatepicker(selector, disabledDays) {
   const today = new Date();
   const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
-  // disabledDays yang diterima dari GAS adalah angka hari (D)
   const disabledDates = disabledDays.map(day => new Date(nextMonth.getFullYear(), nextMonth.getMonth(), parseInt(day)));
 
   if (document.querySelector(selector).datepicker) document.querySelector(selector).datepicker.destroy();
@@ -229,7 +290,7 @@ function initDatepicker(selector, disabledDays) {
   const dp = new AirDatepicker(selector, {
     multipleDates: true,
     multipleDatesSeparator: ', ',
-    dateFormat: 'd-MM', // <--- REVISI KRITIS: Menggunakan format Hari-Bulan (e.g., 1-11, 2-11)
+    dateFormat: 'd-MM', 
     disabledDates: disabledDates,
     locale: {
       days: ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'],
@@ -272,25 +333,17 @@ document.getElementById("requestForm").addEventListener("submit", function(e){
   formData.append('group', document.getElementById("group").value);
   formData.append('requestLainnya', document.getElementById("requestLainnya").value);
   formData.append('ekstrakulikuler', document.getElementById("ekstrakulikuler").value);
-  
-  // Ambil nilai Libur/Cuti yang sudah dalam format D-MM
+  
   const liburValue = document.getElementById("libur").value;
   const cutiValue = document.getElementById("cuti").value;
 
   formData.append('libur', liburValue || "");
   formData.append('cuti', cutiValue || "");
-  
-  // BARIS DEBUGGING: CEK DATA DI CONSOLE SEBELUM DIKIRIM
-  console.log("--- DEBUG DATA YANG DIKIRIM ---");
-  console.log("libur: " + liburValue);
-  console.log("cuti: " + cutiValue);
-  console.log("------------------------------");
-
+  
   fetch(scriptURL, { method: "POST", body: formData })
     .then(res=>res.text())
     .then(resText=>{
       if (resText.includes("Gagal: Kuota untuk tanggal") && resText.includes("sudah penuh")) {
-        // Pesan error kuota dari GAS sekarang mengandung D-MM (misal: "1-11")
         const match = resText.match(/tanggal\s+([\d-]+)\s+sudah/);
         const blockedDay = match ? match[1] : "xx";
         status.textContent = `❌ Kuota penuh tanggal ${blockedDay} (maks ${MAX_KUOTA_HARIAN}).`;
