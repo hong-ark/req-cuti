@@ -2,10 +2,11 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>REQUEST LIBUR / CUTI JADWAL BULAN NOVEMBER 2025</title>
+<title>REQUEST LIBUR / CUTI JADWAL BULAN DEPAN</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/air-datepicker@3.5.0/air-datepicker.min.css">
 
 <style>
+/* --- STYLE CSS TIDAK BERUBAH --- */
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   margin: 0;
@@ -148,8 +149,8 @@ button[type="submit"]:hover {
 
 <script src="https://cdn.jsdelivr.net/npm/air-datepicker@3.5.0/air-datepicker.min.js"></script>
 <script>
-// === URL Apps Script yang DIVERIFIKASI DAN AKAN DIGUNAKAN ===
-const scriptURL = "hhttps://script.google.com/macros/s/AKfycbydUqP28Hub2sRGzpryGSacvFnDyD6RHZJm3UkXyUdeEktcRU2l78VycLYtZyRrblL6/exec";
+// === URL Apps Script yang DIVERIFIKASI DAN DIGUNAKAN ===
+const scriptURL = "https://script.google.com/macros/s/AKfycbytbYQmZcRybIKwmzJETyJbid4yVO3fB26a1kSZR4wu87iir-qri0eYOh6KkyYpsydF/exec";
 const quotaURL = scriptURL; 
 // ========================================================
 
@@ -159,17 +160,15 @@ document.getElementById("nik").value = params.get("nik") || "";
 document.getElementById("nama").value = params.get("nama") || "";
 document.getElementById("group").value = params.get("group") || "";
 
-let fullDaysList = []; // Variabel untuk menyimpan daftar hari yang penuh
+let fullDaysList = []; 
 
 // Fungsi untuk mengambil data kuota dari Apps Script (memanggil doGet)
 async function fetchFullDays() {
     try {
         const response = await fetch(quotaURL);
         if (!response.ok) {
-            // Jika response tidak OK, anggap saja gagal mengambil data kuota
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        // Data yang dikembalikan adalah array angka hari (misal: ['3', '5', '12'])
         const data = await response.json(); 
         return data; 
     } catch (error) {
@@ -199,9 +198,8 @@ function initDatepicker(selector, disabledDays) {
         multipleDatesSeparator: ', ',
         dateFormat: 'd', // Output hanya hari (angka)
         
-        // === MENONAKTIFKAN TANGGAL YANG KUOTANYA PENUH ===
+        // MENONAKTIFKAN TANGGAL YANG KUOTANYA PENUH
         disabledDates: disabledDates,
-        // =================================================
         
         locale: {
             days: ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'],
@@ -253,7 +251,7 @@ document.getElementById("requestForm").addEventListener("submit", function(e){
         status.textContent = "✅ " + resText.trim();
         status.className = "success";
         
-        // PENTING: Perbarui daftar tanggal abu-abu setelah submit sukses
+        // Perbarui daftar tanggal abu-abu setelah submit sukses
         setTimeout(initializeApp, 500); 
       } else {
         // Jika gagal, tampilkan pesan error, termasuk error Kuota Penuh
@@ -271,5 +269,3 @@ document.getElementById("requestForm").addEventListener("submit", function(e){
 </script>
 </body>
 </html>
-
-
