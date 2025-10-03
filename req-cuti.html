@@ -2,29 +2,32 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>INPUT NIK SEBELUM REQUEST</title>
+  <title>REQUEST LIBUR / CUTI JADWAL BULAN DEPAN</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/air-datepicker@3.5.0/air-datepicker.min.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       margin: 0;
-      height: 100vh;
+      background: linear-gradient(135deg, #6dd5ed, #2193b0);
+      min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      background: linear-gradient(135deg, #6dd5ed, #2193b0);
+      padding: 30px;
     }
     .container {
       background: #fff;
-      padding: 40px 50px;
+      padding: 25px 35px;
       border-radius: 15px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-      text-align: center;
-      width: 420px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+      width: 500px;
       max-width: 95%;
       animation: fadeIn 0.6s ease-in-out;
     }
     h2 {
-      margin-bottom: 25px;
+      margin-bottom: 20px;
+      text-align: center;
       font-size: 22px;
       font-weight: bold;
       background: linear-gradient(90deg, #2193b0, #6dd5ed);
@@ -32,55 +35,45 @@
       -webkit-text-fill-color: transparent;
     }
     label {
-      display: block;
-      margin-bottom: 8px;
-      text-align: left;
       font-weight: bold;
+      margin-top: 10px;
+      display: block;
       color: #444;
     }
-    input {
+    input, textarea {
       width: 100%;
-      padding: 12px;
+      padding: 10px;
       border: 1px solid #ccc;
       border-radius: 8px;
-      font-size: 16px;
-      margin-bottom: 20px;
-      box-sizing: border-box;
-      transition: border 0.3s;
+      margin-top: 5px;
+      font-size: 15px;
     }
-    input:focus {
-      border-color: #2193b0;
-      outline: none;
-      box-shadow: 0 0 5px rgba(33, 147, 176, 0.5);
+    input[readonly] {
+      background: #f5f5f5;
+      font-weight: bold;
     }
     button {
       width: 100%;
       padding: 12px;
-      margin-top: 10px;
+      margin-top: 20px;
       font-size: 16px;
       font-weight: bold;
       border: none;
       border-radius: 8px;
       cursor: pointer;
       transition: all 0.3s;
-    }
-    .btn-cek {
       background: #2193b0;
       color: #fff;
     }
-    .btn-cek:hover { background: #18657a; }
-    .btn-form {
-      background: #28a745;
-      color: #fff;
-      display: none;
-    }
-    .btn-form:hover { background: #1e7e34; }
-    #hasil {
-      margin-top: 20px;
+    button:hover { background: #18657a; }
+    .status {
+      margin-top: 15px;
+      text-align: center;
       font-weight: bold;
-      color: #333;
-      min-height: 30px;
+      min-height: 24px;
     }
+    .success { color: green; }
+    .error { color: red; }
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(-20px); }
       to { opacity: 1; transform: translateY(0); }
@@ -90,69 +83,110 @@
 <body>
 
   <div class="container">
-    <h2>INPUT NIK SEBELUM REQUEST</h2>
+    <h2>REQUEST LIBUR / CUTI</h2>
 
-    <label for="nik">Masukkan NIK:</label>
-    <input type="text" id="nik" placeholder="Contoh: 2012022847" />
+    <!-- Info user otomatis -->
+    <label>Data Karyawan</label>
+    <input type="text" id="nama" name="nama" readonly>
+    <input type="text" id="nik" name="nik" readonly>
+    <input type="text" id="group" name="group" readonly>
 
-    <button class="btn-cek" onclick="cekNIK()">🔍 Cek Nama & Group</button>
+    <!-- Request Libur -->
+    <label for="libur">Pilih Tanggal Libur</label>
+    <input type="text" id="libur" name="libur" placeholder="Klik untuk pilih tanggal">
 
-    <div id="hasil"></div>
+    <!-- Request Cuti -->
+    <label for="cuti">Pilih Tanggal Cuti</label>
+    <input type="text" id="cuti" name="cuti" placeholder="Klik untuk pilih tanggal">
 
-    <button id="formCutiBtn" class="btn-form" onclick="lanjutForm()">➡️ Lanjut ke Form REQUEST</button>
+    <label for="alasan">Alasan Cuti (Opsional)</label>
+    <textarea id="alasan" name="alasan" rows="3" placeholder="Tulis alasan jika ada..."></textarea>
+
+    <button onclick="submitForm()">Kirim Request</button>
+    <div id="status" class="status"></div>
   </div>
 
-<script>
-// Ganti dengan URL Apps Script untuk validasi NIK dari sheet "database"
-const apiURL = "https://script.google.com/macros/s/AKfycbz2Vcne0S9qUcVGCNan2ChqwcPdcqKbHVh3RdnCdK5e-UktyDu-uxVO_5uGccRQtctU/exec?nik=";
+  <script src="https://cdn.jsdelivr.net/npm/air-datepicker@3.5.0/air-datepicker.min.js"></script>
+  <script>
+    // === KONFIGURASI ===
+    const scriptURL = "https://script.google.com/macros/s/AKfycbyrVWiH3HUNiNwdWR-AshygBO1yHv4ltdNeUgkcJS5ZyrBJsILxjRFjTd-YzXNTSUtF/exec";
+    const MAX_KUOTA_HARIAN = 21; // sesuai dengan GAS
+    const DEADLINE_TANGGAL = 16;
+    const DEADLINE_JAM = 23;
+    const DEADLINE_MENIT = 59;
 
-async function cekNIK() {
-  const nik = document.getElementById("nik").value.trim();
-  const hasil = document.getElementById("hasil");
-  const btnForm = document.getElementById("formCutiBtn");
-
-  if (!nik) {
-    hasil.innerText = "⚠️ Silakan masukkan NIK.";
-    btnForm.style.display = "none";
-    return;
-  }
-
-  hasil.innerText = "🔄 Mencari data...";
-  btnForm.style.display = "none";
-
-  try {
-    const response = await fetch(apiURL + nik);
-    const data = await response.json();
-
-    if (data.nama && data.group) {
-      hasil.innerHTML = `
-        ✅ Nama: <strong>${data.nama}</strong><br>
-        📌 Group: <strong>${data.group}</strong>
-      `;
-      btnForm.style.display = "block";
-      btnForm.dataset.nama = data.nama;
-      btnForm.dataset.nik = nik;
-      btnForm.dataset.group = data.group;
-    } else {
-      hasil.innerText = "❌ NIK tidak ditemukan di database.";
+    // === BACA PARAMETER DARI URL ===
+    function getQueryParam(param) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(param) || "";
     }
-  } catch (err) {
-    hasil.innerText = "❌ Gagal mengambil data.";
-    console.error(err);
-  }
-}
 
-function lanjutForm() {
-  const btn = document.getElementById("formCutiBtn");
-  const nama = encodeURIComponent(btn.dataset.nama);
-  const nik = encodeURIComponent(btn.dataset.nik);
-  const group = encodeURIComponent(btn.dataset.group);
+    window.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("nik").value = getQueryParam("nik");
+      document.getElementById("nama").value = getQueryParam("nama");
+      document.getElementById("group").value = getQueryParam("group");
+    });
 
-  // arahkan ke halaman request tanggal (harus ada file request-tanggal.html)
-  const targetURL = `form-request.html?nik=${nik}&nama=${nama}&group=${group}`;
-  window.location.href = targetURL;
-}
-</script>
+    // === DATE PICKER ===
+    const dpLibur = new AirDatepicker('#libur', {
+      multipleDates: true,
+      dateFormat: 'd-MM',
+      autoClose: false
+    });
+    const dpCuti = new AirDatepicker('#cuti', {
+      multipleDates: true,
+      dateFormat: 'd-MM',
+      autoClose: false
+    });
 
+    // === DEADLINE CEK ===
+    function sudahLewatDeadline() {
+      const now = new Date();
+      const deadline = new Date(now.getFullYear(), now.getMonth(), DEADLINE_TANGGAL, DEADLINE_JAM, DEADLINE_MENIT);
+      return now > deadline;
+    }
+
+    // === SUBMIT FORM ===
+    async function submitForm() {
+      const status = document.getElementById("status");
+      status.textContent = "🔄 Mengirim data...";
+      status.className = "status";
+
+      if (sudahLewatDeadline()) {
+        status.textContent = `❌ Input sudah ditutup (deadline ${DEADLINE_TANGGAL} ${DEADLINE_JAM}:${DEADLINE_MENIT})`;
+        status.className = "status error";
+        return;
+      }
+
+      const data = {
+        nik: document.getElementById("nik").value,
+        nama: document.getElementById("nama").value,
+        group: document.getElementById("group").value,
+        libur: document.getElementById("libur").value,
+        cuti: document.getElementById("cuti").value,
+        alasan: document.getElementById("alasan").value
+      };
+
+      try {
+        const res = await fetch(scriptURL, {
+          method: "POST",
+          body: new URLSearchParams(data)
+        });
+        const resText = await res.text();
+
+        if (resText.includes("Gagal: Kuota untuk tanggal") && resText.includes("sudah penuh")) {
+          status.textContent = `❌ Kuota penuh (maks ${MAX_KUOTA_HARIAN}/hari).`;
+          status.className = "status error";
+        } else {
+          status.textContent = "✅ Data berhasil dikirim.";
+          status.className = "status success";
+        }
+      } catch (err) {
+        console.error(err);
+        status.textContent = "❌ Gagal mengirim data.";
+        status.className = "status error";
+      }
+    }
+  </script>
 </body>
 </html>
