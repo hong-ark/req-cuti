@@ -229,7 +229,7 @@
   // === KONFIGURASI DAN SCRIPT BARU ===
   const scriptURL = "https://script.google.com/macros/s/AKfycbxcIxYF68Q-mVMIC2ecrNFr0oFtITPdXC29cUObXUijf0mvXHq6-vF_uoPjIujG-AKr/exec";
   const quotaURL = scriptURL;
-  const MAX_KUOTA_HARIAN = 21;
+  const QUOTA_LIMIT = 21;
 
   let datepickerLibur = null;
   let datepickerCuti = null;
@@ -424,7 +424,7 @@
         if (resText.includes("Gagal: Kuota untuk tanggal") && resText.includes("sudah penuh")) {
           const match = resText.match(/tanggal\s+([\d-]+)\s+sudah/);
           const blockedDay = match ? match[1] : "xx";
-          status.textContent = `❌ Kuota penuh tanggal ${blockedDay} (maks ${MAX_KUOTA_HARIAN}).`;
+          status.textContent = `❌ Kuota penuh tanggal ${blockedDay} (maks ${QUOTA_LIMIT}).`;
           status.className = "error";
         } else if (resText.trim().startsWith("Sukses")) {
           status.textContent = "✅ " + resText.trim();
@@ -443,4 +443,5 @@
 </script>
 </body>
 </html>
+
 
