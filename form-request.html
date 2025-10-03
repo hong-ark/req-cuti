@@ -2,165 +2,187 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title id="page-title">REQUEST LIBUR / CUTI JADWAL BULAN DEPAN</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/air-datepicker@3.5.0/air-datepicker.min.css">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 
   <style>
-  /* --- STYLE CSS MODERN --- */
-    /* ... (CSS Anda di sini, tidak perlu diubah) ... */
-  body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    margin: 0;
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: linear-gradient(135deg, #74ebd5, #ACB6E5);
-    padding: 20px;
-  }
+    /* --- GLOBAL & BACKGROUND --- */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start; /* Ganti center ke flex-start agar form tidak terlalu ke tengah */
+      background: linear-gradient(135deg, #74ebd5, #ACB6E5);
+      padding: 40px 20px; /* Tambahkan padding atas */
+    }
 
-  .container {
-    background: rgba(255, 255, 255, 0.92);
-    padding: 40px 35px;
-    border-radius: 20px;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.12);
-    width: 520px;
-    max-width: 95%;
-    backdrop-filter: blur(6px);
-    animation: fadeIn 0.6s ease-in-out;
-    position: relative;
-    border: 1px solid rgba(0,0,0,0.04);
-  }
+    .container {
+      background: rgba(255, 255, 255, 0.98); /* Lebih putih */
+      padding: 40px 35px;
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.15); /* Bayangan lebih halus */
+      width: 550px; /* Lebar sedikit diperluas */
+      max-width: 95%;
+      backdrop-filter: blur(8px);
+      animation: fadeIn 0.6s ease-in-out;
+      position: relative;
+      border: 1px solid rgba(0,0,0,0.06);
+    }
 
-  h2 {
-    text-align: center;
-    margin-bottom: 28px;
-    font-size: 26px;
-    font-weight: 700;
-    background: linear-gradient(90deg, #673AB7, #3F51B5);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    letter-spacing: 0.5px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    text-shadow: 0 2px 5px rgba(0,0,0,0.06);
-  }
+    /* --- HEADER & TITLE --- */
+    h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 28px;
+      font-weight: 800;
+      background: linear-gradient(90deg, #1A237E, #5C6BC0); /* Warna ungu-biru yang lebih dalam */
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      text-shadow: 0 3px 6px rgba(0,0,0,0.08);
+    }
+    h2 i { font-size: 24px; }
 
-  .readonly-group {
-    border-bottom: 1px dashed #e6e6e6;
-    padding-bottom: 12px;
-    margin-bottom: 22px;
-  }
-  .readonly-group label { color: #555; }
+    /* --- INPUT FIELDS --- */
+    .readonly-group {
+      background-color: #f8f9fa; /* Latar belakang untuk membedakan data readonly */
+      border: 1px solid #e9ecef;
+      border-radius: 12px;
+      padding: 15px 20px;
+      margin-bottom: 30px;
+    }
+    .readonly-group label { font-weight: 700; color: #343a40; margin-bottom: 4px; }
+    
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #495057;
+    }
 
-  label {
-    display: block;
-    margin-bottom: 8px;
-    font-size: 14px;
-    font-weight: 600;
-    color: #444;
-  }
+    .input-group { position: relative; margin-bottom: 20px; }
+    input, select {
+      width: 100%;
+      padding: 12px 14px 12px 48px; /* Padding kiri lebih besar */
+      border: 1px solid #e0e0e0;
+      border-radius: 10px;
+      font-size: 15px;
+      background-color: #ffffff;
+      box-sizing: border-box;
+      transition: all 0.3s ease;
+    }
 
-  .input-group { position: relative; margin-bottom: 16px; }
-  input, select {
-    width: 100%;
-    padding: 12px 14px 12px 42px;
-    border: 1px solid #e0e0e0;
-    border-radius: 12px;
-    font-size: 15px;
-    background-color: #fbfbfb;
-    box-sizing: border-box;
-    transition: all 0.25s ease;
-  }
+    .input-icon {
+      position: absolute;
+      top: 50%;
+      left: 18px; /* Posisikan ikon lebih ke kanan */
+      transform: translateY(-50%);
+      font-size: 16px;
+      color: #5C6BC0; /* Warna ikon lebih lembut */
+      pointer-events: none;
+    }
 
-  .input-icon {
-    position: absolute;
-    top: 50%;
-    left: 14px;
-    transform: translateY(-50%);
-    font-size: 17px;
-    background: linear-gradient(135deg, #3F51B5, #2196F3);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    pointer-events: none;
-  }
+    input:focus, select:focus {
+      border-color: #5C6BC0;
+      box-shadow: 0 0 10px rgba(92, 107, 192, 0.25);
+      background-color: #fff;
+      outline: none;
+    }
 
-  input:hover, select:hover { background-color: #fff; }
-  input:focus, select:focus {
-    border-color: #3f51b5;
-    box-shadow: 0 0 8px rgba(63,81,181,0.18);
-    background-color: #fff;
-    outline: none;
-  }
+    input[readonly] {
+      background-color: #e9ecef; /* Warna abu-abu yang lebih solid untuk readonly */
+      color: #343a40;
+      cursor: default;
+      border: 1px solid #ced4da;
+    }
+    .readonly-group input[readonly] {
+      padding: 10px 14px; /* Kecilkan padding input readonly */
+      border: none;
+      background-color: transparent;
+    }
+    .readonly-group .input-icon { display: none; } /* Sembunyikan ikon di readonly group */
 
-  input[readonly] {
-    background-color: #f7f7f7;
-    color: #333;
-    cursor: default;
-    border-style: dashed;
-    border-color: #ececec;
-  }
 
-  button[type="submit"] {
-    width: 100%;
-    padding: 15px;
-    margin-top: 25px;
-    font-size: 16px;
-    font-weight: 700;
-    border: none;
-    border-radius: 14px;
-    cursor: pointer;
-    background: linear-gradient(90deg, #2196F3, #673AB7);
-    color: #fff;
-    box-shadow: 0 8px 18px rgba(103, 58, 183, 0.25);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-    transition: all 0.25s ease;
-  }
-  button[type="submit"]:hover:not(:disabled) {
-    transform: translateY(-3px) scale(1.01);
-    box-shadow: 0 12px 25px rgba(103, 58, 183, 0.34);
-  }
+    /* --- SUBMIT BUTTON --- */
+    button[type="submit"] {
+      width: 100%;
+      padding: 15px;
+      margin-top: 30px;
+      font-size: 17px;
+      font-weight: 700;
+      border: none;
+      border-radius: 14px;
+      cursor: pointer;
+      background: linear-gradient(90deg, #5C6BC0, #3949AB);
+      color: #fff;
+      box-shadow: 0 10px 20px rgba(92, 107, 192, 0.4);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.3s ease;
+    }
+    button[type="submit"]:hover:not(:disabled) {
+      transform: translateY(-3px) scale(1.005);
+      box-shadow: 0 15px 30px rgba(92, 107, 192, 0.5);
+    }
+    button[type="submit"]:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      background: #ced4da;
+      box-shadow: none;
+      transform: none;
+    }
 
-  #status {
-    margin-top: 18px;
-    text-align: center;
-    font-size: 14px;
-    font-weight: 500;
-    min-height: 28px;
-    padding: 8px;
-    border-radius: 10px;
-    transition: all 0.25s ease;
-  }
-  .success { color: #155724; background: #e8f5e9; border: 1px solid #c8e6c9; }
-  .error   { color: #b71c1c; background: #ffebee; border: 1px solid #ffcdd2; }
+    /* --- STATUS & FOOTER --- */
+    #status {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 15px;
+      font-weight: 600;
+      min-height: 28px;
+      padding: 10px;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+    }
+    .success { color: #004d40; background: #e0f2f1; border: 1px solid #b2dfdb; }
+    .error   { color: #b71c1c; background: #ffebee; border: 1px solid #ffcdd2; }
 
-  #footer {
-    font-size: 13px;
-    text-align: center;
-    margin-top: 30px;
-    line-height: 1.5;
-    padding: 12px 14px;
-    border-radius: 12px;
-    transition: all 0.25s ease;
-  }
-  #footer.deadline-passed { font-weight: bold; }
+    #footer {
+      font-size: 13px;
+      text-align: center;
+      margin-top: 35px;
+      line-height: 1.6;
+      padding: 15px 18px;
+      border-radius: 14px;
+      background-color: #f3f3f3;
+      color: #6c757d;
+      border: 1px solid #e0e0e0;
+    }
+    #footer strong { color: #343a40; }
+    #footer.deadline-passed { font-weight: 600; }
 
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-15px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
 
-  /* small screens */
-  @media (max-width: 520px) {
-    .container { padding: 24px; }
-    h2 { font-size: 20px; }
-  }
+    /* small screens */
+    @media (max-width: 580px) {
+      .container { padding: 30px 20px; }
+      h2 { font-size: 24px; gap: 8px; }
+      .readonly-group { padding: 15px; }
+      body { align-items: flex-start; padding: 20px 10px; }
+    }
   </style>
 </head>
 <body>
@@ -169,24 +191,15 @@
   <h2 id="header-text"><i class="fas fa-calendar-alt"></i> REQUEST LIBUR / CUTI JADWAL BULAN DEPAN</h2>
 
   <form id="requestForm">
-        <div class="readonly-group">
+    <div class="readonly-group">
       <label>NIK</label>
-      <div class="input-group">
-        <i class="input-icon fas fa-id-card"></i>
-        <input type="text" id="nik" name="nik" readonly>
-      </div>
+      <input type="text" id="nik" name="nik" readonly>
 
       <label>Nama</label>
-      <div class="input-group">
-        <i class="input-icon fas fa-user"></i>
-        <input type="text" id="nama" name="nama" readonly>
-      </div>
+      <input type="text" id="nama" name="nama" readonly>
 
       <label>Group</label>
-      <div class="input-group">
-        <i class="input-icon fas fa-users"></i>
-        <input type="text" id="group" name="group" readonly>
-      </div>
+      <input type="text" id="group" name="group" readonly>
     </div>
 
     <label>Request Libur (Pilih Tanggal)</label>
@@ -227,18 +240,14 @@
 
 <script src="https://cdn.jsdelivr.net/npm/air-datepicker@3.5.0/air-datepicker.min.js"></script>
 <script>
-  // === KONFIGURASI DAN SCRIPT BARU ===
+  // === KONFIGURASI DAN SCRIPT UTAMA (Sudah Diperbaiki Logika DOMContentLoaded) ===
   const scriptURL = "https://script.google.com/macros/s/AKfycbzR5rqC-ll3MheqTzwP9CGchyfkOWM04qdUt7h565ty9J7gd4hSfH7ui2pwItInxCUPBQ/exec";
-  // const quotaURL = scriptURL; // DIHAPUS
-  // const QUOTA_LIMIT = 21; // DIHAPUS
-
+  
   let datepickerLibur = null;
   let datepickerCuti = null;
-
   const monthNames = ["Januari","Februari","Maret","April","Mei","Juni",
                       "Juli","Agustus","September","Oktober","November","Desember"];
 
-  // FUNGSI 1: Hitung Batas Waktu
   function getDeadline() {
     const now = new Date();
     const startDate = new Date(now.getFullYear(), now.getMonth(), 1, 0, 10, 0);
@@ -246,17 +255,20 @@
     return { startDate, expiredDate };
   }
 
-  // FUNGSI 2: Update Header & Footer (didefinisikan sebagai fungsi agar bisa dipanggil berkali2)
   function updateHeaderAndFooter() {
     const today = new Date();
     const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
     const nextMonthName = monthNames[nextMonth.getMonth()];
     const headerText = `REQUEST LIBUR / CUTI BULAN ${nextMonthName.toUpperCase()}`;
-    document.getElementById('header-text').innerHTML = `<i class="fas fa-calendar-alt"></i> ${headerText}`;
-    document.getElementById('page-title').textContent = headerText;
+    
+    const headerElement = document.getElementById('header-text');
+    const titleElement = document.getElementById('page-title');
+    if (headerElement) headerElement.innerHTML = `<i class="fas fa-calendar-alt"></i> ${headerText}`;
+    if (titleElement) titleElement.textContent = headerText;
 
     const { startDate, expiredDate } = getDeadline();
     const footerElement = document.getElementById('footer');
+    if (!footerElement) return;
 
     if (today < startDate) {
       const startFormat = `${startDate.getDate()} ${monthNames[startDate.getMonth()]} pukul ${String(startDate.getHours()).padStart(2,'0')}:${String(startDate.getMinutes()).padStart(2,'0')}`;
@@ -291,34 +303,10 @@
     }
   }
 
-  // panggil awal supaya header/footer terisi
-  updateHeaderAndFooter();
-
-  // ambil query params (jika dialihkan dari halaman sebelumnya)
-  const params = new URLSearchParams(window.location.search);
-  document.getElementById("nik").value = params.get("nik") || "";
-  document.getElementById("nama").value = params.get("nama") || "";
-  document.getElementById("group").value = params.get("group") || "";
-
-  // let fullDaysList = []; // DIHAPUS
-
-  // async function fetchFullDays() { // DIHAPUS
-  //   try {
-  //     const response = await fetch(quotaURL);
-  //     if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
-  //     return await response.json();
-  //   } catch (e) {
-  //     console.error("Gagal mengambil kuota:", e);
-  //     return [];
-  //   }
-  // }
-
-  function initDatepicker(selector) { // DIHAPUS disabledDays
+  function initDatepicker(selector) {
     const today = new Date();
     const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
-    // const disabledDates = disabledDays.map(day => new Date(nextMonth.getFullYear(), nextMonth.getMonth(), parseInt(day))); // DIHAPUS
-
-    // destroy jika sudah ada
+    
     const el = document.querySelector(selector);
     if (!el) return;
     if (el.datepicker) el.datepicker.destroy();
@@ -326,8 +314,7 @@
     const dp = new AirDatepicker(selector, {
       multipleDates: true,
       multipleDatesSeparator: ', ',
-      dateFormat: 'd-MM',
-      // disabledDates: disabledDates, // DIHAPUS
+      dateFormat: 'd-MM', 
       locale: {
         days: ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'],
         daysShort: ['Min','Sen','Sel','Rab','Kam','Jum','Sab'],
@@ -350,13 +337,14 @@
     else if (selector === '#cuti') datepickerCuti = dp;
   }
 
-  // FUNGSI 3: Cek Status Deadline dan Nonaktifkan Form
   function checkDeadlineAndDisableForm() {
     const now = new Date();
     const { startDate, expiredDate } = getDeadline();
     const form = document.getElementById("requestForm");
     const status = document.getElementById("status");
-    const submitButton = form.querySelector('button[type="submit"]');
+    const submitButton = form ? form.querySelector('button[type="submit"]') : null;
+
+    if (!form || !submitButton) return false;
 
     if (now < startDate || now > expiredDate) {
       form.querySelectorAll('input:not([readonly]), select, button[type="submit"]').forEach(el => {
@@ -379,69 +367,72 @@
 
       return true;
     }
-
-    // aktifkan elemen jika perlu (opsional: Anda bisa menambahkan logika aktivasinya)
     return false;
   }
 
   async function initializeApp() {
-    // fullDaysList = await fetchFullDays(); // DIHAPUS
-    initDatepicker('#libur'); // DIHAPUS fullDaysList
-    initDatepicker('#cuti'); // DIHAPUS fullDaysList
+    initDatepicker('#libur');
+    initDatepicker('#cuti');
 
-    // pengecekan deadline saat aplikasi dimuat
     checkDeadlineAndDisableForm();
-
-    // perbarui header/footer (agar sisa waktu akurat)
     updateHeaderAndFooter();
   }
-  initializeApp();
 
-  document.getElementById("requestForm").addEventListener("submit", function(e){
-    e.preventDefault();
+  // --- DOMContentLoaded untuk mencegah error konsol ---
+  document.addEventListener('DOMContentLoaded', function() {
+    const params = new URLSearchParams(window.location.search);
+    const nikInput = document.getElementById("nik");
+    const namaInput = document.getElementById("nama");
+    const groupInput = document.getElementById("group");
 
-    if (checkDeadlineAndDisableForm()) return;
+    if (nikInput) nikInput.value = params.get("nik") || "";
+    if (namaInput) namaInput.value = params.get("nama") || "";
+    if (groupInput) groupInput.value = params.get("group") || "";
+    
+    initializeApp(); 
 
-    const status = document.getElementById("status");
-    status.textContent = "⏳ Mengirim data...";
-    status.className = "";
-    
-    // TIDAK PERLU lagi fungsi formatRequestDaysForGAS karena kuota sudah dihapus.
-    // data.libur dan data.cuti akan dikirim dalam format 'd-MM' ke GAS.
-
-    const formData = new FormData();
-    formData.append('nik', document.getElementById("nik").value);
-    formData.append('nama', document.getElementById("nama").value);
-    formData.append('group', document.getElementById("group").value);
-    formData.append('requestLainnya', document.getElementById("requestLainnya").value);
-    formData.append('ekstrakulikuler', document.getElementById("ekstrakulikuler").value);
-
-    const liburValue = document.getElementById("libur").value;
-    const cutiValue = document.getElementById("cuti").value;
-
-    formData.append('libur', liburValue || "");
-    formData.append('cuti', cutiValue || "");
-
-    fetch(scriptURL, { method: "POST", body: formData })
-      .then(res => res.text())
-      .then(resText => {
-        // Logika penanganan kuota yang gagal DIHAPUS dari sini
-        if (resText.trim().startsWith("Sukses")) {
-          status.textContent = "✅ " + resText.trim();
-          status.className = "success";
-          // Tidak perlu memanggil initializeApp karena tidak ada kuota yang perlu diambil
-        } else {
-          status.textContent = "❌ " + (resText.includes("Gagal") ? resText : "Gagal mengirim data!");
-          status.className = "error";
-        }
-      })
-      .catch(() => {
-        status.textContent = "❌ Gagal mengirim data! Cek koneksi atau URL Web App";
-        status.className = "error";
+    const requestForm = document.getElementById("requestForm");
+    if (requestForm) {
+      requestForm.addEventListener("submit", function(e){
+        e.preventDefault();
+  
+        if (checkDeadlineAndDisableForm()) return;
+  
+        const status = document.getElementById("status");
+        status.textContent = "⏳ Mengirim data...";
+        status.className = "";
+  
+        const formData = new FormData();
+        formData.append('nik', document.getElementById("nik").value);
+        formData.append('nama', document.getElementById("nama").value);
+        formData.append('group', document.getElementById("group").value);
+        formData.append('requestLainnya', document.getElementById("requestLainnya").value);
+        formData.append('ekstrakulikuler', document.getElementById("ekstrakulikuler").value);
+  
+        const liburValue = document.getElementById("libur").value;
+        const cutiValue = document.getElementById("cuti").value;
+  
+        formData.append('libur', liburValue || "");
+        formData.append('cuti', cutiValue || "");
+  
+        fetch(scriptURL, { method: "POST", body: formData })
+          .then(res => res.text())
+          .then(resText => {
+            if (resText.trim().startsWith("Sukses")) {
+              status.textContent = "✅ " + resText.trim();
+              status.className = "success";
+            } else {
+              status.textContent = "❌ " + (resText.includes("Gagal") ? resText : "Gagal mengirim data!");
+              status.className = "error";
+            }
+          })
+          .catch(() => {
+            status.textContent = "❌ Gagal mengirim data! Cek koneksi atau URL Web App";
+            status.className = "error";
+          });
       });
+    }
   });
 </script>
 </body>
 </html>
-
-
