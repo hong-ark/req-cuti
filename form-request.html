@@ -1,16 +1,17 @@
 <script src="https://cdn.jsdelivr.net/npm/air-datepicker@3.5.0/air-datepicker.min.js"></script>
 <script>
-  // === KONFIGURASI DAN SCRIPT BARU (AKTIFKAN KUOTA) ===
+  // === KONFIGURASI DAN SCRIPT UTAMA ===
   // Ganti URL ini dengan URL Web App Anda yang sudah di-redeploy!
   const scriptURL = "https://script.google.com/macros/s/AKfycbzR5rqC-ll3MheqTzwP9CGchyfkOWM04qdUt7h565ty9J7gd4hSfH7ui2pwItInxCUPBQ/exec";
   
-  // --- KONFIGURASI KUOTA DIKEMBALIKAN ---
+  // --- KONFIGURASI KUOTA ---
   const quotaURL = scriptURL; 
   const QUOTA_LIMIT = 21; 
-  // ---------------------------------------
+  // -------------------------
   
   let datepickerLibur = null;
   let datepickerCuti = null;
+  let fullDaysList = []; 
 
   const monthNames = ["Januari","Februari","Maret","April","Mei","Juni",
                       "Juli","Agustus","September","Oktober","November","Desember"];
@@ -29,11 +30,16 @@
     const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
     const nextMonthName = monthNames[nextMonth.getMonth()];
     const headerText = `REQUEST LIBUR / CUTI BULAN ${nextMonthName.toUpperCase()}`;
-    document.getElementById('header-text').innerHTML = `<i class="fas fa-calendar-alt"></i> ${headerText}`;
-    document.getElementById('page-title').textContent = headerText;
+    
+    // Perbaikan: Pastikan elemen ada sebelum dimanipulasi (walaupun sudah ada DOMContentLoaded)
+    const headerElement = document.getElementById('header-text');
+    const titleElement = document.getElementById('page-title');
+    if (headerElement) headerElement.innerHTML = `<i class="fas fa-calendar-alt"></i> ${headerText}`;
+    if (titleElement) titleElement.textContent = headerText;
 
     const { startDate, expiredDate } = getDeadline();
     const footerElement = document.getElementById('footer');
+    if (!footerElement) return; // Keluar jika footer tidak ditemukan
 
     if (today < startDate) {
       const startFormat = `${startDate.getDate()} ${monthNames[startDate.getMonth()]} pukul ${String(startDate.getHours()).padStart(2,'0')}:${String(startDate.getMinutes()).padStart(2,'0')}`;
@@ -67,25 +73,13 @@
       footerElement.style.border = '';
     }
   }
-
-  // panggil awal supaya header/footer terisi
-  updateHeaderAndFooter();
-
-  // ambil query params (jika dialihkan dari halaman sebelumnya)
-  const params = new URLSearchParams(window.location.search);
-  document.getElementById("nik").value = params.get("nik") || "";
-  document.getElementById("nama").value = params.get("nama") || "";
-  document.getElementById("group").value = params.get("group") || "";
-
-  let fullDaysList = []; // DIKEMBALIKAN
-
+  
   // FUNGSI BARU: Mengambil hari-hari yang sudah penuh dari GAS
-  async function fetchFullDays() { // DIKEMBALIKAN
+  async function fetchFullDays() { 
     try {
       // Menggunakan URL Web App untuk memanggil doGet
       const response = await fetch(quotaURL); 
       if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
-      // Hasilnya adalah array berisi angka hari saja: [21, 22]
       return await response.json(); 
     } catch (e) {
       console.error("Gagal mengambil kuota:", e);
@@ -94,11 +88,10 @@
   }
 
   // FUNGSI DIPERBAIKI: Menggunakan fullDaysList untuk menonaktifkan tanggal
-  function initDatepicker(selector, disabledDays) { // disabledDays DIKEMBALIKAN
+  function initDatepicker(selector, disabledDays) { 
     const today = new Date();
     const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
     
-    // Konversi angka hari (misal: 21) menjadi objek Date (misal: 21 Nov)
     const disabledDates = disabledDays.map(day => new Date(nextMonth.getFullYear(), nextMonth.getMonth(), parseInt(day)));
 
     // destroy jika sudah ada
@@ -133,7 +126,7 @@
     else if (selector === '#cuti') datepickerCuti = dp;
   }
 
-  // FUNGSI 3: Cek Status Deadline dan Nonaktifkan Form (TIDAK BERUBAH)
+  // FUNGSI 3: Cek Status Deadline dan Nonaktifkan Form
   function checkDeadlineAndDisableForm() {
     const now = new Date();
     const { startDate, expiredDate } = getDeadline();
@@ -181,7 +174,20 @@
     // perbarui header/footer (agar sisa waktu akurat)
     updateHeaderAndFooter();
   }
-  initializeApp(); // Panggil saat memuat halaman
+
+  // --- PERBAIKAN FATAL ERROR: MEMASTIKAN DOM SIAP ---
+  // Pindahkan kode inisialisasi awal ke dalam DOMContentLoaded
+  document.addEventListener('DOMContentLoaded', function() {
+    // Ambil query params (jika dialihkan dari halaman sebelumnya)
+    const params = new URLSearchParams(window.location.search);
+    document.getElementById("nik").value = params.get("nik") || "";
+    document.getElementById("nama").value = params.get("nama") || "";
+    document.getElementById("group").value = params.get("group") || "";
+    
+    // Panggil inisialisasi utama setelah elemen HTML tersedia
+    initializeApp(); 
+  });
+  // --------------------------------------------------
 
   document.getElementById("requestForm").addEventListener("submit", function(e){
     e.preventDefault();
@@ -210,7 +216,7 @@
       .then(res => res.text())
       .then(resText => {
         
-        // --- LOGIKA PENANGANAN KUOTA DIKEMBALIKAN ---
+        // --- LOGIKA PENANGANAN KUOTA ---
         if (resText.includes("Gagal: Kuota untuk tanggal") && resText.includes("sudah penuh")) {
           // Tangkap pesan error dari GAS
           const match = resText.match(/tanggal\s+([\d-]+)\s+sudah/);
