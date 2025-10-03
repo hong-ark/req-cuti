@@ -227,9 +227,9 @@
 <script src="https://cdn.jsdelivr.net/npm/air-datepicker@3.5.0/air-datepicker.min.js"></script>
 <script>
   // === KONFIGURASI DAN SCRIPT BARU ===
-  const scriptURL = "https://script.google.com/macros/s/AKfycbxcIxYF68Q-mVMIC2ecrNFr0oFtITPdXC29cUObXUijf0mvXHq6-vF_uoPjIujG-AKr/exec";
+  const scriptURL = "https://script.google.com/macros/s/AKfycbyrVWiH3HUNiNwdWR-AshygBO1yHv4ltdNeUgkcJS5ZyrBJsILxjRFjTd-YzXNTSUtF/exec";
   const quotaURL = scriptURL;
-  const QUOTA_LIMIT = 21;
+  const MAX_KUOTA_HARIAN = 21;
 
   let datepickerLibur = null;
   let datepickerCuti = null;
@@ -424,7 +424,7 @@
         if (resText.includes("Gagal: Kuota untuk tanggal") && resText.includes("sudah penuh")) {
           const match = resText.match(/tanggal\s+([\d-]+)\s+sudah/);
           const blockedDay = match ? match[1] : "xx";
-          status.textContent = `❌ Kuota penuh tanggal ${blockedDay} (maks ${QUOTA_LIMIT}).`;
+          status.textContent = `❌ Kuota penuh tanggal ${blockedDay} (maks ${MAX_KUOTA_HARIAN}).`;
           status.className = "error";
         } else if (resText.trim().startsWith("Sukses")) {
           status.textContent = "✅ " + resText.trim();
@@ -443,6 +443,3 @@
 </script>
 </body>
 </html>
-
-
-
