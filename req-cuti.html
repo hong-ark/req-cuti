@@ -169,12 +169,14 @@ function lanjutForm() {
   const nik = encodeURIComponent(btn.dataset.nik);
   const group = encodeURIComponent(btn.dataset.group);
 
-  const formURL = "https://docs.google.com/forms/d/e/1FAIpQLSeoJsdvN7htQSgUjDbT6I5StR1y0zLyFXM46-ZuLvO80D89bQ/viewform";
-  const prefillURL = `${formURL}?entry.448590851=${nik}&entry.1346383944=${nama}&entry.1841657487=${group}`;
+  // Ganti tujuan ke form-request.html dan tambahkan data sebagai query string
+  const formURL = `form-request.html?nik=${nik}&nama=${nama}&group=${group}`;
 
-  window.location.href = prefillURL;
+  window.location.href = formURL;
+};
 }
 </script>
 
 </body>
 </html>
+
