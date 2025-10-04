@@ -45,10 +45,6 @@ input, select {
   border-radius: 10px;
   margin-bottom: 16px;
 }
-input[disabled], select[disabled] {
-  background: #eee;
-  color: #777;
-}
 button[type="submit"] {
   width: 100%; padding: 14px; font-weight: 600;
   background: linear-gradient(90deg, #11998e, #38ef7d);
@@ -61,8 +57,6 @@ button[disabled] {
 #status { margin-top: 12px; text-align: center; font-size: 14px; }
 .success { color: #155724; background: #d4edda; padding: 6px; border-radius: 8px; }
 .error { color: #721c24; background: #f8d7da; padding: 6px; border-radius: 8px; }
-#footer { margin-top: 20px; text-align:center; font-size: 12px; color: #444; }
-#countdown { font-weight: 600; color: #d63384; margin-top: 5px; }
 @keyframes fadeIn { from{opacity:0;transform:translateY(-15px);} to{opacity:1;transform:translateY(0);} }
 </style>
 </head>
@@ -100,12 +94,6 @@ button[disabled] {
 
     <button type="submit" id="submitBtn">KIRIM REQUEST</button>
     <div id="status"></div>
-
-    <div id="footer">
-      Silakan request sesuai keperluan.<br>
-      Input bisa direvisi/ganti berulang kali.<br>
-      <div id="countdown"></div>
-    </div>
   </form>
 </div>
 
@@ -129,7 +117,7 @@ const monthNames = ["Januari","Februari","Maret","April","Mei","Juni",
   document.getElementById('page-title').textContent=headerText;
 })();
 
-/* === VALIDASI WAKTU INPUT + COUNTDOWN === */
+/* === VALIDASI WAKTU INPUT === */
 function checkDeadline() {
   const now = new Date();
   const startDate = new Date(now.getFullYear(), now.getMonth(), 1, 0, 10, 0);
@@ -137,50 +125,21 @@ function checkDeadline() {
 
   const btn = document.getElementById("submitBtn");
   const status = document.getElementById("status");
-  const libur = document.getElementById("libur");
-  const cuti = document.getElementById("cuti");
 
   if (now < startDate) {
-    btn.disabled = true; libur.disabled=true; cuti.disabled=true;
-    status.textContent = "❌ Input belum dibuka (mulai 1 jam 00:10).";
+    btn.disabled = true;
+    status.textContent = "❌ Input belum dibuka (dibuka 1 jam 00:10).";
     status.className = "error";
-    document.getElementById("countdown").textContent="";
   } else if (now > expiredDate) {
-    btn.disabled = true; libur.disabled=true; cuti.disabled=true;
-    status.textContent = "❌ Deadline input berakhir (16 jam 23:59).";
+    btn.disabled = true;
+    status.textContent = "❌ Deadline input sudah berakhir (16 jam 23:59).";
     status.className = "error";
-    document.getElementById("countdown").textContent="";
   } else {
-    btn.disabled = false; libur.disabled=false; cuti.disabled=false;
+    btn.disabled = false;
     status.textContent = "";
     status.className = "";
-    startCountdown(expiredDate);
   }
 }
-
-function startCountdown(deadline) {
-  function updateCountdown() {
-    const now = new Date().getTime();
-    const distance = deadline.getTime() - now;
-
-    if (distance <= 0) {
-      document.getElementById("countdown").textContent = "⏳ Waktu request sudah habis.";
-      checkDeadline();
-      return;
-    }
-
-    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((distance % (1000*60*60*24))/(1000*60*60));
-    const minutes = Math.floor((distance % (1000*60*60))/(1000*60));
-    const seconds = Math.floor((distance % (1000*60))/1000);
-
-    document.getElementById("countdown").textContent =
-      `Sisa waktu request: ${days}h ${hours}j ${minutes}m ${seconds}d`;
-  }
-  updateCountdown();
-  setInterval(updateCountdown, 1000);
-}
-
 checkDeadline();
 
 /* === FORM SUBMIT === */
