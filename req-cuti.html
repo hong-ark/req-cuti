@@ -1,50 +1,70 @@
 <script>
 async function cekNIK() {
-  const nik = document.getElementById("nik").value.trim();
-  const hasil = document.getElementById("hasil");
-  const btnForm = document.getElementById("formCutiBtn");
+    const nik = document.getElementById("nik").value.trim();
+    const hasil = document.getElementById("hasil");
+    const btnForm = document.getElementById("formCutiBtn");
 
-  if (!nik) {
-    hasil.innerText = "⚠️ Silakan masukkan NIK.";
-    btnForm.style.display = "none";
-    return;
-  }
+    // 1. Validasi Input
+    if (!nik) {
+        hasil.innerText = "⚠️ Silakan masukkan NIK.";
+        btnForm.style.display = "none";
+        return;
+    }
 
-  hasil.innerText = "🔄 Mencari data...";
-  btnForm.style.display = "none";
+    hasil.innerText = "🔄 Mencari data...";
+    btnForm.style.display = "none";
 
-  try {
-    // Pastikan URL Google Apps Script Anda benar-benar berfungsi dan di-deploy!
-    const response = await fetch(`https://script.google.com/macros/s/AKfycbz2Vcne0S9qUcVGCNan2ChqwcPdcqKbHVh3RdnCdK5e-UktyDu-uxVO_5uGccRQtctU/exec?nik=${nik}`);
-    const data = await response.json();
+    const gasUrl = `https://script.google.com/macros/s/AKfycbz2Vcne0S9qUcVGCNan2ChqwcPdcqKbHVh3RdnCdK5e-UktyDu-uxVO_5uGccRQtctU/exec?nik=${nik}`;
 
-    if (data.nama && data.group) {
-      hasil.innerHTML = `
-        ✅ Nama: <strong>${data.nama}</strong><br>
-        📌 Group: <strong>${data.group}</strong>
-      `;
-      btnForm.style.display = "block";
-      btnForm.dataset.nama = data.nama;
-      btnForm.dataset.nik = nik;
-      btnForm.dataset.group = data.group;
-    } else {
-      hasil.innerText = "❌ NIK tidak ditemukan di database.";
-    }
-  } catch (err) {
-    hasil.innerText = "❌ Gagal mengambil data. (Cek log konsol)";
-    console.error("Error Fetching Data:", err);
-  }
+    try {
+        const response = await fetch(gasUrl);
+
+        // 2. Penanganan Error HTTP (misalnya 404, 500)
+        if (!response.ok) {
+            throw new Error(`Kesalahan Jaringan: Status ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        // 3. Memeriksa Data yang Diterima
+        if (data && data.nama && data.group) {
+            hasil.innerHTML = `
+                ✅ Nama: <strong>${data.nama}</strong><br>
+                📌 Group: <strong>${data.group}</strong>
+            `;
+            btnForm.style.display = "block";
+            // Menyimpan data untuk fungsi lanjutForm
+            btnForm.dataset.nama = data.nama;
+            btnForm.dataset.nik = nik;
+            btnForm.dataset.group = data.group;
+        } else {
+            // Jika Apps Script mengembalikan JSON tapi data.nama/data.group kosong
+            hasil.innerText = "❌ NIK tidak ditemukan di database.";
+        }
+    } catch (err) {
+        // Penanganan Error Jaringan atau JSON Parsing
+        hasil.innerText = "❌ Gagal mengambil data. Cek URL Web App/Koneksi.";
+        console.error("Kesalahan saat fetch data:", err);
+    }
 }
 
 function lanjutForm() {
-  const btn = document.getElementById("formCutiBtn");
-  const nama = encodeURIComponent(btn.dataset.nama);
-  const nik = encodeURIComponent(btn.dataset.nik);
-  const group = encodeURIComponent(btn.dataset.group);
+    const btn = document.getElementById("formCutiBtn");
+    
+    // Pastikan data sudah tersimpan di dataset sebelum digunakan
+    if (!btn.dataset.nama || !btn.dataset.nik || !btn.dataset.group) {
+        alert("Data NIK belum terverifikasi. Mohon Cek NIK terlebih dahulu.");
+        return;
+    }
 
-  // Menghubungkan ke form-request.html dengan Query String
-  const formURL = `form-request.html?nik=${nik}&nama=${nama}&group=${group}`;
+    const nama = encodeURIComponent(btn.dataset.nama);
+    const nik = encodeURIComponent(btn.dataset.nik);
+    const group = encodeURIComponent(btn.dataset.group);
 
-  window.location.href = formURL;
-} // <-- Perhatikan: Hanya satu kurung kurawal penutup untuk fungsi lanjutForm
+    // Menghubungkan ke form-request.html dengan Query String
+    // Pastikan file form-request.html berada di folder yang sama atau diakses dengan path yang benar
+    const formURL = `form-request.html?nik=${nik}&nama=${nama}&group=${group}`;
+
+    window.location.href = formURL;
+}
 </script>
