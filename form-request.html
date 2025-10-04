@@ -1,174 +1,226 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-<meta charset="UTF-8">
-<title id="page-title">REQUEST LIBUR / CUTI JADWAL BULAN DEPAN</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/air-datepicker@3.5.0/air-datepicker.min.css">
+// ==========================================================================================
+// --- KONFIGURASI GLOBAL ---
+// ==========================================================================================
+const SHEET_NAME = "JAWABAN"; // <=== NAMA SHEET ANDA ===
+const SHEET_ID = "1C0QEWn7BlRTqaSvw01km0TIUIhQEJeR1c4y0BsY1Fz4"; // <=== ID SHEET ANDA ===
 
-<style>
-/* --- STYLE CSS MODERN --- */
-body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  margin: 0;
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: linear-gradient(135deg, #74ebd5, #ACB6E5);
-  padding: 20px;
+const NIK_COLUMN_INDEX = 2; // Kolom B (index 2)
+const GROUP_COLUMN_INDEX = 4; // Kolom D (index 4)
+const LIBUR_COLUMN_INDEX = 5; // Kolom E (index 5)
+const CUTI_COLUMN_INDEX = 6; // Kolom F (index 6)
+
+// LIMIT MAKSIMAL KUOTA PER HARI
+const QUOTA_LIMIT = 21;
+
+
+// ==========================================================================================
+// --- FUNGSI HELPER (PEMBANTU) & KUOTA ---
+// ==========================================================================================
+
+function findRowByNIK(sheet, nik) {
+  const START_DATA_ROW = 3; 
+  const lastRow = sheet.getLastRow();
+  if (lastRow < START_DATA_ROW) return -1;
+    
+  const range = sheet.getRange(START_DATA_ROW, NIK_COLUMN_INDEX, lastRow - START_DATA_ROW + 1, 1);
+  const values = range.getValues();
+
+  for (let i = 0; i < values.length; i++) {
+    if (String(values[i][0]).trim() === String(nik).trim()) {
+      return i + START_DATA_ROW; 
+    }
+  }
+  return -1;
 }
-.container {
-  background: #fff;
-  padding: 35px 30px 40px;
-  border-radius: 20px;
-  box-shadow: 0 12px 35px rgba(0,0,0,0.15);
-  width: 480px;
-  max-width: 100%;
-  animation: fadeIn 0.6s ease-in-out;
-  position: relative;
+
+// Ambil hanya angka hari dari format d-MM (contoh: "21-11" → "21")
+function parseDays(dayString) {
+  if (!dayString) return [];
+  return String(dayString)
+    .split(/,\s*|\s*,\s*/)
+    .map(dmm => {
+      const parts = dmm.trim().split('-');
+      return parts[0]; 
+    })
+    .filter(d => d);
 }
-h2 {
-  text-align: center;
-  margin-bottom: 25px;
-  font-size: 24px;
-  font-weight: 700;
-  background: linear-gradient(90deg, #4e54c8, #8f94fb);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  letter-spacing: 1px;
+
+// Pengecekan ketat kuota sebelum simpan data
+function checkQuotaStrict(sheet, liburInput, cutiInput, existingRow) {
+  const requestedDays = [
+    ...parseDays(liburInput),
+    ...parseDays(cutiInput)
+  ];
+
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 3) return { allowed: true, blockedDay: null };
+  
+  const allRequests = sheet.getRange(3, LIBUR_COLUMN_INDEX, lastRow - 2, 2).getValues(); 
+  const dayCounts = {}; 
+  
+  allRequests.forEach((row, index) => {
+    const currentRow = index + 3; 
+    if (existingRow !== -1 && currentRow === existingRow) {
+      return; // lewati baris ini kalau sedang revisi
+    }
+    const libur = parseDays(row[0]);
+    const cuti = parseDays(row[1]);
+    [...libur, ...cuti].forEach(day => {
+      if (day) {
+        dayCounts[day] = (dayCounts[day] || 0) + 1;
+      }
+    });
+  });
+
+  for (const day of requestedDays) {
+    if ((dayCounts[day] || 0) + 1 > QUOTA_LIMIT) {
+      return { allowed: false, blockedDay: day };
+    }
+  }
+  return { allowed: true, blockedDay: null };
 }
-label { font-weight: 600; margin-bottom: 6px; display: block; }
-input, select {
-  width: 100%;
-  padding: 12px 14px;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  margin-bottom: 16px;
+
+
+// ==========================================================================================
+// --- FUNGSI REVISI: AUTO SORT (Mulai dari Baris 3) ---
+// ==========================================================================================
+
+function autoSortByGroup(sheet) {
+  const START_ROW = 3; 
+  if (sheet.getLastRow() < START_ROW) return; 
+
+  const range = sheet.getRange(
+    START_ROW, 
+    1, 
+    sheet.getLastRow() - START_ROW + 1, 
+    sheet.getLastColumn() 
+  );
+
+  range.sort({ column: GROUP_COLUMN_INDEX, ascending: true });
+  SpreadsheetApp.flush(); 
 }
-button[type="submit"] {
-  width: 100%; padding: 14px; font-weight: 600;
-  background: linear-gradient(90deg, #11998e, #38ef7d);
-  border: none; border-radius: 12px; color: #fff;
+
+
+// ==========================================================================================
+// --- LOGIKA GET & POST (UTAMA) ---
+// ==========================================================================================
+
+function calculateFullDays() {
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  const sheet = ss.getSheetByName(SHEET_NAME);
+
+  if (!sheet || sheet.getLastRow() < 3) return [];
+  
+  const lastRow = sheet.getLastRow();
+  const allRequests = sheet.getRange(3, LIBUR_COLUMN_INDEX, lastRow - 2, 2).getValues(); 
+  
+  const dayCounts = {};
+  const fullDays = new Set();
+  
+  allRequests.forEach(row => {
+    const libur = parseDays(row[0]); 
+    const cuti = parseDays(row[1]);
+    [...libur, ...cuti].forEach(day => {
+      if (day) {
+        dayCounts[day] = (dayCounts[day] || 0) + 1;
+        if (dayCounts[day] >= QUOTA_LIMIT) {
+          fullDays.add(day); 
+        }
+      }
+    });
+  });
+
+  return Array.from(fullDays);
 }
-button[disabled] {
-  background: #ccc !important;
-  cursor: not-allowed;
-}
-#status { margin-top: 12px; text-align: center; font-size: 14px; }
-.success { color: #155724; background: #d4edda; padding: 6px; border-radius: 8px; }
-.error { color: #721c24; background: #f8d7da; padding: 6px; border-radius: 8px; }
-@keyframes fadeIn { from{opacity:0;transform:translateY(-15px);} to{opacity:1;transform:translateY(0);} }
-</style>
-</head>
-<body>
-<div class="container">
-  <h2 id="header-text">REQUEST LIBUR / CUTI JADWAL BULAN DEPAN</h2>
 
-  <form id="requestForm">
-    <label>NIK</label>
-    <input type="text" id="nik" name="nik" readonly>
-
-    <label>Nama</label>
-    <input type="text" id="nama" name="nama" readonly>
-
-    <label>Group</label>
-    <input type="text" id="group" name="group" readonly>
-
-    <label>Request Libur</label>
-    <input type="text" id="libur" name="libur" placeholder="Pilih tanggal libur" readonly>
-
-    <label>Request Cuti</label>
-    <input type="text" id="cuti" name="cuti" placeholder="Pilih tanggal cuti" readonly>
-
-    <label>Request Lainnya</label>
-    <input type="text" id="requestLainnya" name="requestLainnya" maxlength="80">
-
-    <label>Ekstrakulikuler</label>
-    <select id="ekstrakulikuler" name="ekstrakulikuler" required>
-      <option value="">-- Pilih --</option>
-      <option value="FUTSAL">FUTSAL</option>
-      <option value="BADMINTON">BADMINTON</option>
-      <option value="FUTSAL & BADMINTON">FUTSAL & BADMINTON</option>
-      <option value="TIDAK MENGIKUTI">TIDAK MENGIKUTI</option>
-    </select>
-
-    <button type="submit" id="submitBtn">KIRIM REQUEST</button>
-    <div id="status"></div>
-  </form>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/air-datepicker@3.5.0/air-datepicker.min.js"></script>
-<script>
-/* === KONFIGURASI === */
-const scriptURL = "https://script.google.com/macros/s/AKfycbzR5rqC-ll3MheqTzwP9CGchyfkOWM04qdUt7h565ty9J7gd4hSfH7ui2pwItInxCUPBQ/exec";
-const quotaURL = scriptURL;
-
-const MAX_KUOTA_HARIAN = 21;
-
-/* === UPDATE HEADER BULAN === */
-const monthNames = ["Januari","Februari","Maret","April","Mei","Juni",
-  "Juli","Agustus","September","Oktober","November","Desember"];
-(function updateHeader(){
-  const today=new Date();
-  const nextMonth=new Date(today.getFullYear(), today.getMonth()+1, 1);
-  const nextMonthName=monthNames[nextMonth.getMonth()];
-  const headerText=`REQUEST LIBUR / CUTI BULAN ${nextMonthName.toUpperCase()}`;
-  document.getElementById('header-text').textContent=headerText;
-  document.getElementById('page-title').textContent=headerText;
-})();
-
-/* === VALIDASI WAKTU INPUT === */
-function checkDeadline() {
-  const now = new Date();
-  const startDate = new Date(now.getFullYear(), now.getMonth(), 1, 0, 10, 0);
-  const expiredDate = new Date(now.getFullYear(), now.getMonth(), 16, 23, 59, 59);
-
-  const btn = document.getElementById("submitBtn");
-  const status = document.getElementById("status");
-
-  if (now < startDate) {
-    btn.disabled = true;
-    status.textContent = "❌ Input belum dibuka (dibuka 1 jam 00:10).";
-    status.className = "error";
-  } else if (now > expiredDate) {
-    btn.disabled = true;
-    status.textContent = "❌ Deadline input sudah berakhir (16 jam 23:59).";
-    status.className = "error";
-  } else {
-    btn.disabled = false;
-    status.textContent = "";
-    status.className = "";
+function doGet(e) {
+  try {
+    const fullDays = calculateFullDays();
+    const output = ContentService.createTextOutput(JSON.stringify(fullDays));
+    output.setMimeType(ContentService.MimeType.JSON);
+    output.setHeader('Access-Control-Allow-Origin', '*'); 
+    return output;
+  } catch (error) {
+    Logger.log("Error in doGet (Quota Fetch): " + error.message);
+    const output = ContentService.createTextOutput(JSON.stringify([])); 
+    output.setMimeType(ContentService.MimeType.JSON);
+    output.setHeader('Access-Control-Allow-Origin', '*'); 
+    return output;
   }
 }
-checkDeadline();
 
-/* === FORM SUBMIT === */
-document.getElementById("requestForm").addEventListener("submit", function(e){
-  e.preventDefault();
-  checkDeadline();
-  if(document.getElementById("submitBtn").disabled) return;
+function doPost(e) {
+  if (!e || !e.parameter) {
+    return ContentService.createTextOutput("Gagal: Tidak ada data parameter yang diterima.")
+      .setMimeType(ContentService.MimeType.TEXT);
+  }
 
-  const status=document.getElementById("status");
-  status.textContent="⏳ Mengirim data...";
-  status.className="";
+  const data = e.parameter;
+  
+  // Validasi tanggal input (buka tgl 1 jam 00:10 s/d tutup tgl 16 jam 23:59)
+  const now = new Date();
+  const startDate = new Date(now.getFullYear(), now.getMonth(), 1, 0, 10, 0); 
+  const expiredDate = new Date(now.getFullYear(), now.getMonth(), 16, 23, 59, 59);
 
-  const formData=new FormData(e.target);
-  fetch(scriptURL, { method:"POST", body: formData })
-    .then(res=>res.text())
-    .then(resText=>{
-      if(resText.trim().startsWith("Sukses")){
-        status.textContent="✅ "+resText.trim();
-        status.className="success";
-      } else {
-        status.textContent="❌ "+resText.trim();
-        status.className="error";
-      }
-    })
-    .catch(()=>{
-      status.textContent="❌ Gagal mengirim data! Cek koneksi.";
-      status.className="error";
-    });
-});
-</script>
-</body>
-</html>
+  if (now < startDate) {
+    return ContentService.createTextOutput("Gagal: Input belum dibuka (dimulai Tgl 1, 00:10).")
+      .setMimeType(ContentService.MimeType.TEXT);
+  }
+  if (now > expiredDate) {
+    return ContentService.createTextOutput("Gagal: Deadline input sudah terlewat (berakhir Tgl 16, 23:59).")
+      .setMimeType(ContentService.MimeType.TEXT);
+  }
+  
+  try {
+    if (!data.nik || !data.nama) {
+      return ContentService.createTextOutput("Gagal: NIK atau Nama kosong.")
+        .setMimeType(ContentService.MimeType.TEXT);
+    }
+
+    const ss = SpreadsheetApp.openById(SHEET_ID);
+    const sheet = ss.getSheetByName(SHEET_NAME);
+    if (!sheet) {
+      return ContentService.createTextOutput("Gagal: Sheet dengan nama '" + SHEET_NAME + "' tidak ditemukan.")
+        .setMimeType(ContentService.MimeType.TEXT);
+    }
+
+    const existingRow = findRowByNIK(sheet, data.nik);
+    const quotaCheck = checkQuotaStrict(sheet, data.libur, data.cuti, existingRow);
+    if (!quotaCheck.allowed) {
+      return ContentService
+        .createTextOutput(`Gagal: Kuota untuk tanggal ${quotaCheck.blockedDay} sudah penuh (maksimal OFF ${QUOTA_LIMIT} user). Tidak dapat merevisi/menambah request.`)
+        .setMimeType(ContentService.MimeType.TEXT);
+    }
+
+    const rowData = [
+      new Date(),                 
+      data.nik,                   
+      data.nama,                  
+      data.group || "",           
+      data.libur || "",           
+      data.cuti || "",            
+      data.requestLainnya || "",  
+      data.ekstrakulikuler || ""  
+    ];
+
+    let successMessage = "";
+    if (existingRow !== -1) {
+      const rangeToUpdate = sheet.getRange(existingRow, 1, 1, rowData.length);
+      rangeToUpdate.setValues([rowData]); 
+      successMessage = "Sukses: Revisi data NIK " + data.nik + " berhasil.";
+    } else {
+      sheet.appendRow(rowData);
+      successMessage = "Sukses: Data baru NIK " + data.nik + " berhasil ditambahkan.";
+    }
+
+    autoSortByGroup(sheet);
+    
+    return ContentService.createTextOutput(successMessage).setMimeType(ContentService.MimeType.TEXT);
+
+  } catch (err) {
+    Logger.log("Error saat menyimpan/merevisi data: " + err.message);
+    return ContentService
+      .createTextOutput("Gagal: Terjadi kesalahan server. (" + err.message + ")")
+      .setMimeType(ContentService.MimeType.TEXT);
+  }
+}
