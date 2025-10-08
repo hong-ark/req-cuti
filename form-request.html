@@ -1,41 +1,187 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title id="page-title">REQUEST LIBUR / CUTI JADWAL BULAN DEPAN</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/air-datepicker@3.5.0/air-datepicker.min.css">
+
+<style>
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #74ebd5, #ACB6E5);
+  padding: 20px;
+}
+.container {
+  background: #fff;
+  padding: 35px 30px 40px;
+  border-radius: 20px;
+  box-shadow: 0 12px 35px rgba(0,0,0,0.15);
+  width: 480px;
+  max-width: 100%;
+  animation: fadeIn 0.6s ease-in-out;
+  position: relative;
+}
+h2 {
+  text-align: center;
+  margin-bottom: 25px;
+  font-size: 24px;
+  font-weight: 700;
+  background: linear-gradient(90deg, #4e54c8, #8f94fb);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: 1px;
+}
+label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #444;
+}
+input, select {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  font-size: 14px;
+  margin-bottom: 16px;
+  box-sizing: border-box;
+  transition: all 0.3s ease;
+  background-color: #fdfdfd;
+}
+input:focus, select:focus {
+  border-color: #4e54c8;
+  box-shadow: 0 0 8px rgba(78,84,200,0.3);
+  background-color: #fff;
+  outline: none;
+}
+input[readonly] {
+  background-color: #f3f3f3;
+  color: #555;
+}
+button[type="submit"] {
+  width: 100%;
+  padding: 14px;
+  margin-top: 5px;
+  font-size: 15px;
+  font-weight: 600;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: linear-gradient(90deg, #11998e, #38ef7d);
+  color: #fff;
+  box-shadow: 0 6px 15px rgba(17,153,142,0.35);
+}
+button[type="submit"]:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(17,153,142,0.45);
+}
+#status {
+  margin-top: 18px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+  min-height: 28px;
+  padding: 6px;
+  border-radius: 8px;
+}
+.success { color: #155724; background: #d4edda; border: 1px solid #c3e6cb; }
+.error   { color: #721c24; background: #f8d7da; border: 1px solid #f5c6cb; }
+
+#footer {
+  font-size: 11px;
+  color: #666;
+  text-align: center;
+  margin-top: 20px;
+  line-height: 1.4;
+}
+#countdown {
+  margin-top: 8px;
+  font-weight: 600;
+  color: #333;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h2 id="header-text">REQUEST LIBUR / CUTI JADWAL BULAN DEPAN</h2>
+
+  <form id="requestForm">
+    <label>NIK</label>
+    <input type="text" id="nik" name="nik" readonly>
+
+    <label>Nama</label>
+    <input type="text" id="nama" name="nama" readonly>
+
+    <label>Group</label>
+    <input type="text" id="group" name="group" readonly>
+
+    <label>Request Libur (Klik kotak input)</label>
+    <input type="text" id="libur" name="libur" placeholder="Pilih tanggal libur" readonly>
+
+    <label>Request Cuti (Klik kotak input)</label>
+    <input type="text" id="cuti" name="cuti" placeholder="Pilih tanggal cuti" readonly>
+
+    <label>Request Lainnya</label>
+    <input type="text" id="requestLainnya" name="requestLainnya" placeholder="Jawaban singkat, maks 80 karakter" maxlength="80">
+
+    <label>Ekstrakulikuler yang diikuti</label>
+    <select id="ekstrakulikuler" name="ekstrakulikuler" required>
+      <option value="">-- Pilih --</option>
+      <option value="FUTSAL">FUTSAL</option>
+      <option value="BADMINTON">BADMINTON</option>
+      <option value="FUTSAL & BADMINTON">FUTSAL & BADMINTON</option>
+      <option value="TIDAK MENGIKUTI">TIDAK MENGIKUTI</option>
+    </select>
+
+    <button type="submit" id="submitBtn">KIRIM REQUEST</button>
+    <div id="status"></div>
+
+    <div id="footer">
+      Silakan Request Jadwal sesuai keperluan saja.<br>
+      Inputan bisa direvisi / diganti berulang kali. Gunakan dengan bijak! 🚀
+      <div id="countdown"></div>
+    </div>
+  </form>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/air-datepicker@3.5.0/air-datepicker.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/air-datepicker@3.5.0/locale/id.js"></script>
 <script>
 const scriptURL = "https://script.google.com/macros/s/AKfycbzR5rqC-ll3MheqTzwP9CGchyfkOWM04qdUt7h565ty9J7gd4hSfH7ui2pwItInxCUPBQ/exec";
 const quotaURL = scriptURL;
+const MAX_KUOTA_HARIAN = 21;
 
-// === Ambil data dari URL ===
+// === Nama Bulan ===
+const monthNames = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+
+// === Header Otomatis Bulan Depan ===
+(function updateHeader() {
+  const today = new Date();
+  const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+  const nextMonthName = monthNames[nextMonth.getMonth()];
+  const headerText = `REQUEST LIBUR / CUTI BULAN ${nextMonthName.toUpperCase()}`;
+  document.getElementById('header-text').textContent = headerText;
+  document.getElementById('page-title').textContent = headerText;
+})();
+
+// === Ambil data dari URL (NIK, NAMA, GROUP) ===
 const params = new URLSearchParams(window.location.search);
 document.getElementById("nik").value = params.get("nik") || "";
 document.getElementById("nama").value = params.get("nama") || "";
 document.getElementById("group").value = params.get("group") || "";
 
-// === Prefill Data Terakhir User ===
-async function prefillUserData() {
-  const nik = document.getElementById("nik").value;
-  const status = document.getElementById("status");
-  if (!nik) return;
-
-  try {
-    const res = await fetch(`${scriptURL}?nik=${nik}`);
-    const data = await res.json();
-
-    if (data && !data.error && data.libur) {
-      document.getElementById("libur").value = data.libur || "";
-      document.getElementById("cuti").value = data.cuti || "";
-      document.getElementById("requestLainnya").value = data.requestLainnya || "";
-      document.getElementById("ekstrakulikuler").value = data.ekstrakulikuler || "";
-      status.textContent = "✅ Data terakhir berhasil dimuat.";
-      status.className = "success";
-    } else {
-      status.textContent = "";
-    }
-  } catch (err) {
-    console.error("Prefill error:", err);
-  }
-}
-
-// === Kuota dan Datepicker ===
+// === Fetch tanggal penuh ===
 async function fetchFullDays() {
   try {
     const response = await fetch(quotaURL);
@@ -47,6 +193,7 @@ async function fetchFullDays() {
   }
 }
 
+// === Inisialisasi kalender ===
 function initDatepicker(selector, disabledDays) {
   const today = new Date();
   const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
@@ -60,9 +207,6 @@ function initDatepicker(selector, disabledDays) {
     startDate: nextMonth,
     minDate: nextMonth,
     maxDate: new Date(nextMonth.getFullYear(), nextMonth.getMonth() + 1, 0),
-    position: 'bottom left',
-    readOnly: true,
-    locale: AirDatepicker.locales.id  // 🌐 Ubah ke Bahasa Indonesia
   });
 }
 
@@ -70,43 +214,37 @@ async function initializeApp() {
   const fullDaysList = await fetchFullDays();
   initDatepicker('#libur', fullDaysList);
   initDatepicker('#cuti', fullDaysList);
-  await prefillUserData();
 }
 initializeApp();
 
-// === Countdown Otomatis ===
+// === Countdown otomatis per bulan ===
 function startCountdown() {
-  const now = new Date();
-  const openDate = new Date(now.getFullYear(), now.getMonth(), 1, 0, 10, 0);
-  const closeDate = new Date(now.getFullYear(), now.getMonth(), 16, 23, 59, 59);
-  const nextMonthOpen = new Date(now.getFullYear(), now.getMonth() + 1, 1, 0, 10, 0);
   const countdownEl = document.getElementById("countdown");
   const form = document.getElementById("requestForm");
 
   function updateCountdown() {
-    const current = new Date();
+    const now = new Date();
+    const openDate = new Date(now.getFullYear(), now.getMonth(), 1, 0, 10, 0);
+    const closeDate = new Date(now.getFullYear(), now.getMonth(), 16, 23, 59, 59);
+    const nextMonthOpen = new Date(now.getFullYear(), now.getMonth() + 1, 1, 0, 10, 0);
+
     let target, mode;
+    if (now < openDate) { target = openDate; mode = "belum buka"; }
+    else if (now <= closeDate) { target = closeDate; mode = "buka"; }
+    else { target = nextMonthOpen; mode = "tutup"; }
 
-    if (current < openDate) {
-      target = openDate; mode = "belum buka";
-    } else if (current >= openDate && current <= closeDate) {
-      target = closeDate; mode = "buka";
-    } else {
-      target = nextMonthOpen; mode = "tutup";
-    }
+    const diff = target - now;
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+    const mins = Math.floor((diff / (1000 * 60)) % 60);
+    const secs = Math.floor((diff / 1000) % 60);
 
-    const diff = target - current;
-    const d = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
-    const m = Math.floor((diff / (1000 * 60)) % 60);
-    const s = Math.floor((diff / 1000) % 60);
-
-    if (mode === "buka") {
-      countdownEl.textContent = `Sisa waktu request: ${d} Hari ${h} Jam ${m} Menit ${s} Detik`;
-      form.querySelectorAll("input, select, button").forEach(el => el.disabled = false);
-    } else if (mode === "belum buka") {
-      countdownEl.textContent = `⏳ Belum dibuka. Buka dalam ${d} Hari ${h} Jam ${m} Menit ${s} Detik`;
+    if (mode === "belum buka") {
+      countdownEl.textContent = `⏳ Belum dibuka. Buka dalam: ${days}Hari ${hours}Jam ${mins}Menit ${secs}Detik`;
       form.querySelectorAll("input, select, button").forEach(el => el.disabled = true);
+    } else if (mode === "buka") {
+      countdownEl.textContent = `Sisa waktu request ${days}Hari ${hours}Jam ${mins}Menit ${secs}Detik`;
+      form.querySelectorAll("input, select, button").forEach(el => el.disabled = false);
     } else {
       countdownEl.textContent = "⏰ Waktu request sudah berakhir. Tunggu periode berikutnya.";
       form.querySelectorAll("input, select, button").forEach(el => el.disabled = true);
@@ -118,7 +256,7 @@ function startCountdown() {
 }
 startCountdown();
 
-// === Kirim Data ===
+// === Kirim data ===
 document.getElementById("requestForm").addEventListener("submit", function(e){
   e.preventDefault();
   const status = document.getElementById("status");
@@ -129,18 +267,25 @@ document.getElementById("requestForm").addEventListener("submit", function(e){
   fetch(scriptURL, { method: "POST", body: formData })
     .then(res=>res.text())
     .then(resText=>{
-      if(resText.trim().startsWith("Sukses")) {
-        status.textContent = "✅ " + resText.trim();
+      if (resText.includes("Gagal: Kuota untuk tanggal")) {
+        const match = resText.match(/tanggal\s+([\d-]+)/);
+        const blockedDay = match ? match[1] : "xx";
+        status.textContent = `❌ Kuota penuh tanggal ${blockedDay} (maks ${MAX_KUOTA_HARIAN}).`;
+        status.className = "error";
+      } else if(resText.trim().startsWith("Sukses")) {
+        status.textContent = "✅ "+resText.trim();
         status.className = "success";
-        prefillUserData(); // reload data terakhir
+        setTimeout(initializeApp, 500);
       } else {
-        status.textContent = "❌ " + resText;
+        status.textContent = "❌ "+resText;
         status.className = "error";
       }
     })
     .catch(()=>{
-      status.textContent = "❌ Gagal mengirim data! Cek koneksi atau URL Web App";
+      status.textContent = "❌ Gagal mengirim data! Cek koneksi atau URL Web App.";
       status.className = "error";
     });
 });
 </script>
+</body>
+</html>
