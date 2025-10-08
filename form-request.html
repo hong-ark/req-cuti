@@ -156,7 +156,7 @@ button[type="submit"]:hover {
   </form>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/air-datepicker@3.5.0/air-datepicker.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/air-datepicker@3.5.0/locale/id.js"></script>
 <script>
 const scriptURL = "https://script.google.com/macros/s/AKfycbzR5rqC-ll3MheqTzwP9CGchyfkOWM04qdUt7h565ty9J7gd4hSfH7ui2pwItInxCUPBQ/exec";
 const quotaURL = scriptURL;
@@ -207,6 +207,7 @@ function initDatepicker(selector, disabledDays) {
     startDate: nextMonth,
     minDate: nextMonth,
     maxDate: new Date(nextMonth.getFullYear(), nextMonth.getMonth() + 1, 0),
+    locale: AirDatepicker.locales.id
   });
 }
 
@@ -289,3 +290,4 @@ document.getElementById("requestForm").addEventListener("submit", function(e){
 </script>
 </body>
 </html>
+
