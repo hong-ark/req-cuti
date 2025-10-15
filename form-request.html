@@ -64,7 +64,7 @@ input[readonly] {
   background-color: #f3f3f3;
   color: #555;
 }
-button {
+button[type="submit"] {
   width: 100%;
   padding: 14px;
   margin-top: 5px;
@@ -74,23 +74,13 @@ button {
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.3s ease;
-  color: #fff;
-}
-button#submitBtn {
   background: linear-gradient(90deg, #11998e, #38ef7d);
+  color: #fff;
   box-shadow: 0 6px 15px rgba(17,153,142,0.35);
 }
-button#submitBtn:hover {
+button[type="submit"]:hover {
   transform: translateY(-2px);
   box-shadow: 0 10px 20px rgba(17,153,142,0.45);
-}
-button#viewBtn {
-  background: linear-gradient(90deg, #36D1DC, #5B86E5);
-  box-shadow: 0 6px 15px rgba(54,209,220,0.35);
-}
-button#viewBtn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(54,209,220,0.45);
 }
 #status {
   margin-top: 18px;
@@ -119,40 +109,6 @@ button#viewBtn:hover {
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(-15px); }
   to { opacity: 1; transform: translateY(0); }
-}
-
-/* Popup tampilan input */
-#popup {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.6);
-  display: none;
-  justify-content: center;
-  align-items: center;
-}
-#popupContent {
-  background: white;
-  padding: 25px 30px;
-  border-radius: 15px;
-  width: 360px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-  text-align: left;
-  animation: fadeIn 0.4s ease;
-}
-#popupContent h3 {
-  text-align: center;
-  margin-bottom: 15px;
-  color: #333;
-}
-#popupContent p {
-  font-size: 14px;
-  line-height: 1.5;
-  color: #444;
-  margin: 5px 0;
-}
-#closePopup {
-  margin-top: 10px;
-  background: linear-gradient(90deg, #ff758c, #ff7eb3);
 }
 </style>
 </head>
@@ -190,7 +146,6 @@ button#viewBtn:hover {
     </select>
 
     <button type="submit" id="submitBtn">KIRIM REQUEST</button>
-    <button type="button" id="viewBtn">👁 VIEW INPUT</button>
     <div id="status"></div>
 
     <div id="footer">
@@ -201,19 +156,12 @@ button#viewBtn:hover {
   </form>
 </div>
 
-<!-- Popup -->
-<div id="popup">
-  <div id="popupContent">
-    <h3>Data Input Anda</h3>
-    <div id="popupData"></div>
-    <button id="closePopup">Tutup</button>
-  </div>
-</div>
-
 <script src="https://cdn.jsdelivr.net/npm/air-datepicker@3.5.0/air-datepicker.min.js"></script>
 <script>
-const scriptURL = "https://script.google.com/macros/s/AKfycbxcIxYF68Q-mVMIC2ecrNFr0oFtITPdXC29cUObXUijf0mvXHq6-vF_uoPjIujG-AKr/exec";
+const scriptURL = "https://script.google.com/macros/s/AKfycbzR5rqC-ll3MheqTzwP9CGchyfkOWM04qdUt7h565ty9J7gd4hSfH7ui2pwItInxCUPBQ/exec";
+const quotaURL = scriptURL;
 const MAX_KUOTA_HARIAN = 21;
+
 const monthNames = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
 
 // === Header Bulan Depan ===
@@ -226,20 +174,20 @@ const monthNames = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Ag
   document.getElementById('page-title').textContent = headerText;
 })();
 
-// === Prefill dari URL ===
+// === Ambil data dari URL ===
 const params = new URLSearchParams(window.location.search);
-["nik","nama","group"].forEach(id=>{
-  document.getElementById(id).value = params.get(id) || "";
-});
+document.getElementById("nik").value = params.get("nik") || "";
+document.getElementById("nama").value = params.get("nama") || "";
+document.getElementById("group").value = params.get("group") || "";
 
-// === Ambil data kuota ===
+// === Ambil data kuota & inisialisasi kalender ===
 async function fetchFullDays() {
   try {
-    const response = await fetch(scriptURL);
+    const response = await fetch(quotaURL);
     if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
     return await response.json();
   } catch(e) {
-    console.error("Gagal ambil kuota:", e);
+    console.error("Gagal mengambil kuota:", e);
     return [];
   }
 }
@@ -248,6 +196,9 @@ function initDatepicker(selector, disabledDays) {
   const today = new Date();
   const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
   const disabledDates = disabledDays.map(day => new Date(nextMonth.getFullYear(), nextMonth.getMonth(), parseInt(day)));
+
+  if (document.querySelector(selector).datepicker) document.querySelector(selector).datepicker.destroy();
+
   new AirDatepicker(selector, {
     multipleDates: true,
     multipleDatesSeparator: ', ',
@@ -259,93 +210,103 @@ function initDatepicker(selector, disabledDays) {
       daysMin: ['Mg','Sn','Sl','Rb','Km','Jm','Sb'],
       months: monthNames,
       monthsShort: monthNames.map(m => m.substring(0, 3)),
-      today: 'Hari Ini', clear: 'Bersihkan', firstDay: 1
+      today: 'Hari Ini',
+      clear: 'Bersihkan',
+      dateFormat: 'dd/MM/yyyy',
+      firstDay: 1
     },
-    startDate: nextMonth, minDate: nextMonth, maxDate: new Date(nextMonth.getFullYear(), nextMonth.getMonth() + 1, 0),
-    position: 'bottom left', readOnly: true
+    startDate: nextMonth,
+    minDate: nextMonth,
+    maxDate: new Date(nextMonth.getFullYear(), nextMonth.getMonth() + 1, 0),
+    position: 'bottom left',
+    readOnly: true
   });
 }
 
 async function initializeApp() {
-  const fullDays = await fetchFullDays();
-  initDatepicker('#libur', fullDays);
-  initDatepicker('#cuti', fullDays);
+  const fullDaysList = await fetchFullDays();
+  initDatepicker('#libur', fullDaysList);
+  initDatepicker('#cuti', fullDaysList);
 }
 initializeApp();
 
-// === Countdown otomatis tiap bulan ===
+// === Countdown Otomatis Tiap Bulan ===
 function startCountdown() {
   const now = new Date();
-  const openDate = new Date(now.getFullYear(), now.getMonth(), 1, 0, 10, 0);
-  const closeDate = new Date(now.getFullYear(), now.getMonth(), 16, 23, 59, 59);
-  const nextOpen = new Date(now.getFullYear(), now.getMonth() + 1, 1, 0, 10, 0);
-  const cd = document.getElementById("countdown");
+  const openDate = new Date(now.getFullYear(), now.getMonth(), 1, 0, 10, 0);   // buka tgl 1 jam 00:10
+  const closeDate = new Date(now.getFullYear(), now.getMonth(), 16, 23, 59, 59); // tutup tgl 16 jam 23:59
+  const nextMonthOpen = new Date(now.getFullYear(), now.getMonth() + 1, 1, 0, 10, 0);
+  const countdownEl = document.getElementById("countdown");
   const form = document.getElementById("requestForm");
+  const submitBtn = document.getElementById("submitBtn");
 
-  function update() {
-    const cur = new Date(); let target, mode;
-    if (cur < openDate) { target=openDate; mode="belum"; }
-    else if (cur <= closeDate) { target=closeDate; mode="buka"; }
-    else { target=nextOpen; mode="tutup"; }
+  function updateCountdown() {
+    const current = new Date();
+    let target, mode;
 
-    const diff=target-cur, d=Math.floor(diff/86400000), h=Math.floor(diff/3600000)%24, m=Math.floor(diff/60000)%60, s=Math.floor(diff/1000)%60;
-    if (mode==="belum") {
-      cd.textContent=`⏳ Belum dibuka. Buka dalam: ${d}Hari ${h}Jam ${m}Menit ${s}Detik`;
-      form.querySelectorAll("input,select,button").forEach(el=>el.disabled=true);
-    } else if (mode==="buka") {
-      cd.textContent=`Sisa waktu request: ${d}Hari ${h}Jam ${m}Menit ${s}Detik`;
-      form.querySelectorAll("input,select,button").forEach(el=>el.disabled=false);
+    if (current < openDate) {
+      target = openDate;
+      mode = "belum buka";
+    } else if (current >= openDate && current <= closeDate) {
+      target = closeDate;
+      mode = "buka";
     } else {
-      cd.textContent="⏰ Waktu request sudah berakhir. Tunggu periode berikutnya.";
-      form.querySelectorAll("input,select,button").forEach(el=>el.disabled=true);
+      target = nextMonthOpen;
+      mode = "tutup";
+    }
+
+    const diff = target - current;
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+    const mins = Math.floor((diff / (1000 * 60)) % 60);
+    const secs = Math.floor((diff / 1000) % 60);
+
+    if (mode === "belum buka") {
+      countdownEl.textContent = `⏳ Belum dibuka. Buka dalam: ${days}Hari ${hours}Jam ${mins}Menit ${secs}Detik`;
+      form.querySelectorAll("input, select, button").forEach(el => el.disabled = true);
+    } else if (mode === "buka") {
+      countdownEl.textContent = `Sisa waktu request: ${days}Hari ${hours}Jam ${mins}Menit ${secs}Detik`;
+      form.querySelectorAll("input, select, button").forEach(el => el.disabled = false);
+    } else {
+      countdownEl.textContent = "⏰ Waktu request sudah berakhir. Tunggu periode berikutnya.";
+      form.querySelectorAll("input, select, button").forEach(el => el.disabled = true);
     }
   }
-  update(); setInterval(update,1000);
+
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
 }
 startCountdown();
 
-// === Submit data ===
-document.getElementById("requestForm").addEventListener("submit", e=>{
+// === Kirim Data ===
+document.getElementById("requestForm").addEventListener("submit", function(e){
   e.preventDefault();
-  const status=document.getElementById("status");
-  status.textContent="⏳ Mengirim data..."; status.className="";
-  fetch(scriptURL,{method:"POST",body:new FormData(e.target)})
-  .then(r=>r.text()).then(t=>{
-    if(t.includes("Kuota untuk tanggal")){status.textContent="❌ "+t;status.className="error";}
-    else if(t.startsWith("Sukses")){status.textContent="✅ "+t;status.className="success";}
-    else {status.textContent="❌ Gagal mengirim!";status.className="error";}
-  }).catch(()=>{status.textContent="❌ Gagal koneksi ke server";status.className="error";});
-});
+  const status = document.getElementById("status");
+  status.textContent = "⏳ Mengirim data...";
+  status.className = "";
 
-// === View Input ===
-document.getElementById("viewBtn").addEventListener("click", async ()=>{
-  const nik=document.getElementById("nik").value.trim();
-  if(!nik){alert("Masukkan NIK terlebih dahulu!");return;}
-  try{
-    const res=await fetch(`${scriptURL}?nik=${nik}`);
-    const data=await res.json();
-    const popup=document.getElementById("popup");
-    const popupData=document.getElementById("popupData");
-
-    if(data.status==="found"){
-      popupData.innerHTML=`
-        <p><b>NIK:</b> ${data.nik}</p>
-        <p><b>Nama:</b> ${data.nama}</p>
-        <p><b>Group:</b> ${data.group}</p>
-        <p><b>Req Libur:</b> ${data.libur||"-"}</p>
-        <p><b>Req Cuti:</b> ${data.cuti||"-"}</p>
-        <p><b>Req Lainnya:</b> ${data.requestLainnya||"-"}</p>
-        <p><b>Ekstrakulikuler:</b> ${data.ekstrakulikuler||"-"}</p>
-      `;
-    } else {
-      popupData.innerHTML=`<p>⚠️ Data untuk NIK <b>${nik}</b> belum pernah diinput.</p>`;
-    }
-    popup.style.display="flex";
-  }catch(err){alert("Gagal mengambil data.");console.error(err);}
-});
-
-document.getElementById("closePopup").addEventListener("click",()=>{
-  document.getElementById("popup").style.display="none";
+  const formData = new FormData(this);
+  fetch(scriptURL, { method: "POST", body: formData })
+    .then(res=>res.text())
+    .then(resText=>{
+      if (resText.includes("Gagal: Kuota untuk tanggal") && resText.includes("sudah penuh")) {
+        const match = resText.match(/tanggal\s+([\d-]+)\s+sudah/);
+        const blockedDay = match ? match[1] : "xx";
+        status.textContent = `❌ Kuota penuh tanggal ${blockedDay} (maks ${MAX_KUOTA_HARIAN}).`;
+        status.className = "error";
+      } else if(resText.trim().startsWith("Sukses")) {
+        status.textContent = "✅ "+resText.trim();
+        status.className = "success";
+        setTimeout(initializeApp, 500);
+      } else {
+        status.textContent = "❌ "+(resText.includes("Gagal") ? resText : "Gagal mengirim data!");
+        status.className = "error";
+      }
+    })
+    .catch(()=>{
+      status.textContent = "❌ Gagal mengirim data! Cek koneksi atau URL Web App";
+      status.className = "error";
+    });
 });
 </script>
 </body>
