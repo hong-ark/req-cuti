@@ -18,7 +18,7 @@ body {
 }
 .container {
   background: #fff;
-  padding: 35px 30px 50px; /* tambah padding bawah untuk footer */
+  padding: 35px 30px 50px;
   border-radius: 20px;
   box-shadow: 0 12px 35px rgba(0,0,0,0.15);
   width: 480px;
@@ -47,8 +47,8 @@ h2 {
   padding: 12px 15px;
   border-radius: 12px;
   background-color: #f0f4ff; /* soft pastel biru */
-  border: 1px solid #c5d0ff; /* tipis dan harmonis */
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1); /* shadow lembut */
+  border: 1px solid #c5d0ff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   font-weight: 600;
 }
 
@@ -111,18 +111,20 @@ button[type="submit"]:hover {
 .success { color: #155724; background: #d4edda; border: 1px solid #c3e6cb; }
 .error   { color: #721c24; background: #f8d7da; border: 1px solid #f5c6cb; }
 
-/* FOOTER STYLING */
+/* FOOTER STYLING DENGAN JARAK LEBIH */
 #footer {
-  font-size: 13px; /* diperbesar sedikit */
+  font-size: 13px;
   color: #666;
   text-align: center;
-  margin-top: 30px; /* dinaikkan jaraknya */
+  margin-top: 50px; /* dinaikkan jaraknya */
   line-height: 1.5;
 }
 #countdown {
   font-weight: 600;
   color: #333;
+  margin-top: 15px; /* tambahan jarak di atas countdown */
 }
+
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(-15px); }
   to { opacity: 1; transform: translateY(0); }
@@ -134,7 +136,7 @@ button[type="submit"]:hover {
 <div class="container">
   <h2 id="header-text">REQUEST LIBUR / CUTI JADWAL BULAN DEPAN</h2>
 
-  <!-- INFO NAVIGASI DENGAN DESAIN BARU MINIMALIS -->
+  <!-- INFO NAVIGASI -->
   <div id="info-text">
     Silakan Request Jadwal sesuai keperluan saja.<br>
     Inputan bisa direvisi / diganti berulang kali. Gunakan dengan bijak! 🚀
