@@ -18,7 +18,7 @@ body {
 }
 .container {
   background: #fff;
-  padding: 35px 30px 40px;
+  padding: 35px 30px 50px; /* tambah padding bawah untuk footer */
   border-radius: 20px;
   box-shadow: 0 12px 35px rgba(0,0,0,0.15);
   width: 480px;
@@ -37,15 +37,21 @@ h2 {
   letter-spacing: 1px;
 }
 
-/* Info navigasi di bawah header */
+/* INFO NAVIGASI DENGAN EFEK VISUAL */
 #info-text {
-  font-size: 13px;
-  color: #444;
+  font-size: 14px;
+  color: #fff;
   text-align: center;
   margin-bottom: 20px;
-  line-height: 1.4;
+  line-height: 1.5;
+  padding: 10px 15px;
+  border-radius: 12px;
+  background: linear-gradient(90deg, #11998e, #38ef7d);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  font-weight: 600;
 }
 
+/* FORM STYLING */
 label {
   display: block;
   margin-bottom: 6px;
@@ -104,12 +110,13 @@ button[type="submit"]:hover {
 .success { color: #155724; background: #d4edda; border: 1px solid #c3e6cb; }
 .error   { color: #721c24; background: #f8d7da; border: 1px solid #f5c6cb; }
 
+/* FOOTER STYLING */
 #footer {
-  font-size: 11px;
+  font-size: 13px; /* diperbesar sedikit */
   color: #666;
   text-align: center;
-  margin-top: 20px;
-  line-height: 1.4;
+  margin-top: 30px; /* dinaikkan jaraknya */
+  line-height: 1.5;
 }
 #countdown {
   font-weight: 600;
@@ -126,7 +133,7 @@ button[type="submit"]:hover {
 <div class="container">
   <h2 id="header-text">REQUEST LIBUR / CUTI JADWAL BULAN DEPAN</h2>
 
-  <!-- INFO NAVIGASI DI BAWAH HEADER -->
+  <!-- INFO NAVIGASI DENGAN EFEK VISUAL -->
   <div id="info-text">
     Silakan Request Jadwal sesuai keperluan saja.<br>
     Inputan bisa direvisi / diganti berulang kali. Gunakan dengan bijak! 🚀
@@ -172,13 +179,12 @@ button[type="submit"]:hover {
 
 <script src="https://cdn.jsdelivr.net/npm/air-datepicker@3.5.0/air-datepicker.min.js"></script>
 <script>
+// === SCRIPT SAMA SEPERTI SEBELUMNYA ===
 const scriptURL = "https://script.google.com/macros/s/AKfycbzR5rqC-ll3MheqTzwP9CGchyfkOWM04qdUt7h565ty9J7gd4hSfH7ui2pwItInxCUPBQ/exec";
 const quotaURL = scriptURL;
 const MAX_KUOTA_HARIAN = 21;
-
 const monthNames = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
 
-// === Header Bulan Depan ===
 (function updateHeader() {
   const today = new Date();
   const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
@@ -188,13 +194,11 @@ const monthNames = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Ag
   document.getElementById('page-title').textContent = headerText;
 })();
 
-// === Ambil data dari URL ===
 const params = new URLSearchParams(window.location.search);
 document.getElementById("nik").value = params.get("nik") || "";
 document.getElementById("nama").value = params.get("nama") || "";
 document.getElementById("group").value = params.get("group") || "";
 
-// === Ambil data kuota & inisialisasi kalender ===
 async function fetchFullDays() {
   try {
     const response = await fetch(quotaURL);
@@ -244,7 +248,6 @@ async function initializeApp() {
 }
 initializeApp();
 
-// === Countdown Otomatis Tiap Bulan ===
 function startCountdown() {
   const now = new Date();
   const openDate = new Date(now.getFullYear(), now.getMonth(), 1, 0, 10, 0);
@@ -252,27 +255,18 @@ function startCountdown() {
   const nextMonthOpen = new Date(now.getFullYear(), now.getMonth() + 1, 1, 0, 10, 0);
   const countdownEl = document.getElementById("countdown");
   const form = document.getElementById("requestForm");
-  const submitBtn = document.getElementById("submitBtn");
 
   function updateCountdown() {
     const current = new Date();
     let target, mode;
-
-    if (current < openDate) {
-      target = openDate;
-      mode = "belum buka";
-    } else if (current >= openDate && current <= closeDate) {
-      target = closeDate;
-      mode = "buka";
-    } else {
-      target = nextMonthOpen;
-      mode = "tutup";
-    }
+    if (current < openDate) { target = openDate; mode = "belum buka"; }
+    else if (current >= openDate && current <= closeDate) { target = closeDate; mode = "buka"; }
+    else { target = nextMonthOpen; mode = "tutup"; }
 
     const diff = target - current;
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-    const mins = Math.floor((diff / (1000 * 60)) % 60);
+    const days = Math.floor(diff / (1000*60*60*24));
+    const hours = Math.floor((diff / (1000*60*60)) % 24);
+    const mins = Math.floor((diff / (1000*60)) % 60);
     const secs = Math.floor((diff / 1000) % 60);
 
     if (mode === "belum buka") {
@@ -292,7 +286,6 @@ function startCountdown() {
 }
 startCountdown();
 
-// === Kirim Data ===
 document.getElementById("requestForm").addEventListener("submit", function(e){
   e.preventDefault();
   const status = document.getElementById("status");
