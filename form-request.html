@@ -28,7 +28,7 @@ body {
 }
 h2 {
   text-align: center;
-  margin-bottom: 25px;
+  margin-bottom: 10px;
   font-size: 24px;
   font-weight: 700;
   background: linear-gradient(90deg, #4e54c8, #8f94fb);
@@ -36,6 +36,16 @@ h2 {
   -webkit-text-fill-color: transparent;
   letter-spacing: 1px;
 }
+
+/* Info navigasi di bawah header */
+#info-text {
+  font-size: 13px;
+  color: #444;
+  text-align: center;
+  margin-bottom: 20px;
+  line-height: 1.4;
+}
+
 label {
   display: block;
   margin-bottom: 6px;
@@ -102,7 +112,6 @@ button[type="submit"]:hover {
   line-height: 1.4;
 }
 #countdown {
-  margin-top: 8px;
   font-weight: 600;
   color: #333;
 }
@@ -116,6 +125,12 @@ button[type="submit"]:hover {
 
 <div class="container">
   <h2 id="header-text">REQUEST LIBUR / CUTI JADWAL BULAN DEPAN</h2>
+
+  <!-- INFO NAVIGASI DI BAWAH HEADER -->
+  <div id="info-text">
+    Silakan Request Jadwal sesuai keperluan saja.<br>
+    Inputan bisa direvisi / diganti berulang kali. Gunakan dengan bijak! 🚀
+  </div>
 
   <form id="requestForm">
     <label>NIK</label>
@@ -148,9 +163,8 @@ button[type="submit"]:hover {
     <button type="submit" id="submitBtn">KIRIM REQUEST</button>
     <div id="status"></div>
 
+    <!-- FOOTER HANYA COUNTDOWN -->
     <div id="footer">
-      Silakan Request Jadwal sesuai keperluan saja.<br>
-      Inputan bisa direvisi / diganti berulang kali. Gunakan dengan bijak! 🚀
       <div id="countdown"></div>
     </div>
   </form>
@@ -233,8 +247,8 @@ initializeApp();
 // === Countdown Otomatis Tiap Bulan ===
 function startCountdown() {
   const now = new Date();
-  const openDate = new Date(now.getFullYear(), now.getMonth(), 1, 0, 10, 0);   // buka tgl 1 jam 00:10
-  const closeDate = new Date(now.getFullYear(), now.getMonth(), 16, 23, 59, 59); // tutup tgl 16 jam 23:59
+  const openDate = new Date(now.getFullYear(), now.getMonth(), 1, 0, 10, 0);
+  const closeDate = new Date(now.getFullYear(), now.getMonth(), 16, 23, 59, 59);
   const nextMonthOpen = new Date(now.getFullYear(), now.getMonth() + 1, 1, 0, 10, 0);
   const countdownEl = document.getElementById("countdown");
   const form = document.getElementById("requestForm");
