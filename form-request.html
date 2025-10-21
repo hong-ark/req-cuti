@@ -139,7 +139,7 @@ button[type="submit"]:hover {
   <!-- INFO NAVIGASI -->
   <div id="info-text">
     Silakan Request Jadwal sesuai keperluan saja.<br>
-    Inputan bisa direvisi / diganti berulang kali. Gunakan dengan bijak! 🚀
+    Inputan bisa direvisi / diganti berulang kali. Gunakan dengan bijak!
   </div>
 
   <form id="requestForm">
@@ -279,7 +279,7 @@ function startCountdown() {
       countdownEl.textContent = `Sisa waktu request: ${days}Hari ${hours}Jam ${mins}Menit ${secs}Detik`;
       form.querySelectorAll("input, select, button").forEach(el => el.disabled = false);
     } else {
-      countdownEl.textContent = "⏰ Waktu request sudah berakhir. Tunggu periode berikutnya.";
+      countdownEl.textContent = "⏰ Waktu request sudah berakhir. Open kembali tanggal 1-16 Setiap Bulan.";
       form.querySelectorAll("input, select, button").forEach(el => el.disabled = true);
     }
   }
@@ -321,3 +321,4 @@ document.getElementById("requestForm").addEventListener("submit", function(e){
 </script>
 </body>
 </html>
+
