@@ -308,6 +308,25 @@ document.getElementById("requestForm").addEventListener("submit", function(e){
   status.textContent = "⏳ Mengirim data...";
   status.className = "";
 
+  // === 🧩 Urutkan tanggal sebelum dikirim ===
+  function sortDates(dateString) {
+    if (!dateString) return "";
+    const arr = dateString.split(",").map(d => d.trim());
+    const sorted = arr.sort((a, b) => {
+      const [da, ma] = a.split("-").map(Number);
+      const [db, mb] = b.split("-").map(Number);
+      if (ma === mb) return da - db;
+      return ma - mb;
+    });
+    return sorted.join(", ");
+  }
+
+  // Urutkan input libur & cuti
+  const liburInput = document.getElementById("libur");
+  const cutiInput = document.getElementById("cuti");
+  liburInput.value = sortDates(liburInput.value);
+  cutiInput.value = sortDates(cutiInput.value);
+
   const formData = new FormData(this);
   fetch(scriptURL, { method: "POST", body: formData })
     .then(res=>res.text())
@@ -331,6 +350,8 @@ document.getElementById("requestForm").addEventListener("submit", function(e){
       status.className = "error";
     });
 });
+
 </script>
 </body>
 </html>
+
