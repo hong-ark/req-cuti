@@ -11,9 +11,9 @@ body {
   margin: 0;
   min-height: 100vh;
   display: flex;
-  flex-direction: column;   /* ✅ perbaikan */
+  flex-direction: column;     /* ✅ perbaikan */
+  justify-content: center;    /* ✅ perbaikan */
   align-items: center;
-  justify-content: center;
   background: linear-gradient(135deg, #74ebd5, #ACB6E5);
   padding: 20px;
 }
@@ -119,6 +119,7 @@ const MAX_KUOTA_HARIAN = 21; // (UI saja; server = 18)
 const MAX_LIBUR_USER = 8;
 const monthNames = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
 
+/* ---------- Header dinamis ---------- */
 (function updateHeader() {
   const today = new Date();
   const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
@@ -132,11 +133,13 @@ const monthNames = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Ag
      Untuk hari yg sudah full request maka tidak bisa direquest.`;
 })();
 
+/* ---------- Ambil param URL untuk NIK/Nama/Group ---------- */
 const params = new URLSearchParams(window.location.search);
-document.getElementById("nik").value = params.get("nik") || "";
-document.getElementById("nama").value = params.get("nama") || "";
+document.getElementById("nik").value   = params.get("nik")   || "";
+document.getElementById("nama").value  = params.get("nama")  || "";
 document.getElementById("group").value = params.get("group") || "";
 
+/* ---------- Utility ---------- */
 async function fetchFullDays() {
   try {
     const response = await fetch(quotaURL);
@@ -148,7 +151,30 @@ async function fetchFullDays() {
   }
 }
 
-// ✅ Fungsi datepicker dengan limit otomatis 8 tanggal untuk LIBUR
+// Hitung tanggal unik dari string "d-MM, d-MM"
+function countUniqueDates(str) {
+  if (!str) return 0;
+  return new Set(str.split(",").map(s => s.trim()).filter(Boolean)).size;
+}
+
+// Normalisasi string tanggal dari server (ISO -> "d-MM")
+function normalizeDateString(str) {
+  if (!str) return "";
+  if (/^\d{1,2}-\d{1,2}(,\s*\d{1,2}-\d{1,2})*$/.test(str)) return str;
+  if (Array.isArray(str)) return str.map(normalizeDateString).join(", ");
+  if (typeof str === "string" && str.includes(",")) {
+    return str.split(",").map(s => normalizeDateString(s.trim())).join(", ");
+  }
+  const d = new Date(str);
+  if (!isNaN(d)) {
+    const day = d.getDate();
+    const month = d.getMonth() + 1;
+    return `${day}-${String(month).padStart(2, "0")}`;
+  }
+  return String(str);
+}
+
+/* ---------- Datepicker (limit libur 8 tanggal) ---------- */
 function initDatepicker(selector, disabledDays) {
   const today = new Date();
   const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
@@ -159,7 +185,7 @@ function initDatepicker(selector, disabledDays) {
   const isLibur = (selector === '#libur');
 
   new AirDatepicker(selector, {
-    multipleDates: isLibur ? MAX_LIBUR_USER : true, // ⬅️ limit user
+    multipleDates: isLibur ? MAX_LIBUR_USER : true,
     multipleDatesSeparator: ', ',
     dateFormat: 'd-MM',
     disabledDates: disabledDates,
@@ -179,7 +205,7 @@ function initDatepicker(selector, disabledDays) {
     position: 'bottom left',
     readOnly: true,
     onSelect: ({ formattedDate }) => {
-      if (isLibur && formattedDate.split(',').length === MAX_LIBUR_USER) {
+      if (isLibur && (formattedDate || '').split(',').filter(Boolean).length === MAX_LIBUR_USER) {
         const status = document.getElementById('status');
         status.textContent = `⚠️ Batas ${MAX_LIBUR_USER} tanggal libur sudah tercapai.`;
         status.className = 'error';
@@ -195,8 +221,163 @@ async function initializeApp() {
 }
 initializeApp();
 
-/* ======= countdown & submit form tetap sama seperti versi Anda ======= */
-/* (tidak diubah karena hanya terkait tampilan & pengiriman data) */
+/* ---------- Countdown ---------- */
+function startCountdown() {
+  const now = new Date();
+  const openDate = new Date(now.getFullYear(), now.getMonth(), 1, 0, 10, 0);
+  const closeDate = new Date(now.getFullYear(), now.getMonth(), 16, 23, 59, 59);
+  const nextMonthOpen = new Date(now.getFullYear(), now.getMonth() + 1, 1, 0, 10, 0);
+  const countdownEl = document.getElementById("countdown");
+  const form = document.getElementById("requestForm");
+
+  function updateCountdown() {
+    const current = new Date();
+    let target, mode;
+    if (current < openDate) { target = openDate; mode = "belum buka"; }
+    else if (current >= openDate && current <= closeDate) { target = closeDate; mode = "buka"; }
+    else { target = nextMonthOpen; mode = "tutup"; }
+
+    const diff = target - current;
+    const days = Math.floor(diff / (1000*60*60*24));
+    const hours = Math.floor((diff / (1000*60*60)) % 24);
+    const mins = Math.floor((diff / (1000*60)) % 60);
+    const secs = Math.floor((diff / 1000) % 60);
+
+    if (mode === "belum buka") {
+      countdownEl.textContent = `⏳ Belum dibuka. Buka dalam: ${days}Hari ${hours}Jam ${mins}Menit ${secs}Detik`;
+      form.querySelectorAll("input, select, button").forEach(el => el.disabled = true);
+    } else if (mode === "buka") {
+      countdownEl.textContent = `Sisa waktu request: ${days}Hari ${hours}Jam ${mins}Menit ${secs}Detik`;
+      form.querySelectorAll("input, select, button").forEach(el => el.disabled = false);
+    } else {
+      countdownEl.textContent = "⏰ Waktu request sudah berakhir. Open kembali tanggal 1–16 setiap bulan.";
+      form.querySelectorAll("input, select, button").forEach(el => el.disabled = true);
+    }
+  }
+
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
+}
+startCountdown();
+
+/* ---------- PREFILL: kembalikan seperti semula + lengkapi NIK/Nama/Group ---------- */
+function setFormValuesFromServer(data) {
+  // Isi identitas
+  if (data.nik)   document.getElementById("nik").value   = data.nik;
+  if (data.nama)  document.getElementById("nama").value  = data.nama;
+  if (data.group) document.getElementById("group").value = data.group;
+
+  // Normalisasi tanggal & isi form
+  const liburNorm = normalizeDateString(data.libur || "");
+  const cutiNorm  = normalizeDateString(data.cuti  || "");
+
+  // Terapkan limit tampilan 8 utk LIBUR (UI saja)
+  const liburParts = liburNorm ? liburNorm.split(",").map(s=>s.trim()).filter(Boolean) : [];
+  document.getElementById("libur").value = liburParts.slice(0, MAX_LIBUR_USER).join(", ");
+
+  document.getElementById("cuti").value = cutiNorm;
+  document.getElementById("requestLainnya").value = data.requestLainnya || "";
+
+  if (data.ekstrakulikuler) {
+    const eks = document.getElementById("ekstrakulikuler");
+    const has = Array.from(eks.options).some(o => o.value === data.ekstrakulikuler);
+    if (has) eks.value = data.ekstrakulikuler;
+  }
+}
+
+async function loadExistingByNik(nik) {
+  if (!nik) return;
+  try {
+    const res = await fetch(`${scriptURL}?nik=${encodeURIComponent(nik)}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    if (data && data.status === "found") setFormValuesFromServer(data);
+  } catch (e) {
+    console.error("Gagal prefill:", e);
+  }
+}
+
+// Prefill saat halaman dibuka (mengacu NIK dari URL / input)
+(async function boot(){
+  const nik = document.getElementById("nik").value.trim();
+  if (nik) await loadExistingByNik(nik);
+})();
+
+/* ---------- Submit ---------- */
+document.getElementById("requestForm").addEventListener("submit", async function(e){
+  e.preventDefault();
+  const status = document.getElementById("status");
+  status.textContent = "⏳ Mengirim data...";
+  status.className = "";
+
+  // Urutkan tanggal sebelum dikirim
+  function sortDates(dateString) {
+    if (!dateString) return "";
+    const arr = dateString.split(",").map(d => d.trim()).filter(Boolean);
+    const sorted = arr.sort((a, b) => {
+      const [da, ma] = a.split("-").map(Number);
+      const [db, mb] = b.split("-").map(Number);
+      return ma === mb ? da - db : ma - mb;
+    });
+    return Array.from(new Set(sorted)).join(", ");
+  }
+
+  const liburInput = document.getElementById("libur");
+  const cutiInput = document.getElementById("cuti");
+  liburInput.value = sortDates(liburInput.value);
+  cutiInput.value = sortDates(cutiInput.value);
+
+  // Validasi jumlah tanggal LIBUR max 8 (UI)
+  const liburCount = countUniqueDates(liburInput.value);
+  if (liburCount > MAX_LIBUR_USER) {
+    status.textContent = `❌ Maksimal memilih ${MAX_LIBUR_USER} tanggal libur. Anda memilih ${liburCount}.`;
+    status.className = "error";
+    return;
+  }
+
+  const formData = new FormData(this);
+  formData.append("return","json"); // minta response JSON utk prefill langsung
+
+  try {
+    const res = await fetch(scriptURL, { method: "POST", body: formData });
+    const contentType = res.headers.get("content-type") || "";
+
+    if (contentType.includes("application/json")) {
+      const payload = await res.json();
+      if (payload.status === "success") {
+        status.textContent = "✅ " + payload.message;
+        status.className = "success";
+        setTimeout(initializeApp, 500);
+        setFormValuesFromServer(payload.data || {}); // prefill dari server
+      } else {
+        status.textContent = "❌ " + (payload.message || "Gagal mengirim data!");
+        status.className = "error";
+      }
+    } else {
+      const resText = (await res.text()).trim();
+      const quotaErr = /Gagal:\s*Kuota(?:\s+untuk)?\s*tanggal\s+([\d-]+)/i;
+      const match = resText.match(quotaErr);
+
+      if (match) {
+        const blockedDay = match[1] || "xx";
+        status.textContent = `❌ Kuota penuh tanggal ${blockedDay} (maks ${MAX_KUOTA_HARIAN}).`;
+        status.className = "error";
+      } else if (resText.startsWith("Sukses")) {
+        status.textContent = "✅ " + resText;
+        status.className = "success";
+        setTimeout(initializeApp, 500);
+        const nik = document.getElementById("nik").value.trim();
+        if (nik) await loadExistingByNik(nik); // fallback prefill via GET
+      } else {
+        status.textContent = "❌ " + resText;
+        status.className = "error";
+      }
+    }
+  } catch (err) {
+    status.textContent = "❌ Gagal mengirim data! Cek koneksi atau URL Web App";
+    status.className = "error";
+  }
+});
 </script>
 </body>
 </html>
