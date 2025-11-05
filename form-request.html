@@ -302,7 +302,39 @@ function startCountdown() {
 }
 startCountdown();
 
-document.getElementById("requestForm").addEventListener("submit", function(e){
+// ==========================
+// NEW: Prefill helper
+// ==========================
+function setFormValuesFromServer(data) { // NEW
+  document.getElementById("libur").value = data.libur || "";
+  document.getElementById("cuti").value = data.cuti || "";
+  document.getElementById("requestLainnya").value = data.requestLainnya || "";
+  if (data.ekstrakulikuler) {
+    const eks = document.getElementById("ekstrakulikuler");
+    const has = Array.from(eks.options).some(o => o.value === data.ekstrakulikuler);
+    if (has) eks.value = data.ekstrakulikuler;
+  }
+}
+
+async function loadExistingByNik(nik) { // NEW
+  if (!nik) return;
+  try {
+    const res = await fetch(`${scriptURL}?nik=${encodeURIComponent(nik)}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    if (data && data.status === "found") setFormValuesFromServer(data);
+  } catch (e) {
+    console.error("Gagal prefill:", e);
+  }
+}
+
+// Prefill saat halaman dibuka (tanpa mengubah fungsi lain)
+(async function boot(){ // NEW
+  const nik = document.getElementById("nik").value.trim();
+  if (nik) await loadExistingByNik(nik);
+})();
+
+document.getElementById("requestForm").addEventListener("submit", async function(e){
   e.preventDefault();
   const status = document.getElementById("status");
   status.textContent = "⏳ Mengirim data...";
@@ -311,14 +343,14 @@ document.getElementById("requestForm").addEventListener("submit", function(e){
   // === 🧩 Urutkan tanggal sebelum dikirim ===
   function sortDates(dateString) {
     if (!dateString) return "";
-    const arr = dateString.split(",").map(d => d.trim());
+    const arr = dateString.split(",").map(d => d.trim()).filter(Boolean);
     const sorted = arr.sort((a, b) => {
       const [da, ma] = a.split("-").map(Number);
       const [db, mb] = b.split("-").map(Number);
       if (ma === mb) return da - db;
       return ma - mb;
     });
-    return sorted.join(", ");
+    return Array.from(new Set(sorted)).join(", "); // NEW: hapus duplikat ringan
   }
 
   // Urutkan input libur & cuti
@@ -328,30 +360,51 @@ document.getElementById("requestForm").addEventListener("submit", function(e){
   cutiInput.value = sortDates(cutiInput.value);
 
   const formData = new FormData(this);
-  fetch(scriptURL, { method: "POST", body: formData })
-    .then(res=>res.text())
-    .then(resText=>{
-      if (resText.includes("Gagal: Kuota untuk tanggal") && resText.includes("sudah penuh")) {
-        const match = resText.match(/tanggal\s+([\d-]+)\s+sudah/);
-        const blockedDay = match ? match[1] : "xx";
-        status.textContent = `❌ Kuota penuh tanggal ${blockedDay} (maks ${MAX_KUOTA_HARIAN}).`;
-        status.className = "error";
-      } else if(resText.trim().startsWith("Sukses")) {
-        status.textContent = "✅ "+resText.trim();
+
+  formData.append("return","json"); // NEW: minta balasan JSON utk prefill langsung
+
+  try {
+    const res = await fetch(scriptURL, { method: "POST", body: formData });
+    const contentType = res.headers.get("content-type") || "";
+
+    if (contentType.includes("application/json")) { // NEW: mode JSON
+      const payload = await res.json();
+      if (payload.status === "success") {
+        status.textContent = "✅ " + payload.message;
         status.className = "success";
         setTimeout(initializeApp, 500);
+        setFormValuesFromServer(payload.data || {}); // NEW: prefill langsung
       } else {
-        status.textContent = "❌ "+(resText.includes("Gagal") ? resText : "Gagal mengirim data!");
+        status.textContent = "❌ " + (payload.message || "Gagal mengirim data!");
         status.className = "error";
       }
-    })
-    .catch(()=>{
-      status.textContent = "❌ Gagal mengirim data! Cek koneksi atau URL Web App";
-      status.className = "error";
-    });
-});
+    } else { // Fallback TEXT (kompatibel lama)
+      const resText = (await res.text()).trim();
 
+      // Cocokkan pesan kuota versi lama/baru
+      const quotaErr = /Gagal:\s*Kuota(?:\s+untuk)?\s*tanggal\s+([\d-]+)/i;
+      const match = resText.match(quotaErr);
+
+      if (match) {
+        const blockedDay = match[1] || "xx";
+        status.textContent = `❌ Kuota penuh tanggal ${blockedDay} (maks ${MAX_KUOTA_HARIAN}).`;
+        status.className = "error";
+      } else if (resText.startsWith("Sukses")) {
+        status.textContent = "✅ " + resText;
+        status.className = "success";
+        setTimeout(initializeApp, 500);
+        const nik = document.getElementById("nik").value.trim();
+        if (nik) await loadExistingByNik(nik); // NEW: prefill via GET jika bukan JSON
+      } else {
+        status.textContent = "❌ " + resText;
+        status.className = "error";
+      }
+    }
+  } catch (err) {
+    status.textContent = "❌ Gagal mengirim data! Cek koneksi atau URL Web App";
+    status.className = "error";
+  }
+});
 </script>
 </body>
 </html>
-
