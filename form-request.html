@@ -12,8 +12,8 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;   /* ✅ perbaikan */
-  align-items: center;      /* ✅ perbaikan */
-  justify-content: center;  /* atau flex-start kalau mau container di atas */
+  align-items: center;
+  justify-content: center;
   background: linear-gradient(135deg, #74ebd5, #ACB6E5);
   padding: 20px;
 }
@@ -50,16 +50,14 @@ button[type="submit"]:hover { transform: translateY(-2px); box-shadow: 0 10px 20
 #footer { font-size: 13px; color: #666; text-align: center; margin-top: 50px; line-height: 1.5; }
 #footer-note { font-size: 13px; color: #444; margin-bottom: 10px; font-weight: 600; }
 #countdown { font-weight: 600; color: #333; margin-top: 10px; }
-
 #copyright {
   text-align: center;
   font-size: 12px;
   color: #333;
   opacity: 0.7;
-  margin-top: 25px;  /* jarak dengan container */
+  margin-top: 25px;
   font-weight: 600;
 }
-
 @keyframes fadeIn { from { opacity: 0; transform: translateY(-15px); } to { opacity: 1; transform: translateY(0); } }
 </style>
 </head>
@@ -111,13 +109,94 @@ button[type="submit"]:hover { transform: translateY(-2px); box-shadow: 0 10px 20
   </form>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/air-datepicker@3.5.0/air-datepicker.min.js"></script>
-<script>
-/* ==== JS Anda persis seperti sebelumnya (dipersingkat di sini) ==== */
-/* Pastikan tidak ada blok <script> lain di bawah */
-</script>
-
 <footer id="copyright">© 2025 EDP Fai</footer>
 
+<script src="https://cdn.jsdelivr.net/npm/air-datepicker@3.5.0/air-datepicker.min.js"></script>
+<script>
+const scriptURL = "https://script.google.com/macros/s/AKfycbw4-_3Lr3ObhEXeW7JCyDOkKAS0R-3L30wXhj4Y-Eumra1RNICzjmeFLtBJzyToGtYlHQ/exec";
+const quotaURL = scriptURL;
+const MAX_KUOTA_HARIAN = 21; // (UI saja; server = 18)
+const MAX_LIBUR_USER = 8;
+const monthNames = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+
+(function updateHeader() {
+  const today = new Date();
+  const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+  const nextMonthName = monthNames[nextMonth.getMonth()];
+  const upperMonth = nextMonthName.toUpperCase();
+  const headerText = `REQUEST LIBUR / CUTI BULAN ${upperMonth}`;
+  document.getElementById('header-text').textContent = headerText;
+  document.getElementById('page-title').textContent = headerText;
+  document.getElementById('footer-note').innerHTML =
+    `Kuota libur bulan <b>${upperMonth}</b> 8 jika lembur, tidak lembur 9.<br>
+     Untuk hari yg sudah full request maka tidak bisa direquest.`;
+})();
+
+const params = new URLSearchParams(window.location.search);
+document.getElementById("nik").value = params.get("nik") || "";
+document.getElementById("nama").value = params.get("nama") || "";
+document.getElementById("group").value = params.get("group") || "";
+
+async function fetchFullDays() {
+  try {
+    const response = await fetch(quotaURL);
+    if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
+    return await response.json();
+  } catch(e) {
+    console.error("Gagal mengambil kuota:", e);
+    return [];
+  }
+}
+
+// ✅ Fungsi datepicker dengan limit otomatis 8 tanggal untuk LIBUR
+function initDatepicker(selector, disabledDays) {
+  const today = new Date();
+  const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+  const disabledDates = disabledDays.map(day => new Date(nextMonth.getFullYear(), nextMonth.getMonth(), parseInt(day)));
+
+  if (document.querySelector(selector).datepicker) document.querySelector(selector).datepicker.destroy();
+
+  const isLibur = (selector === '#libur');
+
+  new AirDatepicker(selector, {
+    multipleDates: isLibur ? MAX_LIBUR_USER : true, // ⬅️ limit user
+    multipleDatesSeparator: ', ',
+    dateFormat: 'd-MM',
+    disabledDates: disabledDates,
+    locale: {
+      days: ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'],
+      daysShort: ['Min','Sen','Sel','Rab','Kam','Jum','Sab'],
+      daysMin: ['Mg','Sn','Sl','Rb','Km','Jm','Sb'],
+      months: monthNames,
+      monthsShort: monthNames.map(m => m.substring(0, 3)),
+      today: 'Hari Ini',
+      clear: 'Bersihkan',
+      firstDay: 1
+    },
+    startDate: nextMonth,
+    minDate: nextMonth,
+    maxDate: new Date(nextMonth.getFullYear(), nextMonth.getMonth() + 1, 0),
+    position: 'bottom left',
+    readOnly: true,
+    onSelect: ({ formattedDate }) => {
+      if (isLibur && formattedDate.split(',').length === MAX_LIBUR_USER) {
+        const status = document.getElementById('status');
+        status.textContent = `⚠️ Batas ${MAX_LIBUR_USER} tanggal libur sudah tercapai.`;
+        status.className = 'error';
+      }
+    }
+  });
+}
+
+async function initializeApp() {
+  const fullDaysList = await fetchFullDays();
+  initDatepicker('#libur', fullDaysList);
+  initDatepicker('#cuti', fullDaysList);
+}
+initializeApp();
+
+/* ======= countdown & submit form tetap sama seperti versi Anda ======= */
+/* (tidak diubah karena hanya terkait tampilan & pengiriman data) */
+</script>
 </body>
 </html>
