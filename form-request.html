@@ -11,8 +11,8 @@ body {
   margin: 0;
   min-height: 100vh;
   display: flex;
-  flex-direction: column;   /* ✅ perbaikan layout */
-  justify-content: center;  /* ✅ perbaikan layout */
+  flex-direction: column;
+  justify-content: center;
   align-items: center;
   background: linear-gradient(135deg, #74ebd5, #ACB6E5);
   padding: 20px;
@@ -143,6 +143,20 @@ function normalizeDateString(str) {
   return String(str);
 }
 
+// Konversi "d-MM, d-MM" -> Date[] (menghormati bulan yang ditulis)
+function dmmStringToDates(str) {
+  if (!str) return [];
+  const now = new Date();
+  const year = now.getFullYear();
+  return str.split(",").map(s => s.trim()).filter(Boolean).map(pair => {
+    const m = pair.match(/^(\d{1,2})-(\d{1,2})$/);
+    if (!m) return null;
+    const d = parseInt(m[1], 10);
+    const mo = parseInt(m[2], 10);
+    return new Date(year, mo - 1, d);
+  }).filter(Boolean);
+}
+
 // Bangun array Date[] untuk disabledDates, terima ["2","15"] atau ["2-11","15-11"]
 function buildDisabledDates(fullDays) {
   const now = new Date();
@@ -168,14 +182,20 @@ function countUniqueDates(str) {
   return new Set(str.split(",").map(s => s.trim()).filter(Boolean)).size;
 }
 
-/* ===================== DATEPICKER ===================== */
-function initDatepicker(selector, fullDays) {
+/* ===================== DATEPICKER (DENGAN PRESELECT) ===================== */
+function initDatepicker(selector, fullDays, preselectedStr) {
+  const el = document.querySelector(selector);
+  if (el && el._adp) { el._adp.destroy(); } // hancurkan instance lama bila ada
+
   const disabledDates = buildDisabledDates(fullDays || []);
   const now = new Date();
   const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
   const isLibur = selector === '#libur';
 
-  new AirDatepicker(selector, {
+  // parse preselect dari string input (contoh "2-11, 5-11")
+  const preselectedDates = dmmStringToDates(preselectedStr || "");
+
+  const dp = new AirDatepicker(selector, {
     multipleDates: isLibur ? MAX_LIBUR_USER : true,
     multipleDatesSeparator: ', ',
     dateFormat: 'd-MM',
@@ -194,14 +214,24 @@ function initDatepicker(selector, fullDays) {
     maxDate: new Date(nextMonth.getFullYear(), nextMonth.getMonth() + 1, 0),
     position: 'bottom left',
     readOnly: true,
-    onSelect: ({ formattedDate }) => {
-      if (isLibur && (formattedDate || '').split(',').filter(Boolean).length === MAX_LIBUR_USER) {
-        const st = document.getElementById("status");
-        st.textContent = `⚠️ Batas ${MAX_LIBUR_USER} tanggal libur sudah tercapai.`;
-        st.className = "error";
+    selectedDates: preselectedDates, // ✅ tandai pilihan terakhir
+    onSelect: ({ formattedDate, date }) => {
+      if (!isLibur) return;
+      const parts = (formattedDate || '').split(',').map(s => s.trim()).filter(Boolean);
+      if (parts.length > MAX_LIBUR_USER) {
+        // Kembalikan ke MAX_LIBUR_USER dan update input
+        const cut = dmmStringToDates(parts.slice(0, MAX_LIBUR_USER).join(', '));
+        dp.clear();
+        dp.selectDate(cut);
+        const status = document.getElementById('status');
+        status.textContent = `⚠️ Maksimal memilih ${MAX_LIBUR_USER} tanggal libur.`;
+        status.className = 'error';
       }
     }
   });
+
+  // simpan instance
+  el._adp = dp;
 }
 
 /* ===================== PREFILL ===================== */
@@ -234,7 +264,7 @@ async function fetchCombinedWithFallback(nik) {
     if (res.ok) {
       const json = await res.json();
       if (json && (json.data || json.fullDays)) return json;      // format baru
-      if (Array.isArray(json)) return { status:"ok", data:null, fullDays: json }; // kalau balikan array (format lama)
+      if (Array.isArray(json)) return { status:"ok", data:null, fullDays: json }; // format lama fullDays array
     }
   } catch(_) {}
 
@@ -316,14 +346,16 @@ function startCountdown() {
   try {
     const result = await fetchCombinedWithFallback(nik);
 
-    // Inisialisasi kalender dulu (pakai fullDays apa pun yang tersedia)
-    initDatepicker("#libur", result.fullDays || []);
-    initDatepicker("#cuti",  result.fullDays || []);
-
-    // Lalu prefill kalau ada data user
+    // Prefill dulu input…
     if (result.status === "found" && (result.data || result.nik)) {
       setFormValuesFromServer(result);
     }
+
+    // …baru inisialisasi kalender dengan preselect dari field input
+    const liburPrefill = document.getElementById("libur").value;
+    const cutiPrefill  = document.getElementById("cuti").value;
+    initDatepicker("#libur", result.fullDays || [], liburPrefill);
+    initDatepicker("#cuti",  result.fullDays || [], cutiPrefill);
 
     loading.style.display = "none";
     form.style.display = "block";
@@ -376,7 +408,11 @@ document.getElementById("requestForm").addEventListener("submit", async function
       if (payload.status === "success") {
         status.textContent = "✅ " + payload.message;
         status.className = "success";
-        setFormValuesFromServer(payload.data || {}); // prefill langsung dari server
+        setFormValuesFromServer(payload.data || {});
+
+        // Refresh tanggal terpilih di kalender setelah simpan
+        initDatepicker("#libur", [], document.getElementById("libur").value);
+        initDatepicker("#cuti",  [], document.getElementById("cuti").value);
       } else {
         status.textContent = "❌ " + (payload.message || "Gagal mengirim data!");
         status.className = "error";
@@ -393,13 +429,17 @@ document.getElementById("requestForm").addEventListener("submit", async function
       } else if (resText.startsWith("Sukses")) {
         status.textContent = "✅ " + resText;
         status.className = "success";
-        // fallback prefill via GET jika bukan JSON
+        // Fallback prefill via GET jika bukan JSON
         const nik = document.getElementById("nik").value.trim();
         if (nik) {
           try {
             const r = await fetch(`${scriptURL}?nik=${encodeURIComponent(nik)}`);
             const j = await r.json();
-            if (j && j.status === "found") setFormValuesFromServer(j);
+            if (j && j.status === "found") {
+              setFormValuesFromServer(j);
+              initDatepicker("#libur", [], document.getElementById("libur").value);
+              initDatepicker("#cuti",  [], document.getElementById("cuti").value);
+            }
           } catch(_) {}
         }
       } else {
