@@ -54,6 +54,15 @@ button[type="submit"]:hover { transform: translateY(-2px); box-shadow: 0 10px 20
 #loading { text-align: center; color: #333; font-weight: 600; margin-top: 10px; animation: fadeBlink 1.2s infinite; }
 @keyframes fadeBlink { 0%,100%{opacity:0.3;} 50%{opacity:1;} }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(-15px); } to { opacity: 1; transform: translateY(0); } }
+
+/* (Opsional) Tegaskan tampilan tanggal yang di-disable */
+.air-datepicker-cell.-disabled- {
+  background: #f3f3f3 !important;
+  color: #999 !important;
+  text-decoration: line-through;
+  cursor: not-allowed !important;
+  opacity: 0.7;
+}
 </style>
 </head>
 <body>
@@ -70,7 +79,8 @@ button[type="submit"]:hover { transform: translateY(-2px); box-shadow: 0 10px 20
 
   <form id="requestForm" style="display:none;">
     <label>NIK</label>
-    <input type="text" id="nik" name="nik" readonly>
+    <!-- NIK kini bisa diedit agar prefill bisa dipanggil manual -->
+    <input type="text" id="nik" name="nik">
 
     <label>Nama</label>
     <input type="text" id="nama" name="nama" readonly>
@@ -143,7 +153,7 @@ function normalizeDateString(str) {
   return String(str);
 }
 
-// Konversi "d-MM, d-MM" -> Date[] (menghormati bulan yang ditulis)
+// "d-MM, d-MM" -> Date[] (pakai tahun berjalan)
 function dmmStringToDates(str) {
   if (!str) return [];
   const now = new Date();
@@ -157,7 +167,7 @@ function dmmStringToDates(str) {
   }).filter(Boolean);
 }
 
-// Bangun array Date[] untuk disabledDates, terima ["2","15"] atau ["2-11","15-11"]
+// Disabled dates builder: terima ["2","15"] atau ["2-11","15-11"]
 function buildDisabledDates(fullDays) {
   const now = new Date();
   const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
@@ -192,10 +202,11 @@ function initDatepicker(selector, fullDays, preselectedStr) {
   const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
   const isLibur = selector === '#libur';
 
-  // parse preselect dari string input (contoh "2-11, 5-11")
+  // preselect
   const preselectedDates = dmmStringToDates(preselectedStr || "");
 
   const dp = new AirDatepicker(selector, {
+    // Air Datepicker v3 menerima number utk limit jumlah multipleDates
     multipleDates: isLibur ? MAX_LIBUR_USER : true,
     multipleDatesSeparator: ', ',
     dateFormat: 'd-MM',
@@ -214,12 +225,12 @@ function initDatepicker(selector, fullDays, preselectedStr) {
     maxDate: new Date(nextMonth.getFullYear(), nextMonth.getMonth() + 1, 0),
     position: 'bottom left',
     readOnly: true,
-    selectedDates: preselectedDates, // ✅ tandai pilihan terakhir
-    onSelect: ({ formattedDate, date }) => {
+    selectedDates: preselectedDates, // tandai pilihan terakhir
+    onSelect: ({ formattedDate }) => {
       if (!isLibur) return;
       const parts = (formattedDate || '').split(',').map(s => s.trim()).filter(Boolean);
       if (parts.length > MAX_LIBUR_USER) {
-        // Kembalikan ke MAX_LIBUR_USER dan update input
+        // kembalikan ke MAX_LIBUR_USER
         const cut = dmmStringToDates(parts.slice(0, MAX_LIBUR_USER).join(', '));
         dp.clear();
         dp.selectDate(cut);
@@ -230,7 +241,6 @@ function initDatepicker(selector, fullDays, preselectedStr) {
     }
   });
 
-  // simpan instance
   el._adp = dp;
 }
 
@@ -452,6 +462,68 @@ document.getElementById("requestForm").addEventListener("submit", async function
     status.className = "error";
   }
 });
+
+/* ===================== PREFILL BY NIK (Ketik / Enter / Blur) ===================== */
+function debounce(fn, delay=400) {
+  let t;
+  return (...args) => {
+    clearTimeout(t);
+    t = setTimeout(() => fn(...args), delay);
+  };
+}
+
+async function handleNikChange() {
+  const nikEl = document.getElementById("nik");
+  const nik = (nikEl.value || "").trim();
+  const loading = document.getElementById("loading");
+  const form = document.getElementById("requestForm");
+  const status = document.getElementById("status");
+
+  if (!nik) return;
+
+  if (loading) loading.style.display = "block";
+  if (form) form.style.display = "none";
+
+  try {
+    const result = await fetchCombinedWithFallback(nik);
+
+    if (result && (result.data || result.nik || result.status === "found")) {
+      setFormValuesFromServer(result);
+    } else {
+      document.getElementById("nama").value = "";
+      document.getElementById("group").value = "";
+      document.getElementById("libur").value = "";
+      document.getElementById("cuti").value  = "";
+      status.textContent = "⚠️ Data NIK tidak ditemukan.";
+      status.className = "error";
+    }
+
+    const liburPrefill = document.getElementById("libur").value;
+    const cutiPrefill  = document.getElementById("cuti").value;
+    initDatepicker("#libur", result.fullDays || [], liburPrefill);
+    initDatepicker("#cuti",  result.fullDays || [], cutiPrefill);
+
+  } catch (e) {
+    console.error(e);
+    status.textContent = "❌ Gagal memuat data NIK: " + e.message;
+    status.className = "error";
+  } finally {
+    if (loading) loading.style.display = "none";
+    if (form) form.style.display = "block";
+  }
+}
+
+(function attachNikListeners(){
+  const nikEl = document.getElementById("nik");
+  if (!nikEl) return;
+  nikEl.addEventListener("keydown", (e)=>{
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleNikChange();
+    }
+  });
+  nikEl.addEventListener("blur", debounce(handleNikChange, 300));
+})();
 </script>
 </body>
 </html>
