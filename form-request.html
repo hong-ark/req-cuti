@@ -107,8 +107,8 @@ button[type="submit"]:hover{transform:translateY(-2px);box-shadow:0 10px 20px rg
 <script>
 /* ===================== KONFIG ===================== */
 const scriptURL       = "https://script.google.com/macros/s/AKfycbw-WhLaIfYV-Bw9461SlQ0quebn0zjeejj5E-U2LL9eNgWXE8-RZqtGrso2elTRI1Yz4w/exec";
-const MAX_KUOTA_HARIAN= 21;     // Info di UI (server = 18)
-const MAX_LIBUR_USER  = 8;      // Batas per user untuk LIBUR
+const MAX_KUOTA_HARIAN= 17;     // Info di UI (server = 18)
+const MAX_LIBUR_USER  = 9;      // Batas per user untuk LIBUR
 const monthNames = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
 
 /* ===================== HEADER DINAMIS ===================== */
@@ -120,7 +120,7 @@ const monthNames = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Ag
   document.getElementById('header-text').textContent = headerText;
   document.getElementById('page-title').textContent  = headerText;
   document.getElementById('footer-note').innerHTML =
-    `Kuota libur bulan <b>${upperMonth}</b> 8 jika lembur, tidak lembur 9.<br>
+    `Kuota libur bulan <b>${upperMonth}</b> 9 jika lembur 2, Lembur 1 10, Tidak lembur 11.<br>
      Untuk hari yg sudah full request maka tidak bisa direquest.`;
 })();
 
@@ -392,3 +392,4 @@ document.getElementById("requestForm").addEventListener("submit", async function
 </script>
 </body>
 </html>
+
