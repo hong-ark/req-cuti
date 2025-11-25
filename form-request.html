@@ -133,6 +133,9 @@ document.getElementById('nik').value   = nikQS;   // readonly
 document.getElementById('nama').value  = namaQS;  // readonly
 document.getElementById('group').value = groupQS; // readonly
 
+// default bypass flag (akan di-set setelah fetch)
+window.userBypass = false;
+
 /* ===================== HELPERS ===================== */
 // Normalisasi tanggal dari berbagai format -> "d-MM"
 function normalizeDateString(str){
@@ -159,7 +162,6 @@ function dmmStringToDates(str){
 function buildDisabledDates(fullDays){
   const now = new Date();
   const y = now.getFullYear();
-  const m = now.getMonth()+1; // next month index for safety handled below if needed
   const nextMonth = new Date(y, now.getMonth()+1, 1);
   if(!Array.isArray(fullDays)) return [];
   return fullDays.map(s=>{
@@ -247,16 +249,24 @@ function setFormValuesFromServer(payload){
   }
 }
 
-/* ===================== COUNTDOWN ===================== */
+/* ===================== COUNTDOWN (REVISI: next month + bypass check) ===================== */
 function startCountdown(){
   const now = new Date();
-  const openDate  = new Date(now.getFullYear(), now.getMonth(), 1, 0,10,0);
-  const closeDate = new Date(now.getFullYear(), now.getMonth(),16,23,59,59);
-  const nextOpen  = new Date(now.getFullYear(), now.getMonth()+1, 1, 0,10,0);
+  const nextMonth = new Date(now.getFullYear(), now.getMonth()+1, 1, 0,10,0); // next month 1st 00:10
+  const openDate  = nextMonth;
+  const closeDate = new Date(nextMonth.getFullYear(), nextMonth.getMonth(),16,23,59,59);
+  const nextOpen  = new Date(nextMonth.getFullYear(), nextMonth.getMonth()+1, 1, 0,10,0);
   const el = document.getElementById("countdown");
   const form = document.getElementById("requestForm");
 
   function tick(){
+    // BYPASS: user memiliki flag bypass -> langsung aktifkan form
+    if (window.userBypass === true) {
+      el.textContent = "✅ Anda memiliki akses khusus (bypass) — timer dinonaktifkan.";
+      form.querySelectorAll("input, select, button").forEach(x => x.disabled = false);
+      return;
+    }
+
     const cur=new Date(); let target,mode;
     if(cur<openDate){ target=openDate; mode="belum"; }
     else if(cur<=closeDate){ target=closeDate; mode="buka"; }
@@ -284,8 +294,6 @@ function startCountdown(){
 
 /* ===================== BOOT ===================== */
 (async function boot(){
-  startCountdown();
-
   const nik = (document.getElementById('nik').value || '').trim();
   const loading = document.getElementById('loading');
   const form    = document.getElementById('requestForm');
@@ -297,8 +305,21 @@ function startCountdown(){
     const resUser = await fetch(`${scriptURL}?nik=${encodeURIComponent(nik)}`);
     if(resUser.ok){
       const data = await resUser.json();
-      if(data && data.status==="found"){ setFormValuesFromServer(data); }
+
+      // set form values if server returned data
+      if(data && (data.nama || data.status === "found" || data.nik)) {
+        setFormValuesFromServer(data);
+      }
+
+      // set bypass flag based on server response (doGet now returns bypass)
+      window.userBypass = !!data.bypass;
+    } else {
+      // If server returned non-ok, ensure bypass false
+      window.userBypass = false;
     }
+
+    // Start countdown AFTER we know bypass state
+    startCountdown();
 
     // Ambil tanggal full (kuota 18) -> disable
     const resDays = await fetch(scriptURL);
@@ -310,6 +331,12 @@ function startCountdown(){
 
     loading.style.display="none";
     form.style.display="block";
+
+    // If bypass, ensure form enabled immediately
+    if(window.userBypass === true){
+      form.querySelectorAll("input, select, button").forEach(x => x.disabled = false);
+      document.getElementById('countdown').textContent = "✅ Akses khusus: timer dimatikan untuk NIK ini.";
+    }
   }catch(e){
     loading.textContent = "❌ Gagal memuat data: " + e.message;
   }
@@ -378,7 +405,7 @@ document.getElementById("requestForm").addEventListener("submit", async function
         try{
           const r = await fetch(`${scriptURL}?nik=${encodeURIComponent(nik)}`);
           const j = await r.json();
-          if(j && j.status==="found") setFormValuesFromServer(j);
+          if(j && (j.nama || j.status==="found")) setFormValuesFromServer(j);
         }catch(_){}
       } else {
         status.textContent="❌ "+text; status.className="error";
@@ -390,7 +417,11 @@ document.getElementById("requestForm").addEventListener("submit", async function
   }
 });
 </script>
+
+<!-- local screenshot (for reference) -->
+<div style="text-align:center;margin-top:14px;">
+  <a href="/mnt/data/66e03a2d-e102-46c9-8519-b76c933ba89b.png" target="_blank" class="small">Lihat screenshot referensi</a>
+</div>
+
 </body>
 </html>
-
-
