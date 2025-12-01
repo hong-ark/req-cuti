@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <title id="page-title">REQUEST LIBUR / CUTI JADWAL BULAN DEPAN</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/air-datepicker@3.5.0/air-datepicker.min.css">
 <style>
@@ -16,11 +17,13 @@ button{width:100%;padding:12px;border-radius:10px;border:none;background:linear-
 .error{background:#f8d7da;color:#842029;padding:6px;border-radius:8px}
 #loading{text-align:center;margin-bottom:10px}
 #countdown{text-align:center;margin-top:8px;font-weight:600}
+.smallnote{font-size:13px;color:#555;margin-top:8px;text-align:center}
 </style>
 </head>
 <body>
-<div class="container">
-  <h2 id="header-text">REQUEST LIBUR / CUTI BULAN DEPAN</h2>
+<div class="container" role="main" aria-labelledby="title">
+  <h2 id="title">REQUEST LIBUR / CUTI BULAN DEPAN</h2>
+
   <div id="loading">⏳ Memuat data...</div>
 
   <form id="requestForm" style="display:none;">
@@ -33,10 +36,10 @@ button{width:100%;padding:12px;border-radius:10px;border:none;background:linear-
     <label>Group</label>
     <input type="text" id="group" name="group" readonly>
 
-    <label>Request Libur (Klik untuk memilih)</label>
+    <label>Request Libur (klik untuk memilih)</label>
     <input type="text" id="libur" name="libur" placeholder="Pilih tanggal libur" readonly>
 
-    <label>Request Cuti (Klik untuk memilih)</label>
+    <label>Request Cuti (klik untuk memilih)</label>
     <input type="text" id="cuti" name="cuti" placeholder="Pilih tanggal cuti" readonly>
 
     <label>Request Lainnya</label>
@@ -52,55 +55,47 @@ button{width:100%;padding:12px;border-radius:10px;border:none;background:linear-
     </select>
 
     <button type="submit">KIRIM REQUEST</button>
-    <div id="status"></div>
-    <div id="countdown"></div>
+    <div id="status" role="status"></div>
+    <div id="countdown" aria-live="polite"></div>
+    <div class="smallnote" id="bypassNote" style="display:none;color:#155724"></div>
   </form>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/air-datepicker@3.5.0/air-datepicker.min.js"></script>
 <script>
-/* ===================== KONFIG ===================== */
+/* ===================== CONFIG ===================== */
+// GANTI DENGAN WEB APP URL ANDA jika berbeda
 const scriptURL = "https://script.google.com/macros/s/AKfycbw-WhLaIfYV-Bw9461SlQ0quebn0zjeejj5E-U2LL9eNgWXE8-RZqtGrso2elTRI1Yz4w/exec";
+
 const MAX_LIBUR_USER = 8;
-const monthNames = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
 
 /* ===================== AMBIL NIK DARI URL ===================== */
 const qs = new URLSearchParams(location.search);
-const nikQS = (qs.get('nik')||'').trim();
+const nikQS = (qs.get('nik') || '').trim();
 document.getElementById('nik').value = nikQS;
 
-/* ===================== UTIL HELPERS ===================== */
-/** Parse input berbagai bentuk -> array angka hari [2,5,10] */
+/* ===================== HELPERS (parse hari-only dll) ===================== */
 function parseDaysOnly(str){
   if(!str) return [];
   return String(str).split(',')
     .map(s=>s.trim()).filter(Boolean)
     .map(token=>{
-      // if token "d-MM" -> extract the day part before '-'
       const m = token.match(/^(\d{1,2})(?:-\d{1,2})?$/);
       if(m) return Number(m[1]);
-      // fallback try Date parse
       const d = new Date(token);
       return isNaN(d) ? null : d.getDate();
     })
-    .filter(n=>Number.isFinite(n))
-    .map(n=>Number(n));
+    .filter(n=>Number.isFinite(n)).map(n=>Number(n));
 }
-
-/** Days array -> string "2,5,10" (no spaces) */
 function daysArrayToString(arr){
   if(!Array.isArray(arr) || arr.length===0) return "";
   const uniq = Array.from(new Set(arr.map(n=>Number(n)).filter(n=>n>0 && n<=31)));
   return uniq.join(",");
 }
-
-/** Days array -> display string "2, 5, 10" (with spaces for UX) */
 function daysArrayToDisplay(arr){
   if(!Array.isArray(arr) || arr.length===0) return "";
   return Array.from(new Set(arr.map(n=>Number(n)).filter(n=>n>0 && n<=31))).join(", ");
 }
-
-/** Convert "2,5" or "2-05,5-05" to Date objects in next month (for datepicker selectedDates) */
 function daysToDateObjects(str){
   const days = parseDaysOnly(str);
   if(days.length===0) return [];
@@ -109,12 +104,12 @@ function daysToDateObjects(str){
   return days.map(d => new Date(nextMonth.getFullYear(), nextMonth.getMonth(), Number(d)));
 }
 
-/* ===================== DATEPICKER ===================== */
+/* ===================== DATEPICKER INIT ===================== */
 function initDatepicker(selector, fullDaysArr, preselectedStr){
   const el = document.querySelector(selector);
-  if(el && el._adp) el._adp.destroy();
+  if(!el) return;
+  if(el._adp) el._adp.destroy();
 
-  // convert fullDaysArr (array of "2" or "2-05") -> Date objects in next month
   const disabledDates = (Array.isArray(fullDaysArr) ? fullDaysArr : []).map(x=>{
     const day = Number(String(x).split('-')[0]);
     const now = new Date();
@@ -131,11 +126,9 @@ function initDatepicker(selector, fullDaysArr, preselectedStr){
     maxDate: new Date(new Date().getFullYear(), new Date().getMonth()+1, 0),
     position: 'bottom left',
     onSelect: ({ formattedDate })=>{
-      // enforce MAX_LIBUR_USER only for libur field
       if(selector === '#libur'){
         const parts = (formattedDate||'').split(',').map(s=>s.trim()).filter(Boolean);
         if(parts.length > MAX_LIBUR_USER){
-          // cut selection back to limit
           const selected = daysToDateObjects(parts.slice(0,MAX_LIBUR_USER).join(','));
           dp.clear(); dp.selectDate(selected);
           showStatus(`⚠️ Maksimal memilih ${MAX_LIBUR_USER} tanggal libur.`, 'error');
@@ -143,14 +136,12 @@ function initDatepicker(selector, fullDaysArr, preselectedStr){
           clearStatus();
         }
       }
-      // Note: input will display d-MM; we'll convert to day-only on submit
     }
   });
-
   el._adp = dp;
 }
 
-/* ===================== UI HELPERS ===================== */
+/* ===================== UI status ===================== */
 function showStatus(text, type){
   const s = document.getElementById('status');
   s.textContent = text || '';
@@ -158,103 +149,156 @@ function showStatus(text, type){
 }
 function clearStatus(){ showStatus('', null); }
 
-/* ===================== PREFILL DARI SERVER ===================== */
+/* ===================== PREFILL dari GAS (defensive) ===================== */
 function setFormValuesFromServer(payload){
-  const src = payload && payload.data ? payload.data : payload || {};
-  if(src.nik != null) document.getElementById('nik').value = src.nik;
-  if(src.nama != null) document.getElementById('nama').value = src.nama;
-  if(src.group != null) document.getElementById('group').value = src.group;
+  // payload bisa: {status:'found', nik, nama, group, libur, cuti, ...}
+  // atau langsung {nik,nama,group,...} atau {data:{...}}
+  const src = payload && payload.data ? payload.data : (payload || {});
+  // jika payload adalah array (fullDays), src akan jadi {} -> aman
+  if(typeof src === 'object' && !Array.isArray(src)){
+    if(src.nik != null) document.getElementById('nik').value = src.nik;
+    if(src.nama != null) document.getElementById('nama').value = src.nama;
+    if(src.group != null) document.getElementById('group').value = src.group;
 
-  // Normalize libur/cuti to days-only display
-  const liburDays = parseDaysOnly(src.libur || "");
-  const cutiDays  = parseDaysOnly(src.cuti  || "");
-  document.getElementById('libur').value = daysArrayToDisplay(liburDays);
-  document.getElementById('cuti').value  = daysArrayToDisplay(cutiDays);
+    const liburDays = parseDaysOnly(src.libur || "");
+    const cutiDays  = parseDaysOnly(src.cuti || "");
+    document.getElementById('libur').value = daysArrayToDisplay(liburDays);
+    document.getElementById('cuti').value  = daysArrayToDisplay(cutiDays);
 
-  document.getElementById('requestLainnya').value = src.requestLainnya || "";
-  if(src.ekstrakulikuler) document.getElementById('ekstrakulikuler').value = src.ekstrakulikuler;
+    document.getElementById('requestLainnya').value = src.requestLainnya || "";
+    if(src.ekstrakulikuler) document.getElementById('ekstrakulikuler').value = src.ekstrakulikuler;
+  }
 }
 
-/* ===================== COUNTDOWN (tanggal buka 1–16) ===================== */
-function startCountdown(){
+/* ===================== COUNTDOWN & BYPASS HANDLING ===================== */
+let userBypass = false;
+function startCountdownAndApplyBypass(){
   const el = document.getElementById('countdown');
   const form = document.getElementById('requestForm');
-  function tick(){
+
+  function update(){
+    // if bypass -> enable always
+    if(userBypass === true){
+      el.textContent = "✅ Anda memiliki akses khusus (bypass) — timer dinonaktifkan.";
+      document.getElementById('bypassNote').style.display = 'block';
+      document.getElementById('bypassNote').textContent = 'Akses bypass aktif untuk NIK ini.';
+      form.querySelectorAll('input,select,button').forEach(i=>i.disabled=false);
+      return;
+    }
+
+    // regular timer: buka tanggal 1–16 bulan berjalan
     const now = new Date();
     const open = new Date(now.getFullYear(), now.getMonth(), 1, 0, 10, 0);
     const close = new Date(now.getFullYear(), now.getMonth(), 16, 23, 59, 59);
+
     if(now < open){
       el.textContent = "⏳ Belum dibuka.";
-      form.querySelectorAll("input,select,button").forEach(i=>i.disabled=true);
+      form.querySelectorAll('input,select,button').forEach(i=>i.disabled=true);
     } else if(now > close){
       el.textContent = "⏰ Waktu request sudah berakhir.";
-      form.querySelectorAll("input,select,button").forEach(i=>i.disabled=true);
+      form.querySelectorAll('input,select,button').forEach(i=>i.disabled=true);
     } else {
       el.textContent = "";
-      form.querySelectorAll("input,select,button").forEach(i=>i.disabled=false);
+      form.querySelectorAll('input,select,button').forEach(i=>i.disabled=false);
     }
   }
-  tick(); setInterval(tick,1000);
+  update();
+  setInterval(update, 1000);
 }
 
-/* ===================== BOOT ===================== */
+/* ===================== BOOT (robust sequence) ===================== */
 (async function boot(){
   const loading = document.getElementById('loading');
   const form = document.getElementById('requestForm');
   const nik = document.getElementById('nik').value.trim();
-  if(!nik){ loading.textContent = "❌ NIK tidak ditemukan di URL"; return; }
+  if(!nik){
+    loading.textContent = "❌ NIK tidak ditemukan di URL";
+    return;
+  }
 
   try{
-    // prefill data for nik
+    // 1) ambil data user (prefill + bypass info)
+    console.log('Fetching user data for NIK', nik, 'from', scriptURL);
     const resUser = await fetch(`${scriptURL}?nik=${encodeURIComponent(nik)}`);
-    const data = await resUser.json();
-    setFormValuesFromServer(data);
+    if(!resUser.ok){
+      const txt = await resUser.text();
+      console.error('User fetch non-ok:', resUser.status, txt);
+      loading.textContent = "❌ Gagal memuat identitas (server error). Cek console.";
+      return;
+    }
+    const userJson = await resUser.json();
+    console.log('User response:', userJson);
 
-    // get fullDays (disabled) from server
+    // if GAS returns array (fullDays) mistakenly, we still proceed; setFormValuesFromServer handles that
+    setFormValuesFromServer(userJson);
+
+    // detect bypass flag if returned by your user-doGet
+    if(userJson && (userJson.bypass === true || userJson.bypass === "1" || userJson.bypass === 1 || String(userJson.bypass).toLowerCase()==='true')){
+      userBypass = true;
+    } else if(userJson && userJson.data && (userJson.data.bypass === true || String(userJson.data.bypass).toLowerCase()==='1' || String(userJson.data.bypass).toLowerCase()==='true')){
+      userBypass = true;
+    } else {
+      userBypass = false;
+    }
+    console.log('userBypass=', userBypass);
+
+    // 2) ambil fullDays (list untuk disabledDates). server default GET tanpa param mengembalikan array fullDays
     const resDays = await fetch(scriptURL);
-    const fullDays = resDays.ok ? await resDays.json() : [];
+    let fullDays = [];
+    if(resDays.ok){
+      try{ fullDays = await resDays.json(); } catch(e){ fullDays = []; console.warn('Failed to parse fullDays as json', e); }
+    } else {
+      console.warn('fullDays fetch non-ok', resDays.status);
+    }
+    console.log('fullDays:', fullDays);
 
-    // For datepicker preselected, prefer server's raw values (may be d-MM or day-only)
-    const preLibur = (data?.data?.libur || data?.libur) || document.getElementById('libur').value;
-    const preCuti  = (data?.data?.cuti  || data?.cuti)  || document.getElementById('cuti').value;
+    // 3) init datepickers (preselected prefer server values)
+    // server may return libur/cuti at top-level or inside data
+    const preLibur = (userJson?.data?.libur) || userJson?.libur || document.getElementById('libur').value;
+    const preCuti  = (userJson?.data?.cuti ) || userJson?.cuti  || document.getElementById('cuti').value;
 
     initDatepicker('#libur', fullDays, preLibur);
     initDatepicker('#cuti',  fullDays, preCuti);
 
+    // 4) show form & hide loading
     loading.style.display = 'none';
     form.style.display = 'block';
 
-    startCountdown();
+    // 5) start countdown AFTER bypass known
+    startCountdownAndApplyBypass();
+
+    // if bypass, show small note
+    if(userBypass){
+      document.getElementById('bypassNote').style.display = 'block';
+      document.getElementById('bypassNote').textContent = 'Akses bypass aktif untuk NIK ini.';
+    } else {
+      document.getElementById('bypassNote').style.display = 'none';
+    }
+
   }catch(err){
-    loading.textContent = "❌ Gagal memuat data: " + (err.message || err);
-    console.error(err);
+    console.error('boot error', err);
+    loading.textContent = "❌ Gagal memuat data: " + (err?.message || err);
   }
 })();
 
-/* ===================== SUBMIT: KONVERSI KE HARI-SAJA SEBELUM KIRIM ===================== */
+/* ===================== SUBMIT: konversi ke hari saja sebelum kirim ===================== */
 document.getElementById('requestForm').addEventListener('submit', async function(e){
   e.preventDefault();
   showStatus('⏳ Mengirim data...', null);
 
   try{
-    // The inputs (#libur and #cuti) may contain:
-    // - day-only display "2, 5, 10"
-    // - or date-format "2-12, 5-12"
-    // -> parseDaysOnly will extract day numbers
-    const liburInputRaw = document.getElementById('libur').value;
-    const cutiInputRaw  = document.getElementById('cuti').value;
+    const liburRaw = document.getElementById('libur').value;
+    const cutiRaw  = document.getElementById('cuti').value;
+    const liburArr = parseDaysOnly(liburRaw);
+    const cutiArr  = parseDaysOnly(cutiRaw);
 
-    const liburDaysArr = parseDaysOnly(liburInputRaw);
-    const cutiDaysArr  = parseDaysOnly(cutiInputRaw);
-
-    // validate per-user libur limit
-    if(liburDaysArr.length > MAX_LIBUR_USER){
-      showStatus(`❌ Maksimal memilih ${MAX_LIBUR_USER} tanggal libur. Anda memilih ${liburDaysArr.length}.`, 'error');
+    if(liburArr.length > MAX_LIBUR_USER){
+      showStatus(`❌ Maksimal memilih ${MAX_LIBUR_USER} tanggal libur. Anda memilih ${liburArr.length}.`, 'error');
       return;
     }
 
-    const liburToSend = daysArrayToString(liburDaysArr); // "2,5,10"
-    const cutiToSend  = daysArrayToString(cutiDaysArr);
+    const liburToSend = daysArrayToString(liburArr);
+    const cutiToSend  = daysArrayToString(cutiArr);
 
     const fd = new FormData();
     fd.append('nik', document.getElementById('nik').value.trim());
@@ -264,18 +308,19 @@ document.getElementById('requestForm').addEventListener('submit', async function
     fd.append('cuti', cutiToSend);
     fd.append('requestLainnya', document.getElementById('requestLainnya').value.trim());
     fd.append('ekstrakulikuler', document.getElementById('ekstrakulikuler').value);
-    fd.append('return','json');
+    fd.append('return', 'json');
 
     const res = await fetch(scriptURL, { method: 'POST', body: fd });
     const ct = res.headers.get('content-type') || '';
     if(ct.includes('application/json')){
       const json = await res.json();
+      console.log('post result', json);
       if(json.status === 'success'){
         showStatus('✅ ' + json.message, 'success');
         if(json.data) setFormValuesFromServer(json.data);
-        // refresh disabled dates & pickers
-        const resDays = await fetch(scriptURL);
-        const fullDays = resDays.ok ? await resDays.json() : [];
+        // refresh disabledDates and pickers
+        const daysRes = await fetch(scriptURL);
+        const fullDays = (daysRes.ok) ? await daysRes.json() : [];
         initDatepicker('#libur', fullDays, document.getElementById('libur').value);
         initDatepicker('#cuti',  fullDays, document.getElementById('cuti').value);
       } else {
@@ -286,8 +331,8 @@ document.getElementById('requestForm').addEventListener('submit', async function
       showStatus('❌ ' + text, 'error');
     }
   }catch(err){
-    showStatus('❌ Gagal mengirim data: ' + (err.message || err), 'error');
-    console.error(err);
+    console.error('submit error', err);
+    showStatus('❌ Gagal mengirim data: ' + (err?.message || err), 'error');
   }
 });
 </script>
