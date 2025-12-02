@@ -244,7 +244,7 @@ function initDatepicker(selector, fullDays, preselectedStr){
       monthsShort:monthNames.map(m=>m.substring(0,3)),
       today:'Hari Ini',
       clear:'Bersihkan',
-      firstDay:1
+      firstDay:0
     },
     minDate: nextMonth,
     maxDate: new Date(nextMonth.getFullYear(), nextMonth.getMonth()+1, 0),
@@ -453,3 +453,4 @@ document.getElementById("requestForm").addEventListener("submit", async function
 </script>
 </body>
 </html>
+
