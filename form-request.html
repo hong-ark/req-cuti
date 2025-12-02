@@ -50,15 +50,21 @@ button[type="submit"]:hover{transform:translateY(-2px);box-shadow:0 10px 20px rg
 @keyframes fadeBlink{0%,100%{opacity:.3}50%{opacity:1}}
 @keyframes fadeIn{from{opacity:0;transform:translateY(-15px)}to{opacity:1;transform:translateY(0)}}
 
-/* 🔴 Tanggal merah di kalender (libur khusus & weekend) */
+/* 🎨 STYLE TANGGAL MERAH (weekend & holiday) */
+/* Normal di bulan aktif: merah tanpa bold, tanpa background */
 .air-datepicker-cell.holiday-red,
 .air-datepicker-cell.weekend-red {
-  color:#d40000 !important;
-  font-weight:700;
+  color:#cc0000 !important;
+  font-weight:normal !important;
+  background:transparent !important;
+  box-shadow:none !important;
+  border:none !important;
 }
-.air-datepicker-cell.holiday-red {
-  background:#ffe0e0 !important;
-  border-radius:8px;
+
+/* Tanggal merah yang BUKAN bulan aktif (other-month) → merah samar */
+.air-datepicker-cell.-other-month-.holiday-red,
+.air-datepicker-cell.-other-month-.weekend-red {
+  color:rgba(204,0,0,0.35) !important;
 }
 
 </style>
@@ -246,7 +252,7 @@ function initDatepicker(selector, fullDays, preselectedStr){
     readOnly:true,
     selectedDates: preselectedDate,
 
-    // 🔴 Warnai weekend + tanggal merah khusus
+    // Warnai weekend + tanggal merah khusus
     onRenderCell: ({ date, cellType }) => {
       if (cellType !== 'day') return;
 
@@ -447,4 +453,3 @@ document.getElementById("requestForm").addEventListener("submit", async function
 </script>
 </body>
 </html>
-
