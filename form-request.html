@@ -49,6 +49,21 @@ button[type="submit"]:hover{transform:translateY(-2px);box-shadow:0 10px 20px rg
 #loading{text-align:center;color:#333;font-weight:600;margin-top:10px;animation:fadeBlink 1.2s infinite}
 @keyframes fadeBlink{0%,100%{opacity:.3}50%{opacity:1}}
 @keyframes fadeIn{from{opacity:0;transform:translateY(-15px)}to{opacity:1;transform:translateY(0)}}
+
+/* 🔴 Tanggal merah di kalender (libur khusus & weekend) */
+.air-datepicker-cell.holiday-red,
+.air-datepicker-cell.weekend-red {
+  color:#d40000 !important;
+  font-weight:700;
+}
+.air-datepicker-cell.holiday-red {
+  background:#ffe0e0 !important;
+  border-radius:8px;
+}
+.air-datepicker-cell.weekend-red {
+  background:#fff0f0 !important;
+  border-radius:6px;
+}
 </style>
 </head>
 <body>
@@ -199,10 +214,24 @@ function initDatepicker(selector, fullDays, preselectedStr){
   const nextMonth = new Date(now.getFullYear(), now.getMonth()+1, 1);
   const isLibur = (selector === '#libur');
 
+  // 🔴 Tanggal merah khusus: 1 & 16 Januari 2026
+  const SPECIAL_HOLIDAYS = [
+    { y: 2026, m: 0, d: 1 },   // 1 Jan 2026
+    { y: 2026, m: 0, d: 16 }   // 16 Jan 2026
+  ];
+
+  function isSpecialHoliday(date){
+    return SPECIAL_HOLIDAYS.some(h =>
+      date.getFullYear() === h.y &&
+      date.getMonth()    === h.m &&
+      date.getDate()     === h.d
+    );
+  }
+
   const dp = new AirDatepicker(selector, {
     multipleDates: isLibur ? MAX_LIBUR_USER : true,
     multipleDatesSeparator: ', ',
-    dateFormat: 'd',                // 🔹 tampil HARI saja
+    dateFormat: 'd',                // tampil HARI saja
     disabledDates,
     locale:{
       days:['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'],
@@ -219,6 +248,29 @@ function initDatepicker(selector, fullDays, preselectedStr){
     position:'bottom left',
     readOnly:true,
     selectedDates: preselectedDate,
+
+    // 🔴 Warnai weekend + tanggal merah khusus
+    onRenderCell: ({ date, cellType }) => {
+      if (cellType !== 'day') return;
+
+      const classes = [];
+
+      // Weekend: Minggu(0) & Sabtu(6)
+      const dow = date.getDay();
+      if (dow === 0 || dow === 6) {
+        classes.push('weekend-red');
+      }
+
+      // Libur khusus: 1 & 16 Jan 2026
+      if (isSpecialHoliday(date)) {
+        classes.push('holiday-red');
+      }
+
+      if (classes.length){
+        return { classes: classes.join(' ') };
+      }
+    },
+
     onSelect: ({ formattedDate })=>{
       if(!isLibur) return;
       const parts = stringToDayArray(formattedDate || "");
@@ -398,4 +450,3 @@ document.getElementById("requestForm").addEventListener("submit", async function
 </script>
 </body>
 </html>
-
