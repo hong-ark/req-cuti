@@ -51,15 +51,27 @@ button[type="submit"]:hover{transform:translateY(-2px);box-shadow:0 10px 20px rg
 @keyframes fadeIn{from{opacity:0;transform:translateY(-15px)}to{opacity:1;transform:translateY(0)}}
 
 /* 🎨 STYLE TANGGAL MERAH (weekend & holiday) */
-/* Normal di bulan aktif: merah tanpa bold, tanpa background */
+/* Normal di bulan aktif: merah tanpa bold, TANPA mengubah background */
 .air-datepicker-cell.holiday-red,
 .air-datepicker-cell.weekend-red {
   color:#cc0000 !important;
   font-weight:normal !important;
-  background:transparent !important;
-  box-shadow:none !important;
-  border:none !important;
+  /* jangan sentuh background/border/shadow di sini,
+     supaya efek terpilih dari AirDatepicker tetap muncul */
 }
+
+/* Kalau tanggal merahnya TERPILIH, pakai style default terpilih (biru) + teks putih */
+.air-datepicker-cell.-selected-.holiday-red,
+.air-datepicker-cell.-selected-.weekend-red {
+  color:#ffffff !important;            /* teks putih saat terpilih */
+}
+
+/* Tanggal merah yang BUKAN bulan aktif (other-month) → merah samar */
+.air-datepicker-cell.-other-month-.holiday-red,
+.air-datepicker-cell.-other-month-.weekend-red {
+  color:rgba(204,0,0,0.35) !important;
+}
+
 
 /* Tanggal merah yang BUKAN bulan aktif (other-month) → merah samar */
 .air-datepicker-cell.-other-month-.holiday-red,
@@ -468,3 +480,4 @@ document.getElementById("requestForm").addEventListener("submit", async function
 </script>
 </body>
 </html>
+
