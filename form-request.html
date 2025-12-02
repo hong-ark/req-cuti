@@ -66,7 +66,6 @@ button[type="submit"]:hover{transform:translateY(-2px);box-shadow:0 10px 20px rg
 .air-datepicker-cell.-other-month-.weekend-red {
   color:rgba(204,0,0,0.35) !important;
 }
-
 </style>
 </head>
 <body>
@@ -128,6 +127,10 @@ const scriptURL       = "https://script.google.com/macros/s/AKfycbzgQGMsvpbwlg2a
 const MAX_KUOTA_HARIAN= 17;
 const MAX_LIBUR_USER  = 9;
 const monthNames = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+
+// 🔁 Menyimpan nilai mentah libur/cuti dari server (untuk prefill datepicker)
+let lastLiburRaw = "";
+let lastCutiRaw  = "";
 
 /* ===================== HEADER DINAMIS ===================== */
 (function updateHeader(){
@@ -296,12 +299,17 @@ function initDatepicker(selector, fullDays, preselectedStr){
 /* ===================== PREFILL dari GAS ===================== */
 function setFormValuesFromServer(payload){
   const data = payload?.data ? payload.data : payload || {};
+
   if(data.nik   != null) document.getElementById("nik").value   = data.nik;
   if(data.nama  != null) document.getElementById("nama").value  = data.nama;
   if(data.group != null) document.getElementById("group").value = data.group;
 
-  const liburDays = stringToDayArray(data.libur || "");
-  const cutiDays  = stringToDayArray(data.cuti  || "");
+  // simpan nilai mentah dari sheet
+  lastLiburRaw = data.libur || "";
+  lastCutiRaw  = data.cuti  || "";
+
+  const liburDays = stringToDayArray(lastLiburRaw);
+  const cutiDays  = stringToDayArray(lastCutiRaw);
   document.getElementById("libur").value = dayArrayToDisplay(liburDays);
   document.getElementById("cuti").value  = dayArrayToDisplay(cutiDays);
 
@@ -370,9 +378,12 @@ function startCountdown(){
     const resDays = await fetch(scriptURL);
     const fullDays = resDays.ok ? await resDays.json() : [];
 
-    // Inisialisasi datepicker dengan preselected dari input yang sudah diisi (hari saja)
-    initDatepicker('#libur', fullDays, document.getElementById('libur').value);
-    initDatepicker('#cuti',  fullDays, document.getElementById('cuti').value);
+    // Gunakan nilai mentah terakhir dari server untuk preselect datepicker
+    const preLiburStr = lastLiburRaw || document.getElementById('libur').value;
+    const preCutiStr  = lastCutiRaw  || document.getElementById('cuti').value;
+
+    initDatepicker('#libur', fullDays, preLiburStr);
+    initDatepicker('#cuti',  fullDays, preCutiStr);
 
     loading.style.display="none";
     form.style.display="block";
@@ -417,13 +428,17 @@ document.getElementById("requestForm").addEventListener("submit", async function
       const payload = await res.json();
       if(payload.status==="success"){
         status.textContent="✅ "+payload.message; status.className="success";
-        setFormValuesFromServer(payload.data||{});
+        setFormValuesFromServer(payload.data||{}); // update lastLiburRaw & lastCutiRaw
 
         // Refresh disabled dates setelah submit (mis. kuota berubah)
         const resDays = await fetch(scriptURL);
         const fullDays = resDays.ok ? await resDays.json() : [];
-        initDatepicker('#libur', fullDays, document.getElementById('libur').value);
-        initDatepicker('#cuti',  fullDays, document.getElementById('cuti').value);
+
+        const preLiburStr = lastLiburRaw || document.getElementById('libur').value;
+        const preCutiStr  = lastCutiRaw  || document.getElementById('cuti').value;
+
+        initDatepicker('#libur', fullDays, preLiburStr);
+        initDatepicker('#cuti',  fullDays, preCutiStr);
       }else{
         status.textContent="❌ "+(payload.message||"Gagal mengirim data!"); status.className="error";
       }
@@ -453,4 +468,3 @@ document.getElementById("requestForm").addEventListener("submit", async function
 </script>
 </body>
 </html>
-
