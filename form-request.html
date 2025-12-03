@@ -337,7 +337,7 @@ function setFormValuesFromServer(payload){
 function startCountdown(){
   const now = new Date();
   const openDate  = new Date(now.getFullYear(), now.getMonth(), 1, 0,10,0);
-  const closeDate = new Date(now.getFullYear(), now.getMonth(),16,23,59,59);
+  const closeDate = new Date(now.getFullYear(), now.getMonth(),15,23,59,59);
   const nextOpen  = new Date(now.getFullYear(), now.getMonth()+1, 1, 0,10,0);
   const el = document.getElementById("countdown");
   const form = document.getElementById("requestForm");
@@ -361,7 +361,7 @@ function startCountdown(){
       el.textContent=`Sisa waktu request: ${d}Hari ${h}Jam ${m}Menit ${s}Detik`;
       form.querySelectorAll("input, select, button").forEach(x=>x.disabled=false);
     }else{
-      el.textContent="⏰ Waktu request sudah berakhir. Open kembali tanggal 1–16 setiap bulan.";
+      el.textContent="⏰ Waktu request sudah berakhir. Open kembali tanggal 1–15 setiap bulan.";
       form.querySelectorAll("input, select, button").forEach(x=>x.disabled=true);
     }
   }
@@ -480,4 +480,5 @@ document.getElementById("requestForm").addEventListener("submit", async function
 </script>
 </body>
 </html>
+
 
