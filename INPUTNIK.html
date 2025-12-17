@@ -3,9 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <title>INPUT NIK SEBELUM REQUEST</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: "Poppins", "Segoe UI", Arial, sans-serif;
       background: linear-gradient(135deg, #2193b0, #6dd5ed);
       margin: 0;
       padding: 0;
@@ -14,22 +16,31 @@
       align-items: center;
       height: 100vh;
     }
+
     .container {
       background: #fff;
       padding: 30px;
-      border-radius: 12px;
+      border-radius: 14px;
       box-shadow: 0 8px 18px rgba(0,0,0,0.15);
       width: 100%;
       max-width: 420px;
       text-align: center;
     }
+
     h2 {
       background: linear-gradient(90deg, #2193b0, #6dd5ed);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      font-weight: bold;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+
+    .info {
+      font-size: 0.8rem;
+      color: #666;
       margin-bottom: 20px;
     }
+
     label {
       display: block;
       margin-top: 15px;
@@ -37,6 +48,7 @@
       color: #333;
       text-align: left;
     }
+
     input {
       width: 100%;
       padding: 12px;
@@ -45,6 +57,7 @@
       border-radius: 8px;
       font-size: 14px;
     }
+
     button {
       margin-top: 20px;
       padding: 12px 18px;
@@ -57,18 +70,27 @@
       transition: background 0.3s;
       width: 100%;
     }
+
     button:hover {
       background: #176d7a;
     }
+
+    button:disabled {
+      background: #9ca3af;
+      cursor: not-allowed;
+    }
+
     #hasil {
       margin-top: 20px;
       font-weight: bold;
       color: #444;
     }
+
     #formCutiBtn {
       display: none;
       background: #28a745;
     }
+
     #formCutiBtn:hover {
       background: #1e7e34;
     }
@@ -78,11 +100,14 @@
 
   <div class="container">
     <h2>INPUT NIK SEBELUM REQUEST</h2>
+    <div class="info">
+      Periode request dibuka tanggal <strong>1–15</strong> setiap bulan
+    </div>
 
     <label for="nik">Masukkan NIK:</label>
     <input type="text" id="nik" placeholder="Contoh: 2012022847" />
 
-    <button onclick="cekNIK()">Cek Nama & Group</button>
+    <button id="cekBtn" onclick="cekNIK()">Cek Nama & Group</button>
 
     <div id="hasil"></div>
 
@@ -90,10 +115,22 @@
   </div>
 
   <script>
+    /* ===============================
+       🔒 PROTEKSI OPEN / CLOSE
+       =============================== */
+    const day = new Date().getDate();
+    if (day < 1 || day > 15) {
+      window.location.href = "https://hong-ark.github.io/req-cuti/";
+    }
+
+    /* ===============================
+       🔎 CEK NIK
+       =============================== */
     async function cekNIK() {
       const nik = document.getElementById("nik").value.trim();
       const hasil = document.getElementById("hasil");
       const btnForm = document.getElementById("formCutiBtn");
+      const cekBtn = document.getElementById("cekBtn");
 
       if (!nik) {
         hasil.innerText = "⚠️ Silakan masukkan NIK.";
@@ -101,11 +138,12 @@
         return;
       }
 
-      hasil.innerText = "🔄 Mencari data...";
+      cekBtn.disabled = true;
+      cekBtn.innerText = "🔄 Memproses...";
+      hasil.innerText = "🔍 Mencari data...";
       btnForm.style.display = "none";
 
       try {
-        // Ganti URL berikut dengan Apps Script milik Anda
         const response = await fetch(
           `https://script.google.com/macros/s/AKfycbz2Vcne0S9qUcVGCNan2ChqwcPdcqKbHVh3RdnCdK5e-UktyDu-uxVO_5uGccRQtctU/exec?nik=${nik}`
         );
@@ -126,18 +164,23 @@
       } catch (err) {
         hasil.innerText = "❌ Gagal mengambil data.";
         console.error(err);
+      } finally {
+        cekBtn.disabled = false;
+        cekBtn.innerText = "Cek Nama & Group";
       }
     }
 
+    /* ===============================
+       ➡️ LANJUT KE FORM REQUEST
+       =============================== */
     function lanjutForm() {
       const btn = document.getElementById("formCutiBtn");
       const nama = encodeURIComponent(btn.dataset.nama);
       const nik = encodeURIComponent(btn.dataset.nik);
       const group = encodeURIComponent(btn.dataset.group);
 
-      // Redirect ke form-request.html dengan parameter query string
-      const formURL = "form-request.html";
-      window.location.href = `${formURL}?nik=${nik}&nama=${nama}&group=${group}`;
+      window.location.href =
+        `form-request.html?nik=${nik}&nama=${nama}&group=${group}`;
     }
   </script>
 
