@@ -2,163 +2,144 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>REQUEST STATUS</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+  <title>INPUT NIK SEBELUM REQUEST</title>
   <style>
     body {
-      margin: 0;
-      font-family: "Poppins", "Segoe UI", Arial, sans-serif;
+      font-family: Arial, sans-serif;
       background: linear-gradient(135deg, #2193b0, #6dd5ed);
+      margin: 0;
+      padding: 0;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
     }
-
     .container {
       background: #fff;
-      padding: 35px 30px;
-      border-radius: 14px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.18);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.15);
       width: 100%;
-      max-width: 520px;
+      max-width: 420px;
       text-align: center;
     }
-
-    h1 {
-      font-size: 2.4rem;
-      margin-bottom: 10px;
-      font-weight: 800;
+    h2 {
       background: linear-gradient(90deg, #2193b0, #6dd5ed);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-    }
-
-    .subtitle {
-      font-size: 1rem;
-      color: #444;
-      margin-bottom: 30px;
-      font-weight: 600;
-    }
-
-    .status {
-      font-size: 1.4rem;
       font-weight: bold;
       margin-bottom: 20px;
     }
-
-    .status.open {
-      color: #28a745;
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+      color: #333;
+      text-align: left;
     }
-
-    .status.close {
-      color: #dc3545;
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-top: 8px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 14px;
     }
-
-    .countdown {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 15px;
-    }
-
-    .time-box {
-      background: linear-gradient(135deg, #2193b0, #6dd5ed);
-      border-radius: 12px;
-      padding: 18px 10px;
+    button {
+      margin-top: 20px;
+      padding: 12px 18px;
+      border: none;
+      border-radius: 8px;
+      background: #2193b0;
       color: #fff;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
+      width: 100%;
     }
-
-    .number {
-      font-size: 2.6rem;
-      font-weight: 800;
+    button:hover {
+      background: #176d7a;
     }
-
-    .label {
-      font-size: 0.8rem;
-      opacity: 0.9;
+    #hasil {
+      margin-top: 20px;
+      font-weight: bold;
+      color: #444;
+    }
+    #formCutiBtn {
+      display: none;
+      background: #28a745;
+    }
+    #formCutiBtn:hover {
+      background: #1e7e34;
     }
   </style>
 </head>
 <body>
 
-<div class="container">
-  <h1>REQUEST</h1>
-  <div class="subtitle">PERIODE PENGAJUAN TANGGAL 1–15 SETIAP BULAN</div>
+  <div class="container">
+    <h2>INPUT NIK SEBELUM REQUEST</h2>
 
-  <div id="statusText" class="status"></div>
+    <label for="nik">Masukkan NIK:</label>
+    <input type="text" id="nik" placeholder="Contoh: 2012022847" />
 
-  <div class="countdown" id="countdown">
-    <div class="time-box">
-      <div class="number" id="days">0</div>
-      <div class="label">HARI</div>
-    </div>
-    <div class="time-box">
-      <div class="number" id="hours">0</div>
-      <div class="label">JAM</div>
-    </div>
-    <div class="time-box">
-      <div class="number" id="minutes">0</div>
-      <div class="label">MENIT</div>
-    </div>
-    <div class="time-box">
-      <div class="number" id="seconds">0</div>
-      <div class="label">DETIK</div>
-    </div>
+    <button onclick="cekNIK()">Cek Nama & Group</button>
+
+    <div id="hasil"></div>
+
+    <button id="formCutiBtn" onclick="lanjutForm()">Lanjut ke Form REQUEST</button>
   </div>
-</div>
 
-<script>
-  const INPUT_PAGE = "input-nik.html"; // 🔴 GANTI jika nama file berbeda
+  <script>
+    async function cekNIK() {
+      const nik = document.getElementById("nik").value.trim();
+      const hasil = document.getElementById("hasil");
+      const btnForm = document.getElementById("formCutiBtn");
 
-  function getNextOpenDate() {
-    const now = new Date();
-    return new Date(now.getFullYear(), now.getMonth() + 1, 1, 0, 0, 0);
-  }
+      if (!nik) {
+        hasil.innerText = "⚠️ Silakan masukkan NIK.";
+        btnForm.style.display = "none";
+        return;
+      }
 
-  function updatePage() {
-    const now = new Date();
-    const day = now.getDate();
-    const statusText = document.getElementById("statusText");
-    const countdown = document.getElementById("countdown");
+      hasil.innerText = "🔄 Mencari data...";
+      btnForm.style.display = "none";
 
-    // ✅ STATUS OPEN (1–15)
-    if (day >= 1 && day <= 15) {
-      statusText.textContent = "🟢 REQUEST OPEN";
-      statusText.className = "status open";
-      countdown.style.display = "none";
+      try {
+        // Ganti URL berikut dengan Apps Script milik Anda
+        const response = await fetch(
+          `https://script.google.com/macros/s/AKfycbz2Vcne0S9qUcVGCNan2ChqwcPdcqKbHVh3RdnCdK5e-UktyDu-uxVO_5uGccRQtctU/exec?nik=${nik}`
+        );
+        const data = await response.json();
 
-      // ⏩ AUTO REDIRECT
-      setTimeout(() => {
-        window.location.href = INPUT_PAGE;
-      }, 2000);
-
-      return;
+        if (data.nama && data.group) {
+          hasil.innerHTML = `
+            ✅ Nama: <strong>${data.nama}</strong><br>
+            ✅ Group: <strong>${data.group}</strong>
+          `;
+          btnForm.style.display = "inline-block";
+          btnForm.dataset.nama = data.nama;
+          btnForm.dataset.nik = nik;
+          btnForm.dataset.group = data.group;
+        } else {
+          hasil.innerText = "❌ NIK tidak ditemukan di database.";
+        }
+      } catch (err) {
+        hasil.innerText = "❌ Gagal mengambil data.";
+        console.error(err);
+      }
     }
 
-    // ❌ STATUS CLOSE
-    statusText.textContent = "🔴 REQUEST CLOSE";
-    statusText.className = "status close";
-    countdown.style.display = "grid";
+    function lanjutForm() {
+      const btn = document.getElementById("formCutiBtn");
+      const nama = encodeURIComponent(btn.dataset.nama);
+      const nik = encodeURIComponent(btn.dataset.nik);
+      const group = encodeURIComponent(btn.dataset.group);
 
-    const targetDate = getNextOpenDate();
-    const diff = targetDate - now;
-
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-    const minutes = Math.floor((diff / (1000 * 60)) % 60);
-    const seconds = Math.floor((diff / 1000) % 60);
-
-    document.getElementById("days").textContent = days;
-    document.getElementById("hours").textContent = hours;
-    document.getElementById("minutes").textContent = minutes;
-    document.getElementById("seconds").textContent = seconds;
-  }
-
-  updatePage();
-  setInterval(updatePage, 1000);
-</script>
+      // Redirect ke form-request.html dengan parameter query string
+      const formURL = "form-request.html";
+      window.location.href = `${formURL}?nik=${nik}&nama=${nama}&group=${group}`;
+    }
+  </script>
 
 </body>
 </html>
