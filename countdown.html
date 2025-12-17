@@ -1,123 +1,151 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Request Close</title>
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, Helvetica, sans-serif;
-            background: linear-gradient(135deg, #111827, #1f2933);
-            color: #ffffff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            text-align: center;
-        }
+  <meta charset="UTF-8">
+  <title>REQUEST CLOSE</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        .container {
-            padding: 20px;
-        }
+  <style>
+    body {
+      margin: 0;
+      font-family: "Poppins", "Segoe UI", Arial, sans-serif;
+      background: linear-gradient(135deg, #2193b0, #6dd5ed);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
 
-        h1 {
-            font-size: 3rem;
-            margin-bottom: 10px;
-            letter-spacing: 2px;
-        }
+    .container {
+      background: #ffffff;
+      padding: 35px 30px;
+      border-radius: 14px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.18);
+      width: 100%;
+      max-width: 520px;
+      text-align: center;
+    }
 
-        h2 {
-            font-size: 1.2rem;
-            font-weight: normal;
-            margin-bottom: 40px;
-            opacity: 0.9;
-        }
+    h1 {
+      font-size: 2.4rem;
+      margin-bottom: 10px;
+      font-weight: 800;
+      background: linear-gradient(90deg, #2193b0, #6dd5ed);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: 1px;
+    }
 
-        .countdown {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
+    .subtitle {
+      font-size: 1rem;
+      color: #444;
+      margin-bottom: 30px;
+      font-weight: 600;
+    }
 
-        .time-box {
-            background: rgba(255,255,255,0.1);
-            padding: 20px 25px;
-            border-radius: 12px;
-            min-width: 120px;
-        }
+    .countdown {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
+    }
 
-        .number {
-            font-size: 3rem;
-            font-weight: bold;
-        }
+    .time-box {
+      background: linear-gradient(135deg, #2193b0, #6dd5ed);
+      border-radius: 12px;
+      padding: 18px 10px;
+      color: #fff;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    }
 
-        .label {
-            font-size: 0.9rem;
-            opacity: 0.8;
-            margin-top: 5px;
-        }
-    </style>
+    .number {
+      font-size: 2.8rem;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .label {
+      font-size: 0.85rem;
+      margin-top: 6px;
+      opacity: 0.9;
+      letter-spacing: 0.5px;
+    }
+
+    .open-text {
+      font-size: 1.6rem;
+      font-weight: bold;
+      color: #28a745;
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 2rem;
+      }
+      .number {
+        font-size: 2.2rem;
+      }
+    }
+  </style>
 </head>
 <body>
 
-<div class="container">
+  <div class="container">
     <h1>REQUEST CLOSE</h1>
-    <h2>AKAN DIBUKA KEMBALI TANGGAL 1–15 SETIAP BULANNYA</h2>
-
-    <div class="countdown">
-        <div class="time-box">
-            <div class="number" id="days">0</div>
-            <div class="label">Hari</div>
-        </div>
-        <div class="time-box">
-            <div class="number" id="hours">0</div>
-            <div class="label">Jam</div>
-        </div>
-        <div class="time-box">
-            <div class="number" id="minutes">0</div>
-            <div class="label">Menit</div>
-        </div>
-        <div class="time-box">
-            <div class="number" id="seconds">0</div>
-            <div class="label">Detik</div>
-        </div>
+    <div class="subtitle">
+      AKAN DIBUKA KEMBALI TANGGAL <strong>1–15</strong> SETIAP BULANNYA
     </div>
-</div>
 
-<script>
+    <div class="countdown" id="countdown">
+      <div class="time-box">
+        <div class="number" id="days">0</div>
+        <div class="label">HARI</div>
+      </div>
+      <div class="time-box">
+        <div class="number" id="hours">0</div>
+        <div class="label">JAM</div>
+      </div>
+      <div class="time-box">
+        <div class="number" id="minutes">0</div>
+        <div class="label">MENIT</div>
+      </div>
+      <div class="time-box">
+        <div class="number" id="seconds">0</div>
+        <div class="label">DETIK</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
     function getNextMonthFirstDay() {
-        const now = new Date();
-        return new Date(now.getFullYear(), now.getMonth() + 1, 1, 0, 0, 0);
+      const now = new Date();
+      return new Date(now.getFullYear(), now.getMonth() + 1, 1, 0, 0, 0);
     }
 
     const targetDate = getNextMonthFirstDay();
 
     function updateCountdown() {
-        const now = new Date();
-        const diff = targetDate - now;
+      const now = new Date();
+      const diff = targetDate - now;
 
-        if (diff <= 0) {
-            document.querySelector('.countdown').innerHTML =
-                '<div style="font-size:2rem;">REQUEST TELAH DIBUKA</div>';
-            return;
-        }
+      if (diff <= 0) {
+        document.getElementById("countdown").innerHTML =
+          '<div class="open-text">REQUEST TELAH DIBUKA</div>';
+        return;
+      }
 
-        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-        const minutes = Math.floor((diff / (1000 * 60)) % 60);
-        const seconds = Math.floor((diff / 1000) % 60);
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const minutes = Math.floor((diff / (1000 * 60)) % 60);
+      const seconds = Math.floor((diff / 1000) % 60);
 
-        document.getElementById('days').textContent = days;
-        document.getElementById('hours').textContent = hours;
-        document.getElementById('minutes').textContent = minutes;
-        document.getElementById('seconds').textContent = seconds;
+      document.getElementById("days").textContent = days;
+      document.getElementById("hours").textContent = hours;
+      document.getElementById("minutes").textContent = minutes;
+      document.getElementById("seconds").textContent = seconds;
     }
 
-    setInterval(updateCountdown, 1000);
     updateCountdown();
-</script>
+    setInterval(updateCountdown, 1000);
+  </script>
 
 </body>
 </html>
