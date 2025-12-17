@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>REQUEST CLOSE</title>
+  <title>REQUEST STATUS</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
@@ -17,7 +17,7 @@
     }
 
     .container {
-      background: #ffffff;
+      background: #fff;
       padding: 35px 30px;
       border-radius: 14px;
       box-shadow: 0 8px 20px rgba(0,0,0,0.18);
@@ -33,7 +33,6 @@
       background: linear-gradient(90deg, #2193b0, #6dd5ed);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      letter-spacing: 1px;
     }
 
     .subtitle {
@@ -41,6 +40,20 @@
       color: #444;
       margin-bottom: 30px;
       font-weight: 600;
+    }
+
+    .status {
+      font-size: 1.4rem;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+
+    .status.open {
+      color: #28a745;
+    }
+
+    .status.close {
+      color: #dc3545;
     }
 
     .countdown {
@@ -58,94 +71,94 @@
     }
 
     .number {
-      font-size: 2.8rem;
+      font-size: 2.6rem;
       font-weight: 800;
-      line-height: 1;
     }
 
     .label {
-      font-size: 0.85rem;
-      margin-top: 6px;
+      font-size: 0.8rem;
       opacity: 0.9;
-      letter-spacing: 0.5px;
-    }
-
-    .open-text {
-      font-size: 1.6rem;
-      font-weight: bold;
-      color: #28a745;
-    }
-
-    @media (max-width: 480px) {
-      h1 {
-        font-size: 2rem;
-      }
-      .number {
-        font-size: 2.2rem;
-      }
     }
   </style>
 </head>
 <body>
 
-  <div class="container">
-    <h1>REQUEST CLOSE</h1>
-    <div class="subtitle">
-      AKAN DIBUKA KEMBALI TANGGAL <strong>1–15</strong> SETIAP BULANNYA
-    </div>
+<div class="container">
+  <h1>REQUEST</h1>
+  <div class="subtitle">PERIODE PENGAJUAN TANGGAL 1–15 SETIAP BULAN</div>
 
-    <div class="countdown" id="countdown">
-      <div class="time-box">
-        <div class="number" id="days">0</div>
-        <div class="label">HARI</div>
-      </div>
-      <div class="time-box">
-        <div class="number" id="hours">0</div>
-        <div class="label">JAM</div>
-      </div>
-      <div class="time-box">
-        <div class="number" id="minutes">0</div>
-        <div class="label">MENIT</div>
-      </div>
-      <div class="time-box">
-        <div class="number" id="seconds">0</div>
-        <div class="label">DETIK</div>
-      </div>
+  <div id="statusText" class="status"></div>
+
+  <div class="countdown" id="countdown">
+    <div class="time-box">
+      <div class="number" id="days">0</div>
+      <div class="label">HARI</div>
+    </div>
+    <div class="time-box">
+      <div class="number" id="hours">0</div>
+      <div class="label">JAM</div>
+    </div>
+    <div class="time-box">
+      <div class="number" id="minutes">0</div>
+      <div class="label">MENIT</div>
+    </div>
+    <div class="time-box">
+      <div class="number" id="seconds">0</div>
+      <div class="label">DETIK</div>
     </div>
   </div>
+</div>
 
-  <script>
-    function getNextMonthFirstDay() {
-      const now = new Date();
-      return new Date(now.getFullYear(), now.getMonth() + 1, 1, 0, 0, 0);
+<script>
+  const INPUT_PAGE = "input-nik.html"; // 🔴 GANTI jika nama file berbeda
+
+  function getNextOpenDate() {
+    const now = new Date();
+    return new Date(now.getFullYear(), now.getMonth() + 1, 1, 0, 0, 0);
+  }
+
+  function updatePage() {
+    const now = new Date();
+    const day = now.getDate();
+    const statusText = document.getElementById("statusText");
+    const countdown = document.getElementById("countdown");
+
+    // ✅ STATUS OPEN (1–15)
+    if (day >= 1 && day <= 15) {
+      statusText.textContent = "🟢 REQUEST OPEN";
+      statusText.className = "status open";
+      countdown.style.display = "none";
+
+      // ⏩ AUTO REDIRECT
+      setTimeout(() => {
+        window.location.href = INPUT_PAGE;
+      }, 2000);
+
+      return;
     }
 
-    const targetDate = getNextMonthFirstDay();
+    // ❌ STATUS CLOSE
+    statusText.textContent = "🔴 REQUEST CLOSE";
+    statusText.className = "status close";
+    countdown.style.display = "grid";
 
-    function updateCountdown() {
-      const now = new Date();
-      const diff = targetDate - now;
+    const targetDate = getNextOpenDate();
+    const diff = targetDate - now;
 
-      if (diff <= 0) {
-        document.getElementById("countdown").innerHTML =
-          '<div class="open-text">REQUEST TELAH DIBUKA</div>';
-        return;
-      }
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+    const minutes = Math.floor((diff / (1000 * 60)) % 60);
+    const seconds = Math.floor((diff / 1000) % 60);
 
-      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-      const minutes = Math.floor((diff / (1000 * 60)) % 60);
-      const seconds = Math.floor((diff / 1000) % 60);
+    document.getElementById("days").textContent = days;
+    document.getElementById("hours").textContent = hours;
+    document.getElementById("minutes").textContent = minutes;
+    document.getElementById("seconds").textContent = seconds;
+  }
 
-      document.getElementById("days").textContent = days;
-      document.getElementById("hours").textContent = hours;
-      document.getElementById("minutes").textContent = minutes;
-      document.getElementById("seconds").textContent = seconds;
-    }
-
-    updateCountdown();
-    setInterval(updateCountdown, 1000);
-  </script>
+  updatePage();
+  setInterval(updatePage, 1000);
+</script>
 
 </body>
 </html>
