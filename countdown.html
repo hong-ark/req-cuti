@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request Close</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: linear-gradient(135deg, #111827, #1f2933);
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+        }
+
+        .container {
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+
+        h2 {
+            font-size: 1.2rem;
+            font-weight: normal;
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+
+        .countdown {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .time-box {
+            background: rgba(255,255,255,0.1);
+            padding: 20px 25px;
+            border-radius: 12px;
+            min-width: 120px;
+        }
+
+        .number {
+            font-size: 3rem;
+            font-weight: bold;
+        }
+
+        .label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>REQUEST CLOSE</h1>
+    <h2>AKAN DIBUKA KEMBALI TANGGAL 1–15 SETIAP BULANNYA</h2>
+
+    <div class="countdown">
+        <div class="time-box">
+            <div class="number" id="days">0</div>
+            <div class="label">Hari</div>
+        </div>
+        <div class="time-box">
+            <div class="number" id="hours">0</div>
+            <div class="label">Jam</div>
+        </div>
+        <div class="time-box">
+            <div class="number" id="minutes">0</div>
+            <div class="label">Menit</div>
+        </div>
+        <div class="time-box">
+            <div class="number" id="seconds">0</div>
+            <div class="label">Detik</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function getNextMonthFirstDay() {
+        const now = new Date();
+        return new Date(now.getFullYear(), now.getMonth() + 1, 1, 0, 0, 0);
+    }
+
+    const targetDate = getNextMonthFirstDay();
+
+    function updateCountdown() {
+        const now = new Date();
+        const diff = targetDate - now;
+
+        if (diff <= 0) {
+            document.querySelector('.countdown').innerHTML =
+                '<div style="font-size:2rem;">REQUEST TELAH DIBUKA</div>';
+            return;
+        }
+
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+        const minutes = Math.floor((diff / (1000 * 60)) % 60);
+        const seconds = Math.floor((diff / 1000) % 60);
+
+        document.getElementById('days').textContent = days;
+        document.getElementById('hours').textContent = hours;
+        document.getElementById('minutes').textContent = minutes;
+        document.getElementById('seconds').textContent = seconds;
+    }
+
+    setInterval(updateCountdown, 1000);
+    updateCountdown();
+</script>
+
+</body>
+</html>
