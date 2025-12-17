@@ -119,9 +119,10 @@
        🔒 PROTEKSI OPEN / CLOSE
        =============================== */
     const day = new Date().getDate();
-    if (day < 1 || day > 15) {
-      window.location.href = "https://hong-ark.github.io/req-cuti/req-cuti.html";
-    }
+   if (day < 1 || day > 15) {
+    window.location.replace(
+      "https://hong-ark.github.io/req-cuti/req-cuti.html"
+    );
 
     /* ===============================
        🔎 CEK NIK
@@ -186,4 +187,5 @@
 
 </body>
 </html>
+
 
