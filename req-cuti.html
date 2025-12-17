@@ -18,77 +18,124 @@
 
     .container {
       background: #fff;
-      padding: 35px 30px;
-      border-radius: 14px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.18);
+      padding: 36px 30px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
       width: 100%;
       max-width: 520px;
       text-align: center;
+      position: relative;
     }
 
-    h1 {
-      font-size: 2.4rem;
-      margin-bottom: 10px;
-      font-weight: 800;
+    /* ===== JUDUL UTAMA ===== */
+    .open-title {
+      font-size: 2.3rem;
+      font-weight: 900;
+      margin-bottom: 12px;
+      background: linear-gradient(90deg, #16a34a, #22c55e);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: 1px;
+    }
+
+    .tagline {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 20px;
       background: linear-gradient(90deg, #2193b0, #6dd5ed);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
 
-    .subtitle {
-      font-size: 1rem;
-      color: #444;
-      margin-bottom: 25px;
-      font-weight: 600;
-    }
-
-    .status {
-      font-size: 1.4rem;
+    /* ===== BADGE STATUS ===== */
+    .badge {
+      display: inline-block;
+      padding: 6px 16px;
+      border-radius: 999px;
       font-weight: bold;
-      margin-bottom: 20px;
+      font-size: 0.9rem;
+      margin-bottom: 18px;
+      color: #fff;
     }
 
-    .status.open { color: #28a745; }
-    .status.close { color: #dc3545; }
+    .badge.open {
+      background: linear-gradient(90deg, #16a34a, #22c55e);
+      animation: pulse 1.8s infinite;
+    }
 
+    .badge.close {
+      background: linear-gradient(90deg, #dc2626, #ef4444);
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(34,197,94,0.6); }
+      70% { box-shadow: 0 0 0 14px rgba(34,197,94,0); }
+      100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); }
+    }
+
+    /* ===== STATUS TEXT ===== */
+    .status-text {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 22px;
+      color: #444;
+    }
+
+    /* ===== COUNTDOWN ===== */
     .countdown {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 15px;
+      gap: 14px;
     }
 
     .time-box {
       background: linear-gradient(135deg, #2193b0, #6dd5ed);
       border-radius: 12px;
-      padding: 18px 10px;
+      padding: 16px 8px;
       color: #fff;
       box-shadow: 0 4px 10px rgba(0,0,0,0.15);
     }
 
     .number {
-      font-size: 2.6rem;
+      font-size: 2.4rem;
       font-weight: 800;
     }
 
     .label {
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       opacity: 0.9;
+      margin-top: 4px;
+      letter-spacing: 0.5px;
     }
 
     .note {
-      margin-top: 20px;
+      margin-top: 22px;
       font-size: 0.85rem;
       color: #666;
+    }
+
+    @media (max-width: 480px) {
+      .open-title { font-size: 1.9rem; }
+      .tagline { font-size: 1.1rem; }
+      .number { font-size: 2rem; }
     }
   </style>
 </head>
 <body>
 
 <div class="container">
-  <h1>IKAN HIU MAKAN TOMAT... </h1>
-  <div class="subtitle">OPEN REQUEST TANGGAL <strong>1–15</strong> SETIAP BULAN</div>
 
-  <div id="statusText" class="status"></div>
+  <div class="open-title">
+    OPEN REQUEST TANGGAL 1–15 SETIAP BULAN
+  </div>
+
+  <div class="tagline">
+    IKAN HIU MAKAN TOMAT...
+  </div>
+
+  <div id="badge" class="badge"></div>
+
+  <div id="statusText" class="status-text"></div>
 
   <div id="countdown" class="countdown">
     <div class="time-box">
@@ -110,47 +157,48 @@
   </div>
 
   <div class="note">
-    Form akan otomatis terbuka jika sudah tiba saatnya
+    Halaman akan otomatis berpindah saat periode request dibuka.
   </div>
+
 </div>
 
 <script>
-  // ✅ URL TUJUAN AUTO REDIRECT
+  // 🔗 URL AUTO REDIRECT
   const INPUT_URL = "https://hong-ark.github.io/req-cuti/INPUTNIK.html";
 
   function getNextOpenDate() {
     const now = new Date();
-    return new Date(
-      now.getFullYear(),
-      now.getMonth() + 1,
-      1,
-      0, 0, 0
-    );
+    return new Date(now.getFullYear(), now.getMonth() + 1, 1, 0, 0, 0);
   }
 
   function updatePage() {
     const now = new Date();
     const day = now.getDate();
 
+    const badge = document.getElementById("badge");
     const statusText = document.getElementById("statusText");
     const countdown = document.getElementById("countdown");
 
-    // 🟢 OPEN: TANGGAL 1–15
+    // 🟢 OPEN (1–15)
     if (day >= 1 && day <= 15) {
-      statusText.textContent = "🟢 REQUEST OPEN";
-      statusText.className = "status open";
+      badge.textContent = "OPEN";
+      badge.className = "badge open";
+
+      statusText.textContent = "Silakan lanjutkan pengajuan request cuti";
       countdown.style.display = "none";
 
       setTimeout(() => {
         window.location.href = INPUT_URL;
-      }, 1500);
+      }, 1800);
 
       return;
     }
 
-    // 🔴 CLOSE: TANGGAL 16 KE ATAS
-    statusText.textContent = "🔴 REQUEST AKAN DIBUKA KEMBALI DALAM HITUNGAN:";
-    statusText.className = "status close";
+    // 🔴 CLOSE (16+)
+    badge.textContent = "CLOSE";
+    badge.className = "badge close";
+
+    statusText.textContent = "Request akan dibuka kembali dalam hitungan:";
     countdown.style.display = "grid";
 
     const target = getNextOpenDate();
@@ -172,7 +220,3 @@
 
 </body>
 </html>
-
-
-
-
