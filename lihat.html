@@ -1,204 +1,198 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <title>Data Request Libur & Cuti</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<title>Data Request Libur & Cuti</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
-    :root {
-      --primary: #1976d2;
-      --primary-dark: #125aa3;
-      --bg: #f4f6f8;
-      --card: #ffffff;
-      --border: #e0e0e0;
-      --text: #333;
-    }
+<style>
+:root{
+  --primary:#1976d2;
+  --primary-dark:#125aa3;
+  --bg:#f4f6f8;
+  --card:#ffffff;
+  --border:#e0e0e0;
+  --text:#333;
+}
 
-    body {
-      margin: 0;
-      font-family: "Poppins", "Segoe UI", Arial, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-    }
+/* ===== BASE ===== */
+body{
+  margin:0;
+  font-family:"Poppins","Segoe UI",Arial,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
 
-    /* ===== HEADER (STICKY) ===== */
-    .header {
-      background: linear-gradient(135deg, #2193b0, #6dd5ed);
-      padding: 26px 20px;
-      color: white;
-      text-align: center;
-      box-shadow: 0 4px 12px rgba(0,0,0,.15);
-      border-bottom: 3px solid rgba(255,255,255,.35);
+/* ===== STICKY HEADER ===== */
+.header{
+  background:linear-gradient(135deg,#2193b0,#6dd5ed);
+  color:#fff;
+  text-align:center;
+  padding:22px 16px;
+  position:sticky;
+  top:0;
+  z-index:3000;
+  box-shadow:0 4px 12px rgba(0,0,0,.15);
+}
+.header h1{
+  margin:0;
+  font-size:1.5rem;
+  font-weight:800;
+}
 
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-    }
+/* ===== STICKY ACTION BAR ===== */
+.actions{
+  background:var(--bg);
+  position:sticky;
+  top:82px;
+  z-index:2500;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  padding:14px 16px;
+  border-bottom:1px solid var(--border);
+}
 
-    .header h1 {
-      margin: 0;
-      font-size: 1.7rem;
-      font-weight: 800;
-    }
+.btn{
+  background:linear-gradient(135deg,var(--primary),#42a5f5);
+  color:white;
+  border:none;
+  padding:12px 26px;
+  border-radius:999px;
+  font-weight:800;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  box-shadow:0 6px 14px rgba(25,118,210,.35);
+  transition:.25s;
+}
+.btn:hover{
+  background:linear-gradient(135deg,var(--primary-dark),#1e88e5);
+  transform:translateY(-2px);
+}
+.btn.loading{
+  opacity:.7;
+  pointer-events:none;
+}
 
-    /* ===== CONTAINER ===== */
-    .container {
-      max-width: 1400px;
-      margin: 24px auto;
-      padding: 0 16px 32px;
-    }
+.hint{
+  font-size:.85rem;
+  color:#555;
+}
 
-    /* ===== ACTION BAR ===== */
-    .actions {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-bottom: 16px;
-    }
+/* ===== CONTENT ===== */
+.container{
+  max-width:1400px;
+  margin:auto;
+  padding:0 16px 40px;
+}
 
-    .hint {
-      font-size: 0.85rem;
-      color: #555;
-    }
+/* ===== TABLE DESKTOP ===== */
+.card{
+  background:var(--card);
+  border-radius:18px;
+  box-shadow:0 8px 22px rgba(0,0,0,.12);
+  overflow:hidden;
+  margin-top:10px;
+}
 
-    /* ===== BUTTON ===== */
-    .btn {
-      background: linear-gradient(135deg, var(--primary), #42a5f5);
-      color: white;
-      border: none;
-      padding: 12px 28px;
-      border-radius: 999px;
-      font-weight: 800;
-      font-size: 0.95rem;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      box-shadow: 0 6px 14px rgba(25,118,210,.35);
-      transition: all .25s ease;
-    }
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:13px;
+}
 
-    .btn:hover {
-      background: linear-gradient(135deg, var(--primary-dark), #1e88e5);
-      transform: translateY(-2px);
-    }
+th,td{
+  padding:10px 12px;
+  border-bottom:1px solid var(--border);
+  text-align:left;
+  white-space:nowrap;
+}
 
-    .btn.loading {
-      opacity: 0.7;
-      pointer-events: none;
-    }
+th{
+  background:var(--primary);
+  color:white;
+  position:sticky;
+  top:132px;
+  z-index:2000;
+}
 
-    /* ===== CARD TABLE ===== */
-    .card {
-      background: var(--card);
-      border-radius: 18px;
-      box-shadow: 0 8px 22px rgba(0,0,0,.12);
-      overflow: hidden;
-    }
+tr.bdl{background:#fff1ea;}
+tr.smg{background:#eef4ff;}
+tr.yog{background:#fff8db;}
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
-    }
+.loading{
+  text-align:center;
+  padding:24px;
+  font-weight:600;
+  color:#666;
+}
 
-    th, td {
-      padding: 10px 12px;
-      border-bottom: 1px solid var(--border);
-      text-align: left;
-      vertical-align: top;
-      white-space: nowrap; /* desktop */
-    }
+.footer{
+  text-align:center;
+  margin-top:18px;
+  font-size:.8rem;
+  color:#777;
+}
 
-    th {
-      background: var(--primary);
-      color: white;
-      position: sticky;
-      top: 0;
-      z-index: 2;
-    }
+/* =================================================
+   📱 MOBILE CARD MODE (RAPI & TIDAK BERANTAKAN)
+================================================= */
+@media(max-width:768px){
 
-    tr:hover {
-      background: #f1f7ff;
-    }
+  table,thead,tbody,th,tr{
+    display:block;
+  }
 
-    /* ===== GROUP COLOR ===== */
-    tr.bdl { background: #fff1ea; }
-    tr.smg { background: #eef4ff; }
-    tr.yog { background: #fff8db; }
+  thead{
+    display:none;
+  }
 
-    /* ===== LOADING ===== */
-    .loading {
-      text-align: center;
-      padding: 24px;
-      font-weight: 600;
-      color: #666;
-    }
+  tr{
+    background:white!important;
+    margin-bottom:14px;
+    border-radius:14px;
+    padding:12px;
+    box-shadow:0 4px 12px rgba(0,0,0,.1);
+  }
 
-    /* ===== FOOTER ===== */
-    .footer {
-      text-align: center;
-      margin-top: 16px;
-      font-size: 0.8rem;
-      color: #777;
-    }
+  td{
+    display:flex;
+    justify-content:space-between;
+    padding:6px 0;
+    white-space:normal;
+    border:none;
+    font-size:.85rem;
+  }
 
-    /* =================================================
-       MOBILE FIX – TAMPILKAN SEMUA KOLOM (NO CUT)
-    ================================================= */
-    @media (max-width: 768px) {
-      table {
-        table-layout: fixed;
-        width: 100%;
-        font-size: 12px;
-      }
-
-      th, td {
-        padding: 8px;
-        white-space: normal;     /* IZINKAN WRAP */
-        word-wrap: break-word;
-        word-break: break-word;
-      }
-
-      /* Lebar kolom penting */
-      th:nth-child(1),
-      td:nth-child(1) { width: 90px; }   /* NIK */
-
-      th:nth-child(2),
-      td:nth-child(2) { width: 120px; }  /* Nama */
-
-      th:nth-child(3),
-      td:nth-child(3) { width: 90px; }   /* Group */
-
-      .header h1 {
-        font-size: 1.4rem;
-      }
-    }
-  </style>
+  td::before{
+    content:attr(data-label);
+    font-weight:700;
+    color:#555;
+    padding-right:10px;
+  }
+}
+</style>
 </head>
 
 <body>
 
-<!-- ===== HEADER ===== -->
 <div class="header">
   <h1 id="pageTitle"></h1>
 </div>
 
+<div class="actions">
+  <button id="loadBtn" class="btn" onclick="loadData()">
+    <span id="btnIcon">🔄</span>
+    <span id="btnText">Muat Data</span>
+  </button>
+  <div class="hint">Data request bulan berjalan</div>
+</div>
+
 <div class="container">
 
-  <!-- ===== ACTION ===== -->
-  <div class="actions">
-    <button id="loadBtn" class="btn" onclick="loadData()">
-      <span id="btnIcon">🔄</span>
-      <span id="btnText">Muat Data</span>
-    </button>
-    <div class="hint">Klik untuk menampilkan data request terbaru</div>
-  </div>
-
-  <!-- ===== TABLE ===== -->
   <div class="card">
     <div id="loading" class="loading">
       Klik <b>Muat Data</b> untuk menampilkan data
@@ -207,114 +201,64 @@
   </div>
 
   <div class="footer">
-    Data bersifat informasi · Tidak dapat diedit
+    Data bersifat informasi · Read-only
   </div>
-
 </div>
 
 <script>
-/* =================================================
-   JUDUL OTOMATIS (+1 BULAN BERJALAN)
-================================================= */
-function setAutoTitle() {
-  const bulan = [
-    "JANUARI","FEBRUARI","MARET","APRIL","MEI","JUNI",
-    "JULI","AGUSTUS","SEPTEMBER","OKTOBER","NOVEMBER","DESEMBER"
-  ];
-
-  const now = new Date();
-  const target = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-
-  document.getElementById("pageTitle").textContent =
+/* ===== JUDUL OTOMATIS +1 BULAN ===== */
+function setAutoTitle(){
+  const bulan=["JANUARI","FEBRUARI","MARET","APRIL","MEI","JUNI","JULI","AGUSTUS","SEPTEMBER","OKTOBER","NOVEMBER","DESEMBER"];
+  const now=new Date();
+  const target=new Date(now.getFullYear(),now.getMonth()+1,1);
+  document.getElementById("pageTitle").textContent=
     `DATA REQUEST LIBUR - CUTI BULAN ${bulan[target.getMonth()]} ${target.getFullYear()}`;
 }
 setAutoTitle();
 
-/* =================================================
-   API & KONFIGURASI
-================================================= */
-const GAS_URL =
-  "https://script.google.com/macros/s/AKfycbzR8nCWg3vWMLd9ZWbvOTDR9bwdZ8xLpr7dQAfLyzZka32Qf9gsswpKQgLRUPFl8yA93Q/exec?api=req";
+const GAS_URL="https://script.google.com/macros/s/AKfycbzR8nCWg3vWMLd9ZWbvOTDR9bwdZ8xLpr7dQAfLyzZka32Qf9gsswpKQgLRUPFl8yA93Q/exec?api=req";
+const VISIBLE_COLS=[1,2,3,4,5,6,7];
 
-/*
-  0 = Timestamp (❌ disembunyikan)
-  1 = NIK
-  2 = Nama
-  3 = Group
-  4 = Kolom E
-  5 = Kolom F
-  6 = Kolom G
-  7 = Kolom H (✅ tampil)
-*/
-const VISIBLE_COLS = [1, 2, 3, 4, 5, 6, 7];
-
-/* =================================================
-   LOAD DATA
-================================================= */
-function loadData() {
-  const btn = document.getElementById("loadBtn");
-  const icon = document.getElementById("btnIcon");
-  const text = document.getElementById("btnText");
-
+function loadData(){
+  const btn=document.getElementById("loadBtn");
   btn.classList.add("loading");
-  icon.textContent = "⏳";
-  text.textContent = "Memuat...";
-
-  document.getElementById("loading").textContent =
-    "⏳ Mengambil data, mohon tunggu...";
-  document.getElementById("tbl").innerHTML = "";
+  document.getElementById("btnIcon").textContent="⏳";
+  document.getElementById("btnText").textContent="Memuat...";
 
   fetch(GAS_URL)
-    .then(res => res.json())
-    .then(data => {
+    .then(r=>r.json())
+    .then(data=>{
       render(data);
       btn.classList.remove("loading");
-      icon.textContent = "🔄";
-      text.textContent = "Refresh Data";
+      document.getElementById("btnIcon").textContent="🔄";
+      document.getElementById("btnText").textContent="Refresh Data";
     })
-    .catch(err => {
-      console.error(err);
-      document.getElementById("loading").textContent =
-        "❌ Gagal memuat data";
-      btn.classList.remove("loading");
-      icon.textContent = "⚠️";
-      text.textContent = "Coba Lagi";
+    .catch(()=>{
+      document.getElementById("loading").textContent="❌ Gagal memuat data";
     });
 }
 
-/* =================================================
-   RENDER TABLE
-================================================= */
-function render(data) {
-  const tbl = document.getElementById("tbl");
-  const loading = document.getElementById("loading");
-  tbl.innerHTML = "";
-  loading.style.display = "none";
+function render(data){
+  const tbl=document.getElementById("tbl");
+  tbl.innerHTML="";
+  document.getElementById("loading").style.display="none";
 
-  data.forEach((row, i) => {
-    const tr = document.createElement("tr");
+  const headers=data[0].filter((_,i)=>VISIBLE_COLS.includes(i));
 
-    // HEADER
-    if (i === 0) {
-      VISIBLE_COLS.forEach(idx => {
-        const th = document.createElement("th");
-        th.textContent = row[idx] ?? "";
-        tr.appendChild(th);
-      });
-    }
-    // DATA
-    else {
-      const group = String(row[3] || "").toUpperCase();
-      if (group === "BDL-PLG-KAL") tr.className = "bdl";
-      else if (group === "SMG-CRB") tr.className = "smg";
-      else if (group === "YOG") tr.className = "yog";
+  data.slice(1).forEach(row=>{
+    const tr=document.createElement("tr");
 
-      VISIBLE_COLS.forEach(idx => {
-        const td = document.createElement("td");
-        td.textContent = row[idx] ?? "";
-        tr.appendChild(td);
-      });
-    }
+    headers.forEach((h,idx)=>{
+      const td=document.createElement("td");
+      td.setAttribute("data-label",h);
+      td.textContent=row[VISIBLE_COLS[idx]] ?? "";
+      tr.appendChild(td);
+    });
+
+    const g=row[3];
+    if(g==="BDL-PLG-KAL") tr.classList.add("bdl");
+    if(g==="SMG-CRB") tr.classList.add("smg");
+    if(g==="YOG") tr.classList.add("yog");
 
     tbl.appendChild(tr);
   });
