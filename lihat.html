@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Request Libur & Cuti</title>
+  <style>
+    body { font-family: Arial; padding: 20px; background:#f4f6f8; }
+    a { color:#1565c0; font-weight:bold; cursor:pointer; }
+    table { border-collapse: collapse; width:100%; margin-top:15px; background:white; }
+    th, td { border:1px solid #bbb; padding:6px; font-size:13px; }
+    th { background:#1976d2; color:white; position:sticky; top:0; }
+    tr.bdl { background:#f8cfc6; }
+    tr.smg { background:#b7cef5; }
+    tr.yog { background:#ffe082; }
+    #wrap { display:none; max-height:75vh; overflow:auto; box-shadow:0 2px 8px rgba(0,0,0,.2); }
+  </style>
+</head>
+<body>
+
+<h2>📊 Data Request Libur & Cuti</h2>
+<a onclick="loadData()">▶ Lihat Request</a>
+
+<div id="wrap">
+  <table id="tbl"></table>
+</div>
+
+<script>
+const GAS_URL = "https://script.google.com/macros/s/AKfycbzR8nCWg3vWMLd9ZWbvOTDR9bwdZ8xLpr7dQAfLyzZka32Qf9gsswpKQgLRUPFl8yA93Q/exec";
+
+function loadData() {
+  fetch(GAS_URL)
+    .then(r => r.json())
+    .then(render)
+    .catch(err => alert("Gagal load data"));
+}
+
+function render(data) {
+  const tbl = document.getElementById("tbl");
+  const wrap = document.getElementById("wrap");
+  tbl.innerHTML = "";
+  wrap.style.display = "block";
+
+  data.forEach((row,i) => {
+    const tr = document.createElement("tr");
+
+    if (i === 0) {
+      row.forEach(c => {
+        const th = document.createElement("th");
+        th.textContent = c;
+        tr.appendChild(th);
+      });
+    } else {
+      const group = String(row[2] || "").toUpperCase();
+      if (group === "BDL-PLG-KAL") tr.className = "bdl";
+      else if (group === "SMG-CRB") tr.className = "smg";
+      else if (group === "YOG") tr.className = "yog";
+
+      row.forEach(c => {
+        const td = document.createElement("td");
+        td.textContent = c;
+        tr.appendChild(td);
+      });
+    }
+
+    tbl.appendChild(tr);
+  });
+}
+</script>
+
+</body>
+</html>
