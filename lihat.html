@@ -2,164 +2,173 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Laporan Request Libur & Cuti</title>
+  <title>Data Request Libur & Cuti</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
-    body {
-      margin: 0;
-      font-family: "Poppins", Arial, sans-serif;
-      background: linear-gradient(135deg, #2193b0, #6dd5ed);
-      color: #333;
-      height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    :root {
+      --primary: #1976d2;
+      --bg: #f4f6f8;
+      --card: #ffffff;
+      --border: #e0e0e0;
+      --text: #333;
     }
 
-    .dashboard {
-      background: #fff;
-      width: 95%;
-      max-width: 1100px;
-      border-radius: 20px;
-      padding: 28px;
-      box-shadow: 0 20px 40px rgba(0,0,0,.25);
-      display: grid;
-      grid-template-rows: auto auto auto;
-      gap: 22px;
+    body {
+      margin: 0;
+      font-family: "Poppins", "Segoe UI", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
     }
 
     /* ===== HEADER ===== */
     .header {
+      background: linear-gradient(135deg, #2193b0, #6dd5ed);
+      padding: 26px 20px;
+      color: white;
       text-align: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,.15);
     }
 
     .header h1 {
       margin: 0;
-      font-size: 1.8rem;
+      font-size: 1.7rem;
       font-weight: 800;
     }
 
     .header p {
       margin-top: 6px;
       font-size: 0.95rem;
-      color: #555;
-    }
-
-    /* ===== SUMMARY ===== */
-    .summary {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 18px;
-    }
-
-    .card {
-      border-radius: 16px;
-      padding: 18px;
-      color: white;
-      text-align: center;
-    }
-
-    .card.total { background: linear-gradient(135deg, #2563eb, #3b82f6); }
-    .card.bdl   { background: linear-gradient(135deg, #f97316, #fb923c); }
-    .card.smg   { background: linear-gradient(135deg, #2563eb, #60a5fa); }
-    .card.yog   { background: linear-gradient(135deg, #eab308, #fde047); color:#333; }
-
-    .card h2 {
-      font-size: 2.4rem;
-      margin: 0;
-    }
-
-    .card span {
-      font-size: 0.85rem;
-      font-weight: 600;
       opacity: 0.95;
     }
 
-    /* ===== RECENT ===== */
-    .recent {
-      background: #f8fafc;
-      border-radius: 16px;
-      padding: 18px;
+    /* ===== CONTAINER ===== */
+    .container {
+      max-width: 1400px;
+      margin: 24px auto;
+      padding: 0 16px 32px;
     }
 
-    .recent h3 {
-      margin-top: 0;
-      font-size: 1.1rem;
-    }
-
-    .recent-list {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
+    /* ===== ACTION BAR ===== */
+    .actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
       gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 10px 22px;
+      border-radius: 999px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: .25s;
+    }
+
+    .btn:hover {
+      background: #125aa3;
+      transform: translateY(-2px);
+    }
+
+    .hint {
       font-size: 0.85rem;
+      color: #555;
     }
 
-    .recent-item {
-      background: white;
-      padding: 10px;
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0,0,0,.1);
+    /* ===== CARD TABLE ===== */
+    .card {
+      background: var(--card);
+      border-radius: 18px;
+      box-shadow: 0 8px 22px rgba(0,0,0,.12);
+      overflow: hidden;
     }
 
-    .recent-item strong {
-      display: block;
-      font-size: 0.9rem;
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      vertical-align: top;
+      white-space: nowrap;
+    }
+
+    th {
+      background: var(--primary);
+      color: white;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+
+    tr:hover {
+      background: #f1f7ff;
+    }
+
+    /* ===== GROUP COLOR (SOFT) ===== */
+    tr.bdl { background: #fff1ea; }
+    tr.smg { background: #eef4ff; }
+    tr.yog { background: #fff8db; }
+
+    /* ===== LOADING ===== */
+    .loading {
+      text-align: center;
+      padding: 24px;
+      font-weight: 600;
+      color: #666;
     }
 
     /* ===== FOOTER ===== */
     .footer {
       text-align: center;
-      font-size: 0.75rem;
-      color: #666;
+      margin-top: 16px;
+      font-size: 0.8rem;
+      color: #777;
     }
 
-    @media (max-width: 900px) {
-      .summary {
-        grid-template-columns: repeat(2, 1fr);
-      }
-      .recent-list {
-        grid-template-columns: repeat(2, 1fr);
-      }
+    @media (max-width: 768px) {
+      table { font-size: 12px; }
+      th, td { padding: 8px; }
+      .header h1 { font-size: 1.4rem; }
     }
   </style>
 </head>
 
 <body>
 
-<div class="dashboard">
+<!-- ===== HEADER ===== -->
+<div class="header">
+  <h1>📊 Data Request Libur & Cuti</h1>
+  <p>Daftar request karyawan · Read-only</p>
+</div>
 
-  <div class="header">
-    <h1>📊 Laporan Request Libur & Cuti</h1>
-    <p>Ringkasan data request periode berjalan</p>
+<div class="container">
+
+  <!-- ===== ACTION ===== -->
+  <div class="actions">
+    <button class="btn" onclick="loadData()">🔄 Muat Data</button>
+    <div class="hint">Klik untuk melihat data terbaru</div>
   </div>
 
-  <div class="summary">
-    <div class="card total">
-      <h2 id="totalAll">0</h2>
-      <span>Total Request</span>
+  <!-- ===== TABLE CARD ===== -->
+  <div class="card">
+    <div id="loading" class="loading">
+      Klik <b>Muat Data</b> untuk menampilkan request
     </div>
-    <div class="card bdl">
-      <h2 id="totalBDL">0</h2>
-      <span>BDL-PLG-KAL</span>
-    </div>
-    <div class="card smg">
-      <h2 id="totalSMG">0</h2>
-      <span>SMG-CRB</span>
-    </div>
-    <div class="card yog">
-      <h2 id="totalYOG">0</h2>
-      <span>YOG</span>
-    </div>
-  </div>
-
-  <div class="recent">
-    <h3>🕒 5 Request Terbaru</h3>
-    <div id="recentList" class="recent-list"></div>
+    <table id="tbl"></table>
   </div>
 
   <div class="footer">
-    Data bersifat informasi · Read-only
+    Data bersifat informasi · Tidak dapat diedit
   </div>
 
 </div>
@@ -168,37 +177,50 @@
 const GAS_URL =
   "https://script.google.com/macros/s/AKfycbzR8nCWg3vWMLd9ZWbvOTDR9bwdZ8xLpr7dQAfLyzZka32Qf9gsswpKQgLRUPFl8yA93Q/exec?api=req";
 
-fetch(GAS_URL)
-  .then(r => r.json())
-  .then(buildReport);
+function loadData() {
+  document.getElementById("loading").textContent =
+    "⏳ Mengambil data, mohon tunggu...";
+  document.getElementById("tbl").innerHTML = "";
 
-function buildReport(data) {
-  const rows = data.slice(1); // tanpa header
-  document.getElementById("totalAll").textContent = rows.length;
+  fetch(GAS_URL)
+    .then(res => res.json())
+    .then(data => render(data))
+    .catch(err => {
+      console.error(err);
+      document.getElementById("loading").textContent =
+        "❌ Gagal memuat data";
+    });
+}
 
-  let bdl=0, smg=0, yog=0;
-  rows.forEach(r => {
-    if (r[3] === "BDL-PLG-KAL") bdl++;
-    if (r[3] === "SMG-CRB") smg++;
-    if (r[3] === "YOG") yog++;
-  });
+function render(data) {
+  const tbl = document.getElementById("tbl");
+  const loading = document.getElementById("loading");
+  tbl.innerHTML = "";
+  loading.style.display = "none";
 
-  document.getElementById("totalBDL").textContent = bdl;
-  document.getElementById("totalSMG").textContent = smg;
-  document.getElementById("totalYOG").textContent = yog;
+  data.forEach((row, i) => {
+    const tr = document.createElement("tr");
 
-  const recent = rows.slice(-5).reverse();
-  const box = document.getElementById("recentList");
+    if (i === 0) {
+      row.forEach(c => {
+        const th = document.createElement("th");
+        th.textContent = c;
+        tr.appendChild(th);
+      });
+    } else {
+      const group = String(row[3] || "").toUpperCase();
+      if (group === "BDL-PLG-KAL") tr.className = "bdl";
+      else if (group === "SMG-CRB") tr.className = "smg";
+      else if (group === "YOG") tr.className = "yog";
 
-  recent.forEach(r => {
-    const div = document.createElement("div");
-    div.className = "recent-item";
-    div.innerHTML = `
-      <strong>${r[2]}</strong>
-      ${r[3]}<br>
-      <small>${r[0]}</small>
-    `;
-    box.appendChild(div);
+      row.forEach(c => {
+        const td = document.createElement("td");
+        td.textContent = c;
+        tr.appendChild(td);
+      });
+    }
+
+    tbl.appendChild(tr);
   });
 }
 </script>
