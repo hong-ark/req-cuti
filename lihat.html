@@ -1,31 +1,153 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
   <meta charset="utf-8">
   <title>Request Libur & Cuti</title>
+
+  <!-- BIAR MOBILE BISA ZOOM OUT -->
+  <meta name="viewport" content="width=device-width, initial-scale=0.9">
+
   <style>
-    body { font-family: Arial; padding: 20px; background:#f4f6f8; }
-    a { color:#1565c0; font-weight:bold; cursor:pointer; }
-    table { border-collapse: collapse; width:100%; margin-top:15px; background:white; }
-    th, td { border:1px solid #bbb; padding:6px; font-size:13px; vertical-align:top; }
-    th { background:#1976d2; color:white; position:sticky; top:0; }
-    tr.bdl { background:#f8cfc6; }
-    tr.smg { background:#b7cef5; }
-    tr.yog { background:#ffe082; }
-    #wrap { display:none; max-height:75vh; overflow:auto; box-shadow:0 2px 8px rgba(0,0,0,.2); }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+    }
+
+    /* ================= HEADER PAGE (FREEZE) ================= */
+    .page-header {
+      position: sticky;
+      top: 0;
+      z-index: 2000;
+      background: linear-gradient(135deg, #1976d2, #42a5f5);
+      color: white;
+      padding: 26px 20px 22px;
+      box-shadow: 0 4px 12px rgba(0,0,0,.2);
+      text-align: center;
+    }
+
+    .page-header h1 {
+      margin: 0;
+      font-size: 1.9rem;
+      font-weight: 900;
+      letter-spacing: .5px;
+    }
+
+    .page-header p {
+      margin-top: 6px;
+      font-size: 0.95rem;
+      opacity: 0.95;
+    }
+
+    /* ================= ACTION BAR ================= */
+    .action-bar {
+      background: #f4f6f8;
+      position: sticky;
+      top: 110px; /* tinggi header */
+      z-index: 1500;
+      padding: 14px 20px;
+      text-align: center;
+      border-bottom: 1px solid #ddd;
+    }
+
+    /* ================= BUTTON ================= */
+    .btn {
+      background: linear-gradient(135deg, #16a34a, #22c55e);
+      color: white;
+      border: none;
+      padding: 12px 34px;
+      border-radius: 999px;
+      font-weight: 900;
+      font-size: 0.95rem;
+      cursor: pointer;
+      box-shadow: 0 6px 14px rgba(34,197,94,.45);
+      transition: all .25s ease;
+    }
+
+    .btn:hover {
+      background: linear-gradient(135deg, #15803d, #16a34a);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 22px rgba(34,197,94,.5);
+    }
+
+    .btn:active {
+      transform: scale(.97);
+    }
+
+    /* ================= CONTENT ================= */
+    .content {
+      padding: 20px;
+    }
+
+    /* ================= TABLE ================= */
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 15px;
+      background: white;
+      font-size: 13px;
+    }
+
+    th, td {
+      border: 1px solid #bbb;
+      padding: 6px;
+      vertical-align: top;
+      white-space: nowrap;
+    }
+
+    th {
+      background: #1976d2;
+      color: white;
+      position: sticky;
+      top: 170px; /* header + action bar */
+      z-index: 1000;
+    }
+
+    tr.bdl { background: #f8cfc6; }
+    tr.smg { background: #b7cef5; }
+    tr.yog { background: #ffe082; }
+
+    /* ================= WRAP ================= */
+    #wrap {
+      display: none;
+      max-height: 75vh;
+      overflow: auto;
+      box-shadow: 0 2px 8px rgba(0,0,0,.2);
+      background: white;
+    }
   </style>
 </head>
+
 <body>
 
-<h2>📊 Data Request Libur & Cuti</h2>
-<a onclick="loadData()">▶ Lihat Request</a>
+<!-- ================= HEADER ================= -->
+<div class="page-header">
+  <h1>📊 DATA REQUEST LIBUR & CUTI</h1>
+  <p>Laporan request karyawan (read only)</p>
+</div>
 
-<div id="wrap">
-  <table id="tbl"></table>
+<!-- ================= ACTION ================= -->
+<div class="action-bar">
+  <button class="btn" onclick="loadData()">📂 Lihat Request</button>
+</div>
+
+<div class="content">
+  <div id="wrap">
+    <table id="tbl"></table>
+  </div>
 </div>
 
 <script>
-const GAS_URL = "https://script.google.com/macros/s/AKfycbzR8nCWg3vWMLd9ZWbvOTDR9bwdZ8xLpr7dQAfLyzZka32Qf9gsswpKQgLRUPFl8yA93Q/exec?api=req";
+const GAS_URL =
+  "https://script.google.com/macros/s/AKfycbzR8nCWg3vWMLd9ZWbvOTDR9bwdZ8xLpr7dQAfLyzZka32Qf9gsswpKQgLRUPFl8yA93Q/exec?api=req";
+
+/*
+  0 = Timestamp (❌ disembunyikan)
+  1 = NIK
+  2 = Nama
+  3 = Group
+  4+ = data lainnya
+*/
 
 function loadData() {
   fetch(GAS_URL)
@@ -47,18 +169,20 @@ function render(data) {
     const tr = document.createElement("tr");
 
     if (i === 0) {
-      row.forEach(c => {
+      // HEADER (skip kolom 0 / timestamp)
+      row.slice(1).forEach(c => {
         const th = document.createElement("th");
         th.textContent = c;
         tr.appendChild(th);
       });
     } else {
-      const group = String(row[3] || "").toUpperCase(); // kolom Group
+      const group = String(row[3] || "").toUpperCase();
       if (group === "BDL-PLG-KAL") tr.className = "bdl";
       else if (group === "SMG-CRB") tr.className = "smg";
       else if (group === "YOG") tr.className = "yog";
 
-      row.forEach(c => {
+      // DATA (skip kolom 0 / timestamp)
+      row.slice(1).forEach(c => {
         const td = document.createElement("td");
         td.textContent = c;
         tr.appendChild(td);
