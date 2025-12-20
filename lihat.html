@@ -18,60 +18,44 @@
     .page-header {
       position: sticky;
       top: 0;
-      z-index: 2000;
-      background: linear-gradient(135deg, #1976d2, #42a5f5);
+      z-index: 1000;
+      background: #1976d2;
       color: white;
-      padding: 26px 20px 22px;
-      box-shadow: 0 4px 12px rgba(0,0,0,.2);
+      padding: 20px;
       text-align: center;
+      box-shadow: 0 3px 8px rgba(0,0,0,.2);
     }
 
     .page-header h1 {
       margin: 0;
-      font-size: 1.9rem;
-      font-weight: 900;
-      letter-spacing: .5px;
+      font-size: 1.8rem;
+      font-weight: bold;
     }
 
-    .page-header p {
-      margin-top: 6px;
-      font-size: 0.95rem;
-      opacity: 0.95;
-    }
-
-    /* ================= ACTION BAR ================= */
+    /* ================= ACTION ================= */
     .action-bar {
       background: #f4f6f8;
       position: sticky;
-      top: 110px; /* tinggi header */
-      z-index: 1500;
-      padding: 14px 20px;
+      top: 78px; /* tepat di bawah header */
+      z-index: 900;
+      padding: 12px;
       text-align: center;
-      border-bottom: 1px solid #ddd;
+      border-bottom: 1px solid #ccc;
     }
 
-    /* ================= BUTTON ================= */
     .btn {
-      background: linear-gradient(135deg, #16a34a, #22c55e);
+      background: #16a34a;
       color: white;
       border: none;
-      padding: 12px 34px;
-      border-radius: 999px;
-      font-weight: 900;
-      font-size: 0.95rem;
+      padding: 10px 28px;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 14px;
       cursor: pointer;
-      box-shadow: 0 6px 14px rgba(34,197,94,.45);
-      transition: all .25s ease;
     }
 
     .btn:hover {
-      background: linear-gradient(135deg, #15803d, #16a34a);
-      transform: translateY(-2px);
-      box-shadow: 0 10px 22px rgba(34,197,94,.5);
-    }
-
-    .btn:active {
-      transform: scale(.97);
+      background: #15803d;
     }
 
     /* ================= CONTENT ================= */
@@ -99,15 +83,14 @@
       background: #1976d2;
       color: white;
       position: sticky;
-      top: 170px; /* header + action bar */
-      z-index: 1000;
+      top: 140px; /* header + action */
+      z-index: 800;
     }
 
     tr.bdl { background: #f8cfc6; }
     tr.smg { background: #b7cef5; }
     tr.yog { background: #ffe082; }
 
-    /* ================= WRAP ================= */
     #wrap {
       display: none;
       max-height: 75vh;
@@ -122,13 +105,12 @@
 
 <!-- ================= HEADER ================= -->
 <div class="page-header">
-  <h1>📊 DATA REQUEST LIBUR & CUTI</h1>
-  <p>Laporan request karyawan (read only)</p>
+  <h1>DATA REQUEST LIBUR & CUTI</h1>
 </div>
 
 <!-- ================= ACTION ================= -->
 <div class="action-bar">
-  <button class="btn" onclick="loadData()">📂 Lihat Request</button>
+  <button class="btn" onclick="loadData()">Lihat Request</button>
 </div>
 
 <div class="content">
@@ -153,10 +135,7 @@ function loadData() {
   fetch(GAS_URL)
     .then(res => res.json())
     .then(data => render(data))
-    .catch(err => {
-      console.error(err);
-      alert("Gagal load data");
-    });
+    .catch(() => alert("Gagal load data"));
 }
 
 function render(data) {
@@ -169,7 +148,7 @@ function render(data) {
     const tr = document.createElement("tr");
 
     if (i === 0) {
-      // HEADER (skip kolom 0 / timestamp)
+      // HEADER (skip Timestamp)
       row.slice(1).forEach(c => {
         const th = document.createElement("th");
         th.textContent = c;
@@ -181,7 +160,7 @@ function render(data) {
       else if (group === "SMG-CRB") tr.className = "smg";
       else if (group === "YOG") tr.className = "yog";
 
-      // DATA (skip kolom 0 / timestamp)
+      // DATA (skip Timestamp)
       row.slice(1).forEach(c => {
         const td = document.createElement("td");
         td.textContent = c;
