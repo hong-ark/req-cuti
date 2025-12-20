@@ -1,288 +1,71 @@
 <!DOCTYPE html>
-<html lang="id">
+<html>
 <head>
-<meta charset="UTF-8">
-<title>Data Request Libur & Cuti</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<style>
-:root{
-  --primary:#1976d2;
-  --primary-dark:#125aa3;
-  --bg:#f4f6f8;
-  --card:#ffffff;
-  --border:#e0e0e0;
-  --text:#333;
-}
-
-/* ===== BASE ===== */
-body{
-  margin:0;
-  font-family:"Poppins","Segoe UI",Arial,sans-serif;
-  background:var(--bg);
-  color:var(--text);
-}
-
-/* ===== HEADER LAPORAN (STICKY) ===== */
-.header{
-  background:linear-gradient(135deg,#2193b0,#6dd5ed);
-  color:#fff;
-  text-align:center;
-  padding:20px 14px;
-  position:sticky;
-  top:0;
-  z-index:3000;
-  box-shadow:0 4px 12px rgba(0,0,0,.15);
-}
-.header h1{
-  margin:0;
-  font-size:1.5rem;
-  font-weight:800;
-}
-
-/* ===== ACTION BAR (STICKY) ===== */
-.actions{
-  background:var(--bg);
-  position:sticky;
-  top:78px; /* tepat di bawah header */
-  z-index:2500;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:10px;
-  padding:12px 14px;
-  border-bottom:1px solid var(--border);
-}
-
-.btn{
-  background:linear-gradient(135deg,var(--primary),#42a5f5);
-  color:white;
-  border:none;
-  padding:10px 22px;
-  border-radius:999px;
-  font-weight:800;
-  cursor:pointer;
-  display:flex;
-  align-items:center;
-  gap:8px;
-  box-shadow:0 6px 14px rgba(25,118,210,.35);
-  transition:.25s;
-}
-.btn:hover{
-  background:linear-gradient(135deg,var(--primary-dark),#1e88e5);
-  transform:translateY(-2px);
-}
-.btn.loading{
-  opacity:.7;
-  pointer-events:none;
-}
-
-.hint{
-  font-size:.8rem;
-  color:#555;
-}
-
-/* ===== CONTENT ===== */
-.container{
-  max-width:1400px;
-  margin:auto;
-  padding:0 14px 40px;
-}
-
-/* ===== DESKTOP TABLE ===== */
-.card{
-  background:var(--card);
-  border-radius:16px;
-  box-shadow:0 8px 22px rgba(0,0,0,.12);
-  overflow:hidden;
-  margin-top:12px;
-}
-
-table{
-  width:100%;
-  border-collapse:collapse;
-  font-size:13px;
-}
-
-th,td{
-  padding:10px 12px;
-  border-bottom:1px solid var(--border);
-  white-space:nowrap;
-}
-
-th{
-  background:var(--primary);
-  color:white;
-  position:sticky;
-  top:126px; /* header + action */
-  z-index:2000;
-}
-
-tr.bdl{background:#fff1ea;}
-tr.smg{background:#eef4ff;}
-tr.yog{background:#fff8db;}
-
-.loading{
-  text-align:center;
-  padding:24px;
-  font-weight:600;
-  color:#666;
-}
-
-/* ===== MOBILE MODE ===== */
-@media(max-width:768px){
-
-  /* sembunyikan tabel */
-  table{display:none;}
-
-  /* search */
-  .search-box{
-    margin:14px 0;
-  }
-  .search-box input{
-    width:100%;
-    padding:12px;
-    border-radius:12px;
-    border:1px solid var(--border);
-    font-size:1rem;
-  }
-
-  /* card per NIK */
-  .nik-card{
-    background:white;
-    border-radius:14px;
-    padding:14px;
-    margin-bottom:14px;
-    box-shadow:0 4px 12px rgba(0,0,0,.1);
-  }
-  .nik-card h3{
-    margin:0 0 8px;
-    font-size:1rem;
-  }
-  .nik-row{
-    font-size:.85rem;
-    margin-bottom:4px;
-  }
-}
-</style>
+  <meta charset="utf-8">
+  <title>Request Libur & Cuti</title>
+  <style>
+    body { font-family: Arial; padding: 20px; background:#f4f6f8; }
+    a { color:#1565c0; font-weight:bold; cursor:pointer; }
+    table { border-collapse: collapse; width:100%; margin-top:15px; background:white; }
+    th, td { border:1px solid #bbb; padding:6px; font-size:13px; vertical-align:top; }
+    th { background:#1976d2; color:white; position:sticky; top:0; }
+    tr.bdl { background:#f8cfc6; }
+    tr.smg { background:#b7cef5; }
+    tr.yog { background:#ffe082; }
+    #wrap { display:none; max-height:75vh; overflow:auto; box-shadow:0 2px 8px rgba(0,0,0,.2); }
+  </style>
 </head>
-
 <body>
 
-<!-- HEADER LAPORAN -->
-<div class="header">
-  <h1 id="pageTitle"></h1>
-</div>
+<h2>📊 Data Request Libur & Cuti</h2>
+<a onclick="loadData()">▶ Lihat Request</a>
 
-<!-- ACTION BAR -->
-<div class="actions">
-  <button id="loadBtn" class="btn" onclick="loadData()">
-    <span id="btnIcon">🔄</span>
-    <span id="btnText">Muat Data</span>
-  </button>
-  <div class="hint">Data request bulan berjalan</div>
-</div>
-
-<div class="container">
-
-  <!-- MOBILE SEARCH -->
-  <div class="search-box">
-    <input id="searchNik" type="text" placeholder="🔍 Cari NIK (Mobile)" oninput="renderMobile()">
-  </div>
-
-  <!-- DESKTOP TABLE -->
-  <div class="card">
-    <div id="loading" class="loading">
-      Klik <b>Muat Data</b> untuk menampilkan data
-    </div>
-    <table id="tbl"></table>
-  </div>
-
-  <!-- MOBILE CARD -->
-  <div id="mobileList"></div>
-
+<div id="wrap">
+  <table id="tbl"></table>
 </div>
 
 <script>
-/* ===== TITLE +1 BULAN ===== */
-function setAutoTitle(){
-  const b=["JANUARI","FEBRUARI","MARET","APRIL","MEI","JUNI","JULI","AGUSTUS","SEPTEMBER","OKTOBER","NOVEMBER","DESEMBER"];
-  const now=new Date();
-  const t=new Date(now.getFullYear(),now.getMonth()+1,1);
-  document.getElementById("pageTitle").textContent=
-    `DATA REQUEST LIBUR - CUTI BULAN ${b[t.getMonth()]} ${t.getFullYear()}`;
-}
-setAutoTitle();
+const GAS_URL = "https://script.google.com/macros/s/AKfycbzR8nCWg3vWMLd9ZWbvOTDR9bwdZ8xLpr7dQAfLyzZka32Qf9gsswpKQgLRUPFl8yA93Q/exec?api=req";
 
-const GAS_URL="https://script.google.com/macros/s/AKfycbzR8nCWg3vWMLd9ZWbvOTDR9bwdZ8xLpr7dQAfLyzZka32Qf9gsswpKQgLRUPFl8yA93Q/exec?api=req";
-const VISIBLE_COLS=[1,2,3,4,5,6,7];
-let RAW_DATA=[];
-
-function loadData(){
-  const btn=document.getElementById("loadBtn");
-  btn.classList.add("loading");
-  document.getElementById("btnText").textContent="Memuat...";
+function loadData() {
   fetch(GAS_URL)
-    .then(r=>r.json())
-    .then(d=>{
-      RAW_DATA=d;
-      renderDesktop(d);
-      renderMobile();
-      btn.classList.remove("loading");
-      document.getElementById("btnText").textContent="Refresh Data";
+    .then(res => res.json())
+    .then(data => render(data))
+    .catch(err => {
+      console.error(err);
+      alert("Gagal load data");
     });
 }
 
-/* ===== DESKTOP TABLE ===== */
-function renderDesktop(data){
-  const tbl=document.getElementById("tbl");
-  tbl.innerHTML="";
-  document.getElementById("loading").style.display="none";
+function render(data) {
+  const tbl = document.getElementById("tbl");
+  const wrap = document.getElementById("wrap");
+  tbl.innerHTML = "";
+  wrap.style.display = "block";
 
-  const trh=document.createElement("tr");
-  VISIBLE_COLS.forEach(i=>{
-    const th=document.createElement("th");
-    th.textContent=data[0][i];
-    trh.appendChild(th);
-  });
-  tbl.appendChild(trh);
+  data.forEach((row, i) => {
+    const tr = document.createElement("tr");
 
-  data.slice(1).forEach(r=>{
-    const tr=document.createElement("tr");
-    if(r[3]==="BDL-PLG-KAL") tr.className="bdl";
-    if(r[3]==="SMG-CRB") tr.className="smg";
-    if(r[3]==="YOG") tr.className="yog";
+    if (i === 0) {
+      row.forEach(c => {
+        const th = document.createElement("th");
+        th.textContent = c;
+        tr.appendChild(th);
+      });
+    } else {
+      const group = String(row[3] || "").toUpperCase(); // kolom Group
+      if (group === "BDL-PLG-KAL") tr.className = "bdl";
+      else if (group === "SMG-CRB") tr.className = "smg";
+      else if (group === "YOG") tr.className = "yog";
 
-    VISIBLE_COLS.forEach(i=>{
-      const td=document.createElement("td");
-      td.textContent=r[i]??"";
-      tr.appendChild(td);
-    });
+      row.forEach(c => {
+        const td = document.createElement("td");
+        td.textContent = c;
+        tr.appendChild(td);
+      });
+    }
+
     tbl.appendChild(tr);
-  });
-}
-
-/* ===== MOBILE PER NIK ===== */
-function renderMobile(){
-  const box=document.getElementById("mobileList");
-  box.innerHTML="";
-  if(!RAW_DATA.length) return;
-
-  const q=document.getElementById("searchNik").value.toLowerCase();
-  RAW_DATA.slice(1).forEach(r=>{
-    if(q && !String(r[1]).includes(q)) return;
-
-    const card=document.createElement("div");
-    card.className="nik-card";
-    card.innerHTML=`
-      <h3>${r[2]} (${r[1]})</h3>
-      <div class="nik-row">Group: ${r[3]}</div>
-      <div class="nik-row">Request: ${r[4]}</div>
-      <div class="nik-row">Tanggal: ${r[5]}</div>
-      <div class="nik-row">Keterangan: ${r[6]}</div>
-      <div class="nik-row">Status: ${r[7]}</div>
-    `;
-    box.appendChild(card);
   });
 }
 </script>
