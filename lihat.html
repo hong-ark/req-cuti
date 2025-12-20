@@ -22,13 +22,18 @@
       color: var(--text);
     }
 
-    /* ===== HEADER ===== */
+    /* ===== HEADER (STICKY) ===== */
     .header {
       background: linear-gradient(135deg, #2193b0, #6dd5ed);
       padding: 26px 20px;
       color: white;
       text-align: center;
       box-shadow: 0 4px 12px rgba(0,0,0,.15);
+      border-bottom: 3px solid rgba(255,255,255,.35);
+
+      position: sticky;
+      top: 0;
+      z-index: 1000;
     }
 
     .header h1 {
@@ -105,7 +110,7 @@
       border-bottom: 1px solid var(--border);
       text-align: left;
       vertical-align: top;
-      white-space: nowrap;
+      white-space: nowrap; /* desktop */
     }
 
     th {
@@ -120,7 +125,7 @@
       background: #f1f7ff;
     }
 
-    /* ===== GROUP COLOR (SOFT) ===== */
+    /* ===== GROUP COLOR ===== */
     tr.bdl { background: #fff1ea; }
     tr.smg { background: #eef4ff; }
     tr.yog { background: #fff8db; }
@@ -141,10 +146,36 @@
       color: #777;
     }
 
+    /* =================================================
+       MOBILE FIX – TAMPILKAN SEMUA KOLOM (NO CUT)
+    ================================================= */
     @media (max-width: 768px) {
-      table { font-size: 12px; }
-      th, td { padding: 8px; }
-      .header h1 { font-size: 1.4rem; }
+      table {
+        table-layout: fixed;
+        width: 100%;
+        font-size: 12px;
+      }
+
+      th, td {
+        padding: 8px;
+        white-space: normal;     /* IZINKAN WRAP */
+        word-wrap: break-word;
+        word-break: break-word;
+      }
+
+      /* Lebar kolom penting */
+      th:nth-child(1),
+      td:nth-child(1) { width: 90px; }   /* NIK */
+
+      th:nth-child(2),
+      td:nth-child(2) { width: 120px; }  /* Nama */
+
+      th:nth-child(3),
+      td:nth-child(3) { width: 90px; }   /* Group */
+
+      .header h1 {
+        font-size: 1.4rem;
+      }
     }
   </style>
 </head>
@@ -167,7 +198,7 @@
     <div class="hint">Klik untuk menampilkan data request terbaru</div>
   </div>
 
-  <!-- ===== TABLE CARD ===== -->
+  <!-- ===== TABLE ===== -->
   <div class="card">
     <div id="loading" class="loading">
       Klik <b>Muat Data</b> untuk menampilkan data
@@ -197,11 +228,10 @@ function setAutoTitle() {
   document.getElementById("pageTitle").textContent =
     `DATA REQUEST LIBUR - CUTI BULAN ${bulan[target.getMonth()]} ${target.getFullYear()}`;
 }
-
 setAutoTitle();
 
 /* =================================================
-   API & KONFIGURASI TABEL
+   API & KONFIGURASI
 ================================================= */
 const GAS_URL =
   "https://script.google.com/macros/s/AKfycbzR8nCWg3vWMLd9ZWbvOTDR9bwdZ8xLpr7dQAfLyzZka32Qf9gsswpKQgLRUPFl8yA93Q/exec?api=req";
