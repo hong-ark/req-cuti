@@ -7,46 +7,26 @@
   <style>
     body {
       font-family: Arial;
-      margin: 0;
+      padding: 20px;
       background: #f4f6f8;
     }
 
-    /* ===== HEADER HALAMAN (FREEZE AMAN) ===== */
-    .header {
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-      background: linear-gradient(135deg, #1976d2, #42a5f5);
-      color: white;
-      padding: 18px 20px;
-      text-align: center;
-      box-shadow: 0 4px 10px rgba(0,0,0,.2);
+    h2 {
+      margin-bottom: 10px;
     }
 
-    .header h2 {
-      margin: 0;
-      font-size: 1.6rem;
-      font-weight: 900;
-      letter-spacing: .5px;
-    }
-
-    .content {
-      padding: 20px;
-    }
-
-    /* ===== BUTTON ===== */
+    /* ===== BUTTON LIHAT REQUEST ===== */
     .btn {
       background: linear-gradient(135deg, #16a34a, #22c55e);
       color: white;
       border: none;
-      padding: 10px 26px;
+      padding: 10px 22px;
       border-radius: 999px;
       font-weight: bold;
       font-size: 14px;
       cursor: pointer;
       box-shadow: 0 4px 10px rgba(34,197,94,.4);
-      transition: .2s;
-      margin-bottom: 10px;
+      transition: all .2s ease;
     }
 
     .btn:hover {
@@ -54,7 +34,6 @@
       transform: translateY(-1px);
     }
 
-    /* ===== TABLE ===== */
     table {
       border-collapse: collapse;
       width: 100%;
@@ -73,44 +52,36 @@
     th {
       background: #1976d2;
       color: white;
-      /* ❌ TIDAK STICKY — INI KUNCI */
+      position: sticky;
+      top: 0;
     }
 
     tr.bdl { background: #f8cfc6; }
     tr.smg { background: #b7cef5; }
     tr.yog { background: #ffe082; }
 
-    /* ===== WRAP SCROLL ===== */
     #wrap {
       display: none;
       max-height: 75vh;
       overflow: auto;
       box-shadow: 0 2px 8px rgba(0,0,0,.2);
       background: white;
-      margin-top: 10px;
     }
   </style>
 </head>
 
 <body>
 
-<!-- ===== HEADER ===== -->
-<div class="header">
-  <h2 id="pageTitle"></h2>
-</div>
+<h2 id="pageTitle"></h2>
 
-<div class="content">
+<button class="btn" onclick="loadData()">📂 LIHAT DATA</button>
 
-  <button class="btn" onclick="loadData()">📂 LIHAT DATA</button>
-
-  <div id="wrap">
-    <table id="tbl"></table>
-  </div>
-
+<div id="wrap">
+  <table id="tbl"></table>
 </div>
 
 <script>
-/* ===== JUDUL OTOMATIS BULAN +1 ===== */
+/* ===== JUDUL OTOMATIS: BULAN BERJALAN + 1 ===== */
 (function setAutoTitle() {
   const bulan = [
     "JANUARI","FEBRUARI","MARET","APRIL","MEI","JUNI",
@@ -124,6 +95,7 @@
     `DATA REQUEST CUTI - LIBUR ${bulan[target.getMonth()]} ${target.getFullYear()}`;
 })();
 
+/* ===== API ===== */
 const GAS_URL =
   "https://script.google.com/macros/s/AKfycbzR8nCWg3vWMLd9ZWbvOTDR9bwdZ8xLpr7dQAfLyzZka32Qf9gsswpKQgLRUPFl8yA93Q/exec?api=req";
 
@@ -131,7 +103,10 @@ function loadData() {
   fetch(GAS_URL)
     .then(res => res.json())
     .then(data => render(data))
-    .catch(() => alert("Gagal load data"));
+    .catch(err => {
+      console.error(err);
+      alert("Gagal load data");
+    });
 }
 
 function render(data) {
@@ -144,6 +119,7 @@ function render(data) {
     const tr = document.createElement("tr");
 
     if (i === 0) {
+      // HEADER → SKIP KOLOM A (Timestamp)
       row.slice(1).forEach(c => {
         const th = document.createElement("th");
         th.textContent = c;
@@ -155,6 +131,7 @@ function render(data) {
       else if (group === "SMG-CRB") tr.className = "smg";
       else if (group === "YOG") tr.className = "yog";
 
+      // DATA → SKIP KOLOM A (Timestamp)
       row.slice(1).forEach(c => {
         const td = document.createElement("td");
         td.textContent = c;
