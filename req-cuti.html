@@ -38,15 +38,6 @@
       letter-spacing: 1px;
     }
 
-    .tagline {
-      font-size: 1.3rem;
-      font-weight: 700;
-      margin-bottom: 20px;
-      background: linear-gradient(90deg, #2193b0, #6dd5ed);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
     /* ===== BADGE STATUS ===== */
     .badge {
       display: inline-block;
@@ -114,13 +105,37 @@
       color: #666;
     }
 
+    /* ===== LINK LIHAT REQUEST ===== */
+    .view-link {
+      margin-top: 26px;
+      display: none;
+    }
+
+    .view-link a {
+      display: inline-block;
+      padding: 11px 26px;
+      border-radius: 999px;
+      font-weight: 800;
+      text-decoration: none;
+      color: #1565c0;
+      background: #e3f2fd;
+      border: 2px solid #90caf9;
+      transition: all 0.25s ease;
+    }
+
+    .view-link a:hover {
+      background: #1565c0;
+      color: #fff;
+      transform: translateY(-2px);
+    }
+
     @media (max-width: 480px) {
       .open-title { font-size: 1.9rem; }
-      .tagline { font-size: 1.1rem; }
       .number { font-size: 2rem; }
     }
   </style>
 </head>
+
 <body>
 
 <div class="container">
@@ -128,7 +143,6 @@
   <div class="open-title">
     OPEN REQUEST TANGGAL 1–15 SETIAP BULAN
   </div>
-
 
   <div id="badge" class="badge"></div>
 
@@ -154,13 +168,20 @@
   </div>
 
   <div class="note">
-    Halaman akan otomatis berpindah saat periode request dibuka.
+    Halaman akan otomatis berpindah saat request dibuka.
+  </div>
+
+  <!-- 🔗 LINK LIHAT REQUEST -->
+  <div id="viewRequest" class="view-link">
+    <a href="https://hong-ark.github.io/req-cuti/view-request.html" target="_blank">
+      📊 Lihat Request
+    </a>
   </div>
 
 </div>
 
 <script>
-  // 🔗 URL AUTO REDIRECT
+  // 🔗 URL AUTO REDIRECT (FORM INPUT)
   const INPUT_URL = "https://hong-ark.github.io/req-cuti/INPUTNIK.html";
 
   function getNextOpenDate() {
@@ -175,6 +196,7 @@
     const badge = document.getElementById("badge");
     const statusText = document.getElementById("statusText");
     const countdown = document.getElementById("countdown");
+    const viewRequest = document.getElementById("viewRequest");
 
     // 🟢 OPEN (1–15)
     if (day >= 1 && day <= 15) {
@@ -183,6 +205,7 @@
 
       statusText.textContent = "Silakan lanjutkan pengajuan request cuti";
       countdown.style.display = "none";
+      viewRequest.style.display = "none";
 
       setTimeout(() => {
         window.location.href = INPUT_URL;
@@ -191,12 +214,13 @@
       return;
     }
 
-    // 🔴 CLOSE (16+)
+    // 🔴 CLOSE (16–31)
     badge.textContent = "REQ - CLOSE";
     badge.className = "badge close";
 
     statusText.textContent = "Akan dibuka kembali dalam hitungan:";
     countdown.style.display = "grid";
+    viewRequest.style.display = "block";
 
     const target = getNextOpenDate();
     const diff = target - now;
@@ -217,5 +241,3 @@
 
 </body>
 </html>
-
-
