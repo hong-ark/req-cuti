@@ -7,33 +7,12 @@
   <style>
     body {
       font-family: Arial;
-      margin: 0;
-      padding: 0;
+      padding: 20px;
       background: #f4f6f8;
     }
 
-    /* ================= HEADER ================= */
-    .header {
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-      background: linear-gradient(135deg, #1976d2, #42a5f5);
-      color: white;
-      padding: 22px 20px;
-      text-align: center;
-      box-shadow: 0 4px 12px rgba(0,0,0,.2);
-    }
-
-    .header h2 {
-      margin: 0;
-      font-size: 1.6rem;
-      font-weight: 900;
-      letter-spacing: .5px;
-    }
-
-    /* ================= CONTENT ================= */
-    .content {
-      padding: 20px;
+    h2 {
+      margin-bottom: 10px;
     }
 
     /* ===== BUTTON LIHAT REQUEST ===== */
@@ -41,14 +20,13 @@
       background: linear-gradient(135deg, #16a34a, #22c55e);
       color: white;
       border: none;
-      padding: 10px 26px;
+      padding: 10px 22px;
       border-radius: 999px;
       font-weight: bold;
       font-size: 14px;
       cursor: pointer;
       box-shadow: 0 4px 10px rgba(34,197,94,.4);
       transition: all .2s ease;
-      margin-bottom: 10px;
     }
 
     .btn:hover {
@@ -75,7 +53,7 @@
       background: #1976d2;
       color: white;
       position: sticky;
-      top: 86px; /* tinggi header */
+      top: 0;
     }
 
     tr.bdl { background: #f8cfc6; }
@@ -94,19 +72,12 @@
 
 <body>
 
-<!-- ================= HEADER ================= -->
-<div class="header">
-  <h2 id="pageTitle"></h2>
-</div>
+<h2 id="pageTitle"></h2>
 
-<div class="content">
+<button class="btn" onclick="loadData()">📂 LIHAT DATA</button>
 
-  <button class="btn" onclick="loadData()">📂 LIHAT DATA</button>
-
-  <div id="wrap">
-    <table id="tbl"></table>
-  </div>
-
+<div id="wrap">
+  <table id="tbl"></table>
 </div>
 
 <script>
