@@ -1,179 +1,165 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="utf-8">
-  <title>Data Request Libur & Cuti</title>
+  <meta charset="UTF-8">
+  <title>Laporan Request Libur & Cuti</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
-    :root {
-      --primary: #1976d2;
-      --bg: #f4f6f8;
-      --card: #ffffff;
-      --text: #333;
-    }
-
     body {
       margin: 0;
-      font-family: "Poppins", "Segoe UI", Arial, sans-serif;
-      background: var(--bg);
-      color: var(--text);
+      font-family: "Poppins", Arial, sans-serif;
+      background: linear-gradient(135deg, #2193b0, #6dd5ed);
+      color: #333;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .dashboard {
+      background: #fff;
+      width: 95%;
+      max-width: 1100px;
+      border-radius: 20px;
+      padding: 28px;
+      box-shadow: 0 20px 40px rgba(0,0,0,.25);
+      display: grid;
+      grid-template-rows: auto auto auto;
+      gap: 22px;
     }
 
     /* ===== HEADER ===== */
     .header {
-      background: linear-gradient(135deg, #2193b0, #6dd5ed);
-      color: white;
-      padding: 22px 20px;
       text-align: center;
-      box-shadow: 0 4px 10px rgba(0,0,0,.15);
     }
 
     .header h1 {
       margin: 0;
-      font-size: 1.6rem;
+      font-size: 1.8rem;
       font-weight: 800;
     }
 
     .header p {
       margin-top: 6px;
       font-size: 0.95rem;
-      opacity: 0.95;
-    }
-
-    /* ===== CONTENT ===== */
-    .content {
-      padding: 20px;
-      max-width: 1200px;
-      margin: auto;
-    }
-
-    /* ===== ACTION BAR ===== */
-    .actions {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 14px;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    .btn {
-      background: var(--primary);
-      color: white;
-      padding: 10px 22px;
-      border-radius: 999px;
-      border: none;
-      font-weight: 700;
-      cursor: pointer;
-      transition: .25s;
-    }
-
-    .btn:hover {
-      background: #125aa3;
-      transform: translateY(-2px);
-    }
-
-    .hint {
-      font-size: 0.85rem;
       color: #555;
     }
 
-    /* ===== TABLE WRAPPER ===== */
-    #wrap {
-      display: none;
-      background: var(--card);
-      border-radius: 14px;
-      box-shadow: 0 6px 18px rgba(0,0,0,.12);
-      overflow: hidden;
+    /* ===== SUMMARY ===== */
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
     }
 
-    .table-scroll {
-      overflow-x: auto;
-      max-height: 70vh;
-    }
-
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      font-size: 13px;
-    }
-
-    th, td {
-      padding: 8px 10px;
-      border-bottom: 1px solid #ddd;
-      vertical-align: top;
-      white-space: nowrap;
-    }
-
-    th {
-      background: var(--primary);
+    .card {
+      border-radius: 16px;
+      padding: 18px;
       color: white;
-      position: sticky;
-      top: 0;
-      z-index: 2;
-      text-align: left;
-    }
-
-    tr:hover {
-      background: #f1f7ff;
-    }
-
-    /* ===== GROUP COLOR ===== */
-    tr.bdl { background: #fde3dd; }
-    tr.smg { background: #e3ecfb; }
-    tr.yog { background: #fff3cd; }
-
-    /* ===== LOADING ===== */
-    .loading {
       text-align: center;
-      padding: 30px;
+    }
+
+    .card.total { background: linear-gradient(135deg, #2563eb, #3b82f6); }
+    .card.bdl   { background: linear-gradient(135deg, #f97316, #fb923c); }
+    .card.smg   { background: linear-gradient(135deg, #2563eb, #60a5fa); }
+    .card.yog   { background: linear-gradient(135deg, #eab308, #fde047); color:#333; }
+
+    .card h2 {
+      font-size: 2.4rem;
+      margin: 0;
+    }
+
+    .card span {
+      font-size: 0.85rem;
       font-weight: 600;
-      color: #666;
+      opacity: 0.95;
+    }
+
+    /* ===== RECENT ===== */
+    .recent {
+      background: #f8fafc;
+      border-radius: 16px;
+      padding: 18px;
+    }
+
+    .recent h3 {
+      margin-top: 0;
+      font-size: 1.1rem;
+    }
+
+    .recent-list {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      font-size: 0.85rem;
+    }
+
+    .recent-item {
+      background: white;
+      padding: 10px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,.1);
+    }
+
+    .recent-item strong {
+      display: block;
+      font-size: 0.9rem;
     }
 
     /* ===== FOOTER ===== */
     .footer {
       text-align: center;
-      margin-top: 16px;
-      font-size: 0.8rem;
-      color: #777;
+      font-size: 0.75rem;
+      color: #666;
     }
 
-    @media (max-width: 768px) {
-      .header h1 { font-size: 1.3rem; }
-      table { font-size: 12px; }
-      th, td { padding: 6px; }
+    @media (max-width: 900px) {
+      .summary {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .recent-list {
+        grid-template-columns: repeat(2, 1fr);
+      }
     }
   </style>
 </head>
 
 <body>
 
-<div class="header">
-  <h1>📊 Data Request Libur & Cuti</h1>
-  <p>Tampilan read-only · Update realtime dari Google Sheet</p>
-</div>
+<div class="dashboard">
 
-<div class="content">
-
-  <div class="actions">
-    <button class="btn" onclick="loadData()">🔄 Muat Data</button>
-    <div class="hint">Klik tombol untuk menampilkan data terbaru</div>
+  <div class="header">
+    <h1>📊 Laporan Request Libur & Cuti</h1>
+    <p>Ringkasan data request periode berjalan</p>
   </div>
 
-  <div id="wrap">
-    <div class="table-scroll">
-      <table id="tbl"></table>
+  <div class="summary">
+    <div class="card total">
+      <h2 id="totalAll">0</h2>
+      <span>Total Request</span>
+    </div>
+    <div class="card bdl">
+      <h2 id="totalBDL">0</h2>
+      <span>BDL-PLG-KAL</span>
+    </div>
+    <div class="card smg">
+      <h2 id="totalSMG">0</h2>
+      <span>SMG-CRB</span>
+    </div>
+    <div class="card yog">
+      <h2 id="totalYOG">0</h2>
+      <span>YOG</span>
     </div>
   </div>
 
-  <div id="loading" class="loading" style="display:none;">
-    ⏳ Mengambil data, mohon tunggu...
+  <div class="recent">
+    <h3>🕒 5 Request Terbaru</h3>
+    <div id="recentList" class="recent-list"></div>
   </div>
 
   <div class="footer">
-    Data bersifat informasi · Tidak dapat diedit
+    Data bersifat informasi · Read-only
   </div>
 
 </div>
@@ -182,52 +168,37 @@
 const GAS_URL =
   "https://script.google.com/macros/s/AKfycbzR8nCWg3vWMLd9ZWbvOTDR9bwdZ8xLpr7dQAfLyzZka32Qf9gsswpKQgLRUPFl8yA93Q/exec?api=req";
 
-function loadData() {
-  document.getElementById("loading").style.display = "block";
-  document.getElementById("wrap").style.display = "none";
+fetch(GAS_URL)
+  .then(r => r.json())
+  .then(buildReport);
 
-  fetch(GAS_URL)
-    .then(res => res.json())
-    .then(data => {
-      render(data);
-      document.getElementById("loading").style.display = "none";
-    })
-    .catch(err => {
-      console.error(err);
-      document.getElementById("loading").textContent =
-        "❌ Gagal memuat data. Silakan coba lagi.";
-    });
-}
+function buildReport(data) {
+  const rows = data.slice(1); // tanpa header
+  document.getElementById("totalAll").textContent = rows.length;
 
-function render(data) {
-  const tbl = document.getElementById("tbl");
-  const wrap = document.getElementById("wrap");
-  tbl.innerHTML = "";
-  wrap.style.display = "block";
+  let bdl=0, smg=0, yog=0;
+  rows.forEach(r => {
+    if (r[3] === "BDL-PLG-KAL") bdl++;
+    if (r[3] === "SMG-CRB") smg++;
+    if (r[3] === "YOG") yog++;
+  });
 
-  data.forEach((row, i) => {
-    const tr = document.createElement("tr");
+  document.getElementById("totalBDL").textContent = bdl;
+  document.getElementById("totalSMG").textContent = smg;
+  document.getElementById("totalYOG").textContent = yog;
 
-    if (i === 0) {
-      row.forEach(c => {
-        const th = document.createElement("th");
-        th.textContent = c;
-        tr.appendChild(th);
-      });
-    } else {
-      const group = String(row[3] || "").toUpperCase();
-      if (group === "BDL-PLG-KAL") tr.className = "bdl";
-      else if (group === "SMG-CRB") tr.className = "smg";
-      else if (group === "YOG") tr.className = "yog";
+  const recent = rows.slice(-5).reverse();
+  const box = document.getElementById("recentList");
 
-      row.forEach(c => {
-        const td = document.createElement("td");
-        td.textContent = c;
-        tr.appendChild(td);
-      });
-    }
-
-    tbl.appendChild(tr);
+  recent.forEach(r => {
+    const div = document.createElement("div");
+    div.className = "recent-item";
+    div.innerHTML = `
+      <strong>${r[2]}</strong>
+      ${r[3]}<br>
+      <small>${r[0]}</small>
+    `;
+    box.appendChild(div);
   });
 }
 </script>
