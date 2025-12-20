@@ -8,6 +8,7 @@
   <style>
     :root {
       --primary: #1976d2;
+      --primary-dark: #125aa3;
       --bg: #f4f6f8;
       --card: #ffffff;
       --border: #e0e0e0;
@@ -36,12 +37,6 @@
       font-weight: 800;
     }
 
-    .header p {
-      margin-top: 6px;
-      font-size: 0.95rem;
-      opacity: 0.95;
-    }
-
     /* ===== CONTAINER ===== */
     .container {
       max-width: 1400px;
@@ -59,25 +54,36 @@
       margin-bottom: 16px;
     }
 
-    .btn {
-      background: var(--primary);
-      color: white;
-      border: none;
-      padding: 10px 22px;
-      border-radius: 999px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: .25s;
-    }
-
-    .btn:hover {
-      background: #125aa3;
-      transform: translateY(-2px);
-    }
-
     .hint {
       font-size: 0.85rem;
       color: #555;
+    }
+
+    /* ===== BUTTON ===== */
+    .btn {
+      background: linear-gradient(135deg, var(--primary), #42a5f5);
+      color: white;
+      border: none;
+      padding: 12px 28px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 0.95rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 6px 14px rgba(25,118,210,.35);
+      transition: all .25s ease;
+    }
+
+    .btn:hover {
+      background: linear-gradient(135deg, var(--primary-dark), #1e88e5);
+      transform: translateY(-2px);
+    }
+
+    .btn.loading {
+      opacity: 0.7;
+      pointer-events: none;
     }
 
     /* ===== CARD TABLE ===== */
@@ -147,15 +153,18 @@
 
 <!-- ===== HEADER ===== -->
 <div class="header">
-  <h1>DATA REQUEST LIBUR - CUTI BULAN JANUARI 2026</h1>
- </div>
+  <h1 id="pageTitle"></h1>
+</div>
 
 <div class="container">
 
   <!-- ===== ACTION ===== -->
   <div class="actions">
-    <button class="btn" onclick="loadData()">🔄 Muat Data</button>
-    <div class="hint"></div>
+    <button id="loadBtn" class="btn" onclick="loadData()">
+      <span id="btnIcon">🔄</span>
+      <span id="btnText">Muat Data</span>
+    </button>
+    <div class="hint">Klik untuk menampilkan data request terbaru</div>
   </div>
 
   <!-- ===== TABLE CARD ===== -->
@@ -173,38 +182,79 @@
 </div>
 
 <script>
-/* ===== URL API GAS ===== */
+/* =================================================
+   JUDUL OTOMATIS (+1 BULAN BERJALAN)
+================================================= */
+function setAutoTitle() {
+  const bulan = [
+    "JANUARI","FEBRUARI","MARET","APRIL","MEI","JUNI",
+    "JULI","AGUSTUS","SEPTEMBER","OKTOBER","NOVEMBER","DESEMBER"
+  ];
+
+  const now = new Date();
+  const target = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+
+  document.getElementById("pageTitle").textContent =
+    `DATA REQUEST LIBUR - CUTI BULAN ${bulan[target.getMonth()]} ${target.getFullYear()}`;
+}
+
+setAutoTitle();
+
+/* =================================================
+   API & KONFIGURASI TABEL
+================================================= */
 const GAS_URL =
   "https://script.google.com/macros/s/AKfycbzR8nCWg3vWMLd9ZWbvOTDR9bwdZ8xLpr7dQAfLyzZka32Qf9gsswpKQgLRUPFl8yA93Q/exec?api=req";
 
 /*
-  Index kolom Google Sheet (0-based):
-  0 = Timestamp  ❌ disembunyikan
+  0 = Timestamp (❌ disembunyikan)
   1 = NIK
   2 = Nama
   3 = Group
   4 = Kolom E
   5 = Kolom F
   6 = Kolom G
-  7 = Kolom H   ✅ wajib tampil
+  7 = Kolom H (✅ tampil)
 */
 const VISIBLE_COLS = [1, 2, 3, 4, 5, 6, 7];
 
+/* =================================================
+   LOAD DATA
+================================================= */
 function loadData() {
+  const btn = document.getElementById("loadBtn");
+  const icon = document.getElementById("btnIcon");
+  const text = document.getElementById("btnText");
+
+  btn.classList.add("loading");
+  icon.textContent = "⏳";
+  text.textContent = "Memuat...";
+
   document.getElementById("loading").textContent =
     "⏳ Mengambil data, mohon tunggu...";
   document.getElementById("tbl").innerHTML = "";
 
   fetch(GAS_URL)
     .then(res => res.json())
-    .then(data => render(data))
+    .then(data => {
+      render(data);
+      btn.classList.remove("loading");
+      icon.textContent = "🔄";
+      text.textContent = "Refresh Data";
+    })
     .catch(err => {
       console.error(err);
       document.getElementById("loading").textContent =
         "❌ Gagal memuat data";
+      btn.classList.remove("loading");
+      icon.textContent = "⚠️";
+      text.textContent = "Coba Lagi";
     });
 }
 
+/* =================================================
+   RENDER TABLE
+================================================= */
 function render(data) {
   const tbl = document.getElementById("tbl");
   const loading = document.getElementById("loading");
@@ -243,5 +293,3 @@ function render(data) {
 
 </body>
 </html>
-
-
