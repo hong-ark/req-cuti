@@ -7,7 +7,7 @@
     body { font-family: Arial; padding: 20px; background:#f4f6f8; }
     a { color:#1565c0; font-weight:bold; cursor:pointer; }
     table { border-collapse: collapse; width:100%; margin-top:15px; background:white; }
-    th, td { border:1px solid #bbb; padding:6px; font-size:13px; }
+    th, td { border:1px solid #bbb; padding:6px; font-size:13px; vertical-align:top; }
     th { background:#1976d2; color:white; position:sticky; top:0; }
     tr.bdl { background:#f8cfc6; }
     tr.smg { background:#b7cef5; }
@@ -25,13 +25,16 @@
 </div>
 
 <script>
-const GAS_URL = "https://script.google.com/macros/s/AKfycbzR8nCWg3vWMLd9ZWbvOTDR9bwdZ8xLpr7dQAfLyzZka32Qf9gsswpKQgLRUPFl8yA93Q/exec";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbzR8nCWg3vWMLd9ZWbvOTDR9bwdZ8xLpr7dQAfLyzZka32Qf9gsswpKQgLRUPFl8yA93Q/exec?api=req";
 
 function loadData() {
   fetch(GAS_URL)
-    .then(r => r.json())
-    .then(render)
-    .catch(err => alert("Gagal load data"));
+    .then(res => res.json())
+    .then(data => render(data))
+    .catch(err => {
+      console.error(err);
+      alert("Gagal load data");
+    });
 }
 
 function render(data) {
@@ -40,7 +43,7 @@ function render(data) {
   tbl.innerHTML = "";
   wrap.style.display = "block";
 
-  data.forEach((row,i) => {
+  data.forEach((row, i) => {
     const tr = document.createElement("tr");
 
     if (i === 0) {
@@ -50,7 +53,7 @@ function render(data) {
         tr.appendChild(th);
       });
     } else {
-      const group = String(row[2] || "").toUpperCase();
+      const group = String(row[3] || "").toUpperCase(); // kolom Group
       if (group === "BDL-PLG-KAL") tr.className = "bdl";
       else if (group === "SMG-CRB") tr.className = "smg";
       else if (group === "YOG") tr.className = "yog";
