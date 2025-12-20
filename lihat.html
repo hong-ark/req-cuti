@@ -72,15 +72,30 @@
 
 <body>
 
-<h2>DATA REQUEST CUTI - LIBUR JANUARI 2026</h2>
+<h2 id="pageTitle"></h2>
 
-<button class="btn" onclick="loadData()">📂LIHAT DATA</button>
+<button class="btn" onclick="loadData()">📂 LIHAT DATA</button>
 
 <div id="wrap">
   <table id="tbl"></table>
 </div>
 
 <script>
+/* ===== JUDUL OTOMATIS: BULAN BERJALAN + 1 ===== */
+(function setAutoTitle() {
+  const bulan = [
+    "JANUARI","FEBRUARI","MARET","APRIL","MEI","JUNI",
+    "JULI","AGUSTUS","SEPTEMBER","OKTOBER","NOVEMBER","DESEMBER"
+  ];
+
+  const now = new Date();
+  const target = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+
+  document.getElementById("pageTitle").textContent =
+    `DATA REQUEST CUTI - LIBUR ${bulan[target.getMonth()]} ${target.getFullYear()}`;
+})();
+
+/* ===== API ===== */
 const GAS_URL =
   "https://script.google.com/macros/s/AKfycbzR8nCWg3vWMLd9ZWbvOTDR9bwdZ8xLpr7dQAfLyzZka32Qf9gsswpKQgLRUPFl8yA93Q/exec?api=req";
 
@@ -111,7 +126,7 @@ function render(data) {
         tr.appendChild(th);
       });
     } else {
-      const group = String(row[3] || "").toUpperCase(); // kolom Group (asli)
+      const group = String(row[3] || "").toUpperCase();
       if (group === "BDL-PLG-KAL") tr.className = "bdl";
       else if (group === "SMG-CRB") tr.className = "smg";
       else if (group === "YOG") tr.className = "yog";
@@ -131,4 +146,3 @@ function render(data) {
 
 </body>
 </html>
-
