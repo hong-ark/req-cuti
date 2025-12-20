@@ -1,39 +1,201 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
   <meta charset="utf-8">
-  <title>Request Libur & Cuti</title>
+  <title>Data Request Libur & Cuti</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <style>
-    body { font-family: Arial; padding: 20px; background:#f4f6f8; }
-    a { color:#1565c0; font-weight:bold; cursor:pointer; }
-    table { border-collapse: collapse; width:100%; margin-top:15px; background:white; }
-    th, td { border:1px solid #bbb; padding:6px; font-size:13px; vertical-align:top; }
-    th { background:#1976d2; color:white; position:sticky; top:0; }
-    tr.bdl { background:#f8cfc6; }
-    tr.smg { background:#b7cef5; }
-    tr.yog { background:#ffe082; }
-    #wrap { display:none; max-height:75vh; overflow:auto; box-shadow:0 2px 8px rgba(0,0,0,.2); }
+    :root {
+      --primary: #1976d2;
+      --bg: #f4f6f8;
+      --card: #ffffff;
+      --text: #333;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Poppins", "Segoe UI", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    /* ===== HEADER ===== */
+    .header {
+      background: linear-gradient(135deg, #2193b0, #6dd5ed);
+      color: white;
+      padding: 22px 20px;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,.15);
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 1.6rem;
+      font-weight: 800;
+    }
+
+    .header p {
+      margin-top: 6px;
+      font-size: 0.95rem;
+      opacity: 0.95;
+    }
+
+    /* ===== CONTENT ===== */
+    .content {
+      padding: 20px;
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    /* ===== ACTION BAR ===== */
+    .actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .btn {
+      background: var(--primary);
+      color: white;
+      padding: 10px 22px;
+      border-radius: 999px;
+      border: none;
+      font-weight: 700;
+      cursor: pointer;
+      transition: .25s;
+    }
+
+    .btn:hover {
+      background: #125aa3;
+      transform: translateY(-2px);
+    }
+
+    .hint {
+      font-size: 0.85rem;
+      color: #555;
+    }
+
+    /* ===== TABLE WRAPPER ===== */
+    #wrap {
+      display: none;
+      background: var(--card);
+      border-radius: 14px;
+      box-shadow: 0 6px 18px rgba(0,0,0,.12);
+      overflow: hidden;
+    }
+
+    .table-scroll {
+      overflow-x: auto;
+      max-height: 70vh;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      font-size: 13px;
+    }
+
+    th, td {
+      padding: 8px 10px;
+      border-bottom: 1px solid #ddd;
+      vertical-align: top;
+      white-space: nowrap;
+    }
+
+    th {
+      background: var(--primary);
+      color: white;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      text-align: left;
+    }
+
+    tr:hover {
+      background: #f1f7ff;
+    }
+
+    /* ===== GROUP COLOR ===== */
+    tr.bdl { background: #fde3dd; }
+    tr.smg { background: #e3ecfb; }
+    tr.yog { background: #fff3cd; }
+
+    /* ===== LOADING ===== */
+    .loading {
+      text-align: center;
+      padding: 30px;
+      font-weight: 600;
+      color: #666;
+    }
+
+    /* ===== FOOTER ===== */
+    .footer {
+      text-align: center;
+      margin-top: 16px;
+      font-size: 0.8rem;
+      color: #777;
+    }
+
+    @media (max-width: 768px) {
+      .header h1 { font-size: 1.3rem; }
+      table { font-size: 12px; }
+      th, td { padding: 6px; }
+    }
   </style>
 </head>
+
 <body>
 
-<h2>📊 Data Request Libur & Cuti</h2>
-<a onclick="loadData()">▶ Lihat Request</a>
+<div class="header">
+  <h1>📊 Data Request Libur & Cuti</h1>
+  <p>Tampilan read-only · Update realtime dari Google Sheet</p>
+</div>
 
-<div id="wrap">
-  <table id="tbl"></table>
+<div class="content">
+
+  <div class="actions">
+    <button class="btn" onclick="loadData()">🔄 Muat Data</button>
+    <div class="hint">Klik tombol untuk menampilkan data terbaru</div>
+  </div>
+
+  <div id="wrap">
+    <div class="table-scroll">
+      <table id="tbl"></table>
+    </div>
+  </div>
+
+  <div id="loading" class="loading" style="display:none;">
+    ⏳ Mengambil data, mohon tunggu...
+  </div>
+
+  <div class="footer">
+    Data bersifat informasi · Tidak dapat diedit
+  </div>
+
 </div>
 
 <script>
-const GAS_URL = "https://script.google.com/macros/s/AKfycbzR8nCWg3vWMLd9ZWbvOTDR9bwdZ8xLpr7dQAfLyzZka32Qf9gsswpKQgLRUPFl8yA93Q/exec?api=req";
+const GAS_URL =
+  "https://script.google.com/macros/s/AKfycbzR8nCWg3vWMLd9ZWbvOTDR9bwdZ8xLpr7dQAfLyzZka32Qf9gsswpKQgLRUPFl8yA93Q/exec?api=req";
 
 function loadData() {
+  document.getElementById("loading").style.display = "block";
+  document.getElementById("wrap").style.display = "none";
+
   fetch(GAS_URL)
     .then(res => res.json())
-    .then(data => render(data))
+    .then(data => {
+      render(data);
+      document.getElementById("loading").style.display = "none";
+    })
     .catch(err => {
       console.error(err);
-      alert("Gagal load data");
+      document.getElementById("loading").textContent =
+        "❌ Gagal memuat data. Silakan coba lagi.";
     });
 }
 
@@ -53,7 +215,7 @@ function render(data) {
         tr.appendChild(th);
       });
     } else {
-      const group = String(row[3] || "").toUpperCase(); // kolom Group
+      const group = String(row[3] || "").toUpperCase();
       if (group === "BDL-PLG-KAL") tr.className = "bdl";
       else if (group === "SMG-CRB") tr.className = "smg";
       else if (group === "YOG") tr.className = "yog";
