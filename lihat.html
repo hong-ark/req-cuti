@@ -23,12 +23,12 @@ body{
   color:var(--text);
 }
 
-/* ===== STICKY HEADER ===== */
+/* ===== HEADER LAPORAN (STICKY) ===== */
 .header{
   background:linear-gradient(135deg,#2193b0,#6dd5ed);
   color:#fff;
   text-align:center;
-  padding:22px 16px;
+  padding:20px 14px;
   position:sticky;
   top:0;
   z-index:3000;
@@ -40,17 +40,17 @@ body{
   font-weight:800;
 }
 
-/* ===== STICKY ACTION BAR ===== */
+/* ===== ACTION BAR (STICKY) ===== */
 .actions{
   background:var(--bg);
   position:sticky;
-  top:82px;
+  top:78px; /* tepat di bawah header */
   z-index:2500;
   display:flex;
   justify-content:space-between;
   align-items:center;
-  gap:12px;
-  padding:14px 16px;
+  gap:10px;
+  padding:12px 14px;
   border-bottom:1px solid var(--border);
 }
 
@@ -58,7 +58,7 @@ body{
   background:linear-gradient(135deg,var(--primary),#42a5f5);
   color:white;
   border:none;
-  padding:12px 26px;
+  padding:10px 22px;
   border-radius:999px;
   font-weight:800;
   cursor:pointer;
@@ -78,7 +78,7 @@ body{
 }
 
 .hint{
-  font-size:.85rem;
+  font-size:.8rem;
   color:#555;
 }
 
@@ -86,16 +86,16 @@ body{
 .container{
   max-width:1400px;
   margin:auto;
-  padding:0 16px 40px;
+  padding:0 14px 40px;
 }
 
-/* ===== TABLE DESKTOP ===== */
+/* ===== DESKTOP TABLE ===== */
 .card{
   background:var(--card);
-  border-radius:18px;
+  border-radius:16px;
   box-shadow:0 8px 22px rgba(0,0,0,.12);
   overflow:hidden;
-  margin-top:10px;
+  margin-top:12px;
 }
 
 table{
@@ -107,7 +107,6 @@ table{
 th,td{
   padding:10px 12px;
   border-bottom:1px solid var(--border);
-  text-align:left;
   white-space:nowrap;
 }
 
@@ -115,7 +114,7 @@ th{
   background:var(--primary);
   color:white;
   position:sticky;
-  top:132px;
+  top:126px; /* header + action */
   z-index:2000;
 }
 
@@ -130,48 +129,39 @@ tr.yog{background:#fff8db;}
   color:#666;
 }
 
-.footer{
-  text-align:center;
-  margin-top:18px;
-  font-size:.8rem;
-  color:#777;
-}
-
-/* =================================================
-   📱 MOBILE CARD MODE (RAPI & TIDAK BERANTAKAN)
-================================================= */
+/* ===== MOBILE MODE ===== */
 @media(max-width:768px){
 
-  table,thead,tbody,th,tr{
-    display:block;
-  }
+  /* sembunyikan tabel */
+  table{display:none;}
 
-  thead{
-    display:none;
+  /* search */
+  .search-box{
+    margin:14px 0;
   }
-
-  tr{
-    background:white!important;
-    margin-bottom:14px;
-    border-radius:14px;
+  .search-box input{
+    width:100%;
     padding:12px;
+    border-radius:12px;
+    border:1px solid var(--border);
+    font-size:1rem;
+  }
+
+  /* card per NIK */
+  .nik-card{
+    background:white;
+    border-radius:14px;
+    padding:14px;
+    margin-bottom:14px;
     box-shadow:0 4px 12px rgba(0,0,0,.1);
   }
-
-  td{
-    display:flex;
-    justify-content:space-between;
-    padding:6px 0;
-    white-space:normal;
-    border:none;
-    font-size:.85rem;
+  .nik-card h3{
+    margin:0 0 8px;
+    font-size:1rem;
   }
-
-  td::before{
-    content:attr(data-label);
-    font-weight:700;
-    color:#555;
-    padding-right:10px;
+  .nik-row{
+    font-size:.85rem;
+    margin-bottom:4px;
   }
 }
 </style>
@@ -179,10 +169,12 @@ tr.yog{background:#fff8db;}
 
 <body>
 
+<!-- HEADER LAPORAN -->
 <div class="header">
   <h1 id="pageTitle"></h1>
 </div>
 
+<!-- ACTION BAR -->
 <div class="actions">
   <button id="loadBtn" class="btn" onclick="loadData()">
     <span id="btnIcon">🔄</span>
@@ -193,6 +185,12 @@ tr.yog{background:#fff8db;}
 
 <div class="container">
 
+  <!-- MOBILE SEARCH -->
+  <div class="search-box">
+    <input id="searchNik" type="text" placeholder="🔍 Cari NIK (Mobile)" oninput="renderMobile()">
+  </div>
+
+  <!-- DESKTOP TABLE -->
   <div class="card">
     <div id="loading" class="loading">
       Klik <b>Muat Data</b> untuk menampilkan data
@@ -200,67 +198,91 @@ tr.yog{background:#fff8db;}
     <table id="tbl"></table>
   </div>
 
-  <div class="footer">
-    Data bersifat informasi · Read-only
-  </div>
+  <!-- MOBILE CARD -->
+  <div id="mobileList"></div>
+
 </div>
 
 <script>
-/* ===== JUDUL OTOMATIS +1 BULAN ===== */
+/* ===== TITLE +1 BULAN ===== */
 function setAutoTitle(){
-  const bulan=["JANUARI","FEBRUARI","MARET","APRIL","MEI","JUNI","JULI","AGUSTUS","SEPTEMBER","OKTOBER","NOVEMBER","DESEMBER"];
+  const b=["JANUARI","FEBRUARI","MARET","APRIL","MEI","JUNI","JULI","AGUSTUS","SEPTEMBER","OKTOBER","NOVEMBER","DESEMBER"];
   const now=new Date();
-  const target=new Date(now.getFullYear(),now.getMonth()+1,1);
+  const t=new Date(now.getFullYear(),now.getMonth()+1,1);
   document.getElementById("pageTitle").textContent=
-    `DATA REQUEST LIBUR - CUTI BULAN ${bulan[target.getMonth()]} ${target.getFullYear()}`;
+    `DATA REQUEST LIBUR - CUTI BULAN ${b[t.getMonth()]} ${t.getFullYear()}`;
 }
 setAutoTitle();
 
 const GAS_URL="https://script.google.com/macros/s/AKfycbzR8nCWg3vWMLd9ZWbvOTDR9bwdZ8xLpr7dQAfLyzZka32Qf9gsswpKQgLRUPFl8yA93Q/exec?api=req";
 const VISIBLE_COLS=[1,2,3,4,5,6,7];
+let RAW_DATA=[];
 
 function loadData(){
   const btn=document.getElementById("loadBtn");
   btn.classList.add("loading");
-  document.getElementById("btnIcon").textContent="⏳";
   document.getElementById("btnText").textContent="Memuat...";
-
   fetch(GAS_URL)
     .then(r=>r.json())
-    .then(data=>{
-      render(data);
+    .then(d=>{
+      RAW_DATA=d;
+      renderDesktop(d);
+      renderMobile();
       btn.classList.remove("loading");
-      document.getElementById("btnIcon").textContent="🔄";
       document.getElementById("btnText").textContent="Refresh Data";
-    })
-    .catch(()=>{
-      document.getElementById("loading").textContent="❌ Gagal memuat data";
     });
 }
 
-function render(data){
+/* ===== DESKTOP TABLE ===== */
+function renderDesktop(data){
   const tbl=document.getElementById("tbl");
   tbl.innerHTML="";
   document.getElementById("loading").style.display="none";
 
-  const headers=data[0].filter((_,i)=>VISIBLE_COLS.includes(i));
+  const trh=document.createElement("tr");
+  VISIBLE_COLS.forEach(i=>{
+    const th=document.createElement("th");
+    th.textContent=data[0][i];
+    trh.appendChild(th);
+  });
+  tbl.appendChild(trh);
 
-  data.slice(1).forEach(row=>{
+  data.slice(1).forEach(r=>{
     const tr=document.createElement("tr");
+    if(r[3]==="BDL-PLG-KAL") tr.className="bdl";
+    if(r[3]==="SMG-CRB") tr.className="smg";
+    if(r[3]==="YOG") tr.className="yog";
 
-    headers.forEach((h,idx)=>{
+    VISIBLE_COLS.forEach(i=>{
       const td=document.createElement("td");
-      td.setAttribute("data-label",h);
-      td.textContent=row[VISIBLE_COLS[idx]] ?? "";
+      td.textContent=r[i]??"";
       tr.appendChild(td);
     });
-
-    const g=row[3];
-    if(g==="BDL-PLG-KAL") tr.classList.add("bdl");
-    if(g==="SMG-CRB") tr.classList.add("smg");
-    if(g==="YOG") tr.classList.add("yog");
-
     tbl.appendChild(tr);
+  });
+}
+
+/* ===== MOBILE PER NIK ===== */
+function renderMobile(){
+  const box=document.getElementById("mobileList");
+  box.innerHTML="";
+  if(!RAW_DATA.length) return;
+
+  const q=document.getElementById("searchNik").value.toLowerCase();
+  RAW_DATA.slice(1).forEach(r=>{
+    if(q && !String(r[1]).includes(q)) return;
+
+    const card=document.createElement("div");
+    card.className="nik-card";
+    card.innerHTML=`
+      <h3>${r[2]} (${r[1]})</h3>
+      <div class="nik-row">Group: ${r[3]}</div>
+      <div class="nik-row">Request: ${r[4]}</div>
+      <div class="nik-row">Tanggal: ${r[5]}</div>
+      <div class="nik-row">Keterangan: ${r[6]}</div>
+      <div class="nik-row">Status: ${r[7]}</div>
+    `;
+    box.appendChild(card);
   });
 }
 </script>
