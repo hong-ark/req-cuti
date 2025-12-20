@@ -156,13 +156,13 @@
   <!-- ===== ACTION ===== -->
   <div class="actions">
     <button class="btn" onclick="loadData()">🔄 Muat Data</button>
-    <div class="hint">Klik untuk melihat data terbaru</div>
+    <div class="hint">Klik untuk menampilkan data request terbaru</div>
   </div>
 
   <!-- ===== TABLE CARD ===== -->
   <div class="card">
     <div id="loading" class="loading">
-      Klik <b>Muat Data</b> untuk menampilkan request
+      Klik <b>Muat Data</b> untuk menampilkan data
     </div>
     <table id="tbl"></table>
   </div>
@@ -174,8 +174,22 @@
 </div>
 
 <script>
+/* ===== URL API GAS ===== */
 const GAS_URL =
   "https://script.google.com/macros/s/AKfycbzR8nCWg3vWMLd9ZWbvOTDR9bwdZ8xLpr7dQAfLyzZka32Qf9gsswpKQgLRUPFl8yA93Q/exec?api=req";
+
+/*
+  Index kolom Google Sheet (0-based):
+  0 = Timestamp  ❌ disembunyikan
+  1 = NIK
+  2 = Nama
+  3 = Group
+  4 = Kolom E
+  5 = Kolom F
+  6 = Kolom G
+  7 = Kolom H   ✅ wajib tampil
+*/
+const VISIBLE_COLS = [1, 2, 3, 4, 5, 6, 7];
 
 function loadData() {
   document.getElementById("loading").textContent =
@@ -201,21 +215,24 @@ function render(data) {
   data.forEach((row, i) => {
     const tr = document.createElement("tr");
 
+    // HEADER
     if (i === 0) {
-      row.forEach(c => {
+      VISIBLE_COLS.forEach(idx => {
         const th = document.createElement("th");
-        th.textContent = c;
+        th.textContent = row[idx] ?? "";
         tr.appendChild(th);
       });
-    } else {
+    }
+    // DATA
+    else {
       const group = String(row[3] || "").toUpperCase();
       if (group === "BDL-PLG-KAL") tr.className = "bdl";
       else if (group === "SMG-CRB") tr.className = "smg";
       else if (group === "YOG") tr.className = "yog";
 
-      row.forEach(c => {
+      VISIBLE_COLS.forEach(idx => {
         const td = document.createElement("td");
-        td.textContent = c;
+        td.textContent = row[idx] ?? "";
         tr.appendChild(td);
       });
     }
