@@ -1,141 +1,40 @@
 <!DOCTYPE html>
-<html lang="id">
+<html>
 <head>
   <meta charset="utf-8">
   <title>Request Libur & Cuti</title>
-
-  <!-- BIAR MOBILE BISA ZOOM OUT -->
-  <meta name="viewport" content="width=device-width, initial-scale=0.9">
-
   <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f4f6f8;
-    }
-
-    /* ================= HEADER PAGE (FREEZE) ================= */
-    .page-header {
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-      background: #1976d2;
-      color: white;
-      padding: 20px;
-      text-align: center;
-      box-shadow: 0 3px 8px rgba(0,0,0,.2);
-    }
-
-    .page-header h1 {
-      margin: 0;
-      font-size: 1.8rem;
-      font-weight: bold;
-    }
-
-    /* ================= ACTION ================= */
-    .action-bar {
-      background: #f4f6f8;
-      position: sticky;
-      top: 78px; /* tepat di bawah header */
-      z-index: 900;
-      padding: 12px;
-      text-align: center;
-      border-bottom: 1px solid #ccc;
-    }
-
-    .btn {
-      background: #16a34a;
-      color: white;
-      border: none;
-      padding: 10px 28px;
-      border-radius: 6px;
-      font-weight: bold;
-      font-size: 14px;
-      cursor: pointer;
-    }
-
-    .btn:hover {
-      background: #15803d;
-    }
-
-    /* ================= CONTENT ================= */
-    .content {
-      padding: 20px;
-    }
-
-    /* ================= TABLE ================= */
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      margin-top: 15px;
-      background: white;
-      font-size: 13px;
-    }
-
-    th, td {
-      border: 1px solid #bbb;
-      padding: 6px;
-      vertical-align: top;
-      white-space: nowrap;
-    }
-
-    th {
-      background: #1976d2;
-      color: white;
-      position: sticky;
-      top: 140px; /* header + action */
-      z-index: 800;
-    }
-
-    tr.bdl { background: #f8cfc6; }
-    tr.smg { background: #b7cef5; }
-    tr.yog { background: #ffe082; }
-
-    #wrap {
-      display: none;
-      max-height: 75vh;
-      overflow: auto;
-      box-shadow: 0 2px 8px rgba(0,0,0,.2);
-      background: white;
-    }
+    body { font-family: Arial; padding: 20px; background:#f4f6f8; }
+    a { color:#1565c0; font-weight:bold; cursor:pointer; }
+    table { border-collapse: collapse; width:100%; margin-top:15px; background:white; }
+    th, td { border:1px solid #bbb; padding:6px; font-size:13px; vertical-align:top; }
+    th { background:#1976d2; color:white; position:sticky; top:0; }
+    tr.bdl { background:#f8cfc6; }
+    tr.smg { background:#b7cef5; }
+    tr.yog { background:#ffe082; }
+    #wrap { display:none; max-height:75vh; overflow:auto; box-shadow:0 2px 8px rgba(0,0,0,.2); }
   </style>
 </head>
-
 <body>
 
-<!-- ================= HEADER ================= -->
-<div class="page-header">
-  <h1>DATA REQUEST LIBUR & CUTI</h1>
-</div>
+<h2>📊 Data Request Libur & Cuti</h2>
+<a onclick="loadData()">▶ Lihat Request</a>
 
-<!-- ================= ACTION ================= -->
-<div class="action-bar">
-  <button class="btn" onclick="loadData()">Lihat Request</button>
-</div>
-
-<div class="content">
-  <div id="wrap">
-    <table id="tbl"></table>
-  </div>
+<div id="wrap">
+  <table id="tbl"></table>
 </div>
 
 <script>
-const GAS_URL =
-  "https://script.google.com/macros/s/AKfycbzR8nCWg3vWMLd9ZWbvOTDR9bwdZ8xLpr7dQAfLyzZka32Qf9gsswpKQgLRUPFl8yA93Q/exec?api=req";
-
-/*
-  0 = Timestamp (❌ disembunyikan)
-  1 = NIK
-  2 = Nama
-  3 = Group
-  4+ = data lainnya
-*/
+const GAS_URL = "https://script.google.com/macros/s/AKfycbzPnpiHGxOX_81jzm47ZMKkSudiGy7tiYm5nJxo2FOhQGkx3jQgqIp7oLT64iJ1Ro94cQ/exec?api=req";
 
 function loadData() {
   fetch(GAS_URL)
     .then(res => res.json())
     .then(data => render(data))
-    .catch(() => alert("Gagal load data"));
+    .catch(err => {
+      console.error(err);
+      alert("Gagal load data");
+    });
 }
 
 function render(data) {
@@ -148,20 +47,18 @@ function render(data) {
     const tr = document.createElement("tr");
 
     if (i === 0) {
-      // HEADER (skip Timestamp)
-      row.slice(1).forEach(c => {
+      row.forEach(c => {
         const th = document.createElement("th");
         th.textContent = c;
         tr.appendChild(th);
       });
     } else {
-      const group = String(row[3] || "").toUpperCase();
+      const group = String(row[3] || "").toUpperCase(); // kolom Group
       if (group === "BDL-PLG-KAL") tr.className = "bdl";
       else if (group === "SMG-CRB") tr.className = "smg";
       else if (group === "YOG") tr.className = "yog";
 
-      // DATA (skip Timestamp)
-      row.slice(1).forEach(c => {
+      row.forEach(c => {
         const td = document.createElement("td");
         td.textContent = c;
         tr.appendChild(td);
