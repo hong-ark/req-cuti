@@ -1,113 +1,26 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-<meta charset="UTF-8">
-<title>ADMIN SETTING LIBUR & CUTI</title>
-
-<style>
-body{
-  font-family:'Segoe UI',Tahoma,Verdana,sans-serif;
-  background:linear-gradient(135deg,#667eea,#764ba2);
-  min-height:100vh;
-  margin:0;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-}
-.container{
-  background:#fff;
-  width:820px;
-  max-width:95%;
-  padding:30px;
-  border-radius:20px;
-  box-shadow:0 18px 40px rgba(0,0,0,.25);
-}
-h2{text-align:center;color:#4e54c8;margin-bottom:8px}
-.desc{text-align:center;font-size:13px;color:#666;margin-bottom:20px}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
-.box{
-  background:#f7f9ff;
-  padding:20px;
-  border-radius:16px;
-  border:1px solid #dbe2ff;
-}
-.box h3{margin-top:0;font-size:16px}
-label{font-size:13px;font-weight:600;margin-top:12px;display:block}
-input,textarea{
-  width:100%;margin-top:6px;padding:11px 13px;
-  border-radius:10px;border:1px solid #ccc;font-size:14px;
-}
-input[readonly],textarea[readonly]{background:#eee}
-textarea{resize:none}
-button{
-  width:100%;margin-top:26px;padding:15px;
-  border:none;border-radius:14px;
-  background:linear-gradient(90deg,#11998e,#38ef7d);
-  color:#fff;font-size:15px;font-weight:600;cursor:pointer;
-}
-#status{text-align:center;margin-top:14px;font-weight:600}
-.success{color:#155724}
-.error{color:#721c24}
-small{font-size:12px;color:#666}
-footer{text-align:center;font-size:12px;color:#eee;margin-top:18px}
-@media(max-width:800px){.grid{grid-template-columns:1fr}}
-</style>
-</head>
-
-<body>
-
-<div class="container">
-<h2>ADMIN SETTING LIBUR & CUTI</h2>
-<div class="desc">
-Panel admin terpusat.  
-Semua perubahan langsung aktif ke seluruh user.
-</div>
-
-<!-- ================= GAS URL ================= -->
-<div class="box" style="margin-bottom:20px">
-<h3>🔗 GAS JAWABAN AKTIF</h3>
-<label>URL Web App GAS</label>
-<input type="text" id="gasUrl">
-<small>
-Diambil & disimpan dari Google Sheet MASTER CONFIG  
-(1x input setiap bulan)
-</small>
-</div>
-
-<div class="grid">
-<!-- AKTIF -->
-<div class="box">
-<h3>📌 Setting Aktif</h3>
-<label>Limit Harian</label>
-<input readonly id="curMaxHarian">
-<label>Limit Libur User</label>
-<input readonly id="curMaxUser">
-<label>Special Holiday</label>
-<textarea rows="3" readonly id="curHoliday"></textarea>
-</div>
-
-<!-- EDIT -->
-<div class="box">
-<h3>✏️ Ubah Setting</h3>
-<label>Limit Harian</label>
-<input type="number" id="newMaxHarian">
-<label>Limit Libur User</label>
-<input type="number" id="newMaxUser">
-<label>Special Holiday</label>
-<textarea rows="3" id="newHoliday"
-placeholder="YYYY-MM-DD,YYYY-MM-DD"></textarea>
-</div>
-</div>
-
-<button onclick="saveConfig()">💾 SIMPAN SETTING</button>
-<div id="status"></div>
-</div>
-
-<footer>© 2025 EDP Fai</footer>
-
 <script>
 /* ================= KONFIG ================= */
-const MASTER_GAS_URL = "https://script.google.com/macros/s/AKfycby1XWMOjxdQXNqkNpKtayd0c55ZK3VkQvaZ_KSqibEUBjExlvaVUzunpfe4_HPnDX1q/exec";
+const MASTER_GAS_URL =
+  "https://script.google.com/macros/s/AKfycby1XWMOjxdQXNqkNpKtayd0c55ZK3VkQvaZ_KSqibEUBjExlvaVUzunpfe4_HPnDX1q/exec";
+
+/* ================= UTIL ================= */
+function statusEl(){
+  const el=document.getElementById("status");
+  return (msg,err)=>{
+    el.textContent=msg;
+    el.className=err?"error":"success";
+  };
+}
+
+// normalisasi SPECIAL_HOLIDAYS → STRING MURNI
+function normalizeHolidayString(str){
+  if(!str) return "";
+  return str
+    .split(",")
+    .map(s=>s.trim())
+    .filter(s=>/^\d{4}-\d{2}-\d{2}$/.test(s))
+    .join(",");
+}
 
 /* ================= LOAD ================= */
 async function loadConfig(){
@@ -137,7 +50,7 @@ async function loadConfig(){
     newHoliday.value   = s.SPECIAL_HOLIDAYS || "";
 
     status("✔️ Setting aktif dimuat");
-  }catch{
+  }catch(e){
     status("❌ Gagal load config", true);
   }
 }
@@ -146,43 +59,43 @@ async function loadConfig(){
 async function saveConfig(){
   const status = statusEl();
   const url = gasUrl.value.trim();
-  if(!url){ status("❌ URL GAS wajib", true); return; }
+  if(!url){
+    status("❌ URL GAS wajib", true);
+    return;
+  }
+
+  // 🔐 NORMALISASI HOLIDAY
+  const holidayStr = normalizeHolidayString(newHoliday.value);
+
+  if(newHoliday.value && !holidayStr){
+    status("❌ Format tanggal salah. Gunakan YYYY-MM-DD", true);
+    return;
+  }
 
   status("⏳ Menyimpan...");
 
   try{
     // simpan GAS_URL ke MASTER
-    const fd1=new FormData();
+    const fd1 = new FormData();
     fd1.append("mode","saveMasterConfig");
     fd1.append("GAS_URL",url);
     await fetch(MASTER_GAS_URL,{method:"POST",body:fd1});
 
     // simpan setting ke GAS JAWABAN
-    const fd2=new FormData();
+    const fd2 = new FormData();
     fd2.append("mode","saveConfig");
-    fd2.append("MAX_KUOTA_HARIAN",newMaxHarian.value);
-    fd2.append("MAX_LIBUR_USER",newMaxUser.value);
-    fd2.append("SPECIAL_HOLIDAYS",newHoliday.value.trim());
+    fd2.append("MAX_KUOTA_HARIAN", newMaxHarian.value);
+    fd2.append("MAX_LIBUR_USER", newMaxUser.value);
+    fd2.append("SPECIAL_HOLIDAYS", holidayStr);
     await fetch(url,{method:"POST",body:fd2});
 
     status("✅ Setting tersimpan & aktif");
     loadConfig();
-  }catch{
+  }catch(e){
     status("❌ Gagal menyimpan", true);
   }
 }
 
-/* ================= UTIL ================= */
-function statusEl(){
-  const el=document.getElementById("status");
-  return (msg,err)=>{
-    el.textContent=msg;
-    el.className=err?"error":"success";
-  };
-}
-
+/* ================= INIT ================= */
 loadConfig();
 </script>
-
-</body>
-</html>
