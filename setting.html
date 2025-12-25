@@ -60,12 +60,12 @@ footer{text-align:center;font-size:12px;color:#eee;margin-top:18px}
 <div class="container">
 <h2>ADMIN SETTING LIBUR & CUTI</h2>
 <div class="desc">
-Panel admin terpusat – tanpa masalah timezone / indochina
+Halaman untuk setting limit di form-request
 </div>
 
 <!-- GAS -->
 <div class="box" style="margin-bottom:20px">
-<h3>🔗 GAS JAWABAN</h3>
+<h3>🔗 GAS GOOGLE SHEET JAWABAN</h3>
 <label>URL Web App GAS</label>
 <input type="text" id="gasUrl">
 </div>
@@ -75,24 +75,24 @@ Panel admin terpusat – tanpa masalah timezone / indochina
 <!-- AKTIF -->
 <div class="box">
 <h3>📌 Setting Aktif</h3>
-<label>Limit Harian</label>
+<label>Limit Cuti/Libur Per Hari</label>
 <input readonly id="curMaxHarian">
-<label>Limit Libur User</label>
+<label>Limit User pilih Libur</label>
 <input readonly id="curMaxUser">
-<label>Special Holiday (String)</label>
+<label>Setting tanggal merah kalender</label>
 <input readonly id="curHoliday">
 </div>
 
 <!-- EDIT -->
 <div class="box">
 <h3>✏️ Ubah Setting</h3>
-<label>Limit Harian</label>
+<label>Limit Cuti/Libur Per Hari</label>
 <input type="number" id="newMaxHarian" min="1">
-<label>Limit Libur User</label>
+<label>Limit User pilih Libur</label>
 <input type="number" id="newMaxUser" min="1">
-<label>Special Holiday (Klik kalender)</label>
+<label>Setting tanggal merah kalender</label>
 <input type="text" id="holidayPicker" readonly>
-<small>Klik tanggal → otomatis aman YYYY-MM-DD</small>
+<small>Klik tanggal untuk setting tanggal merah</small>
 </div>
 
 </div>
@@ -211,4 +211,5 @@ loadConfig();
 
 </body>
 </html>
+
 
