@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <title>ADMIN SETTING LIBUR & CUTI</title>
 
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/air-datepicker@3.5.0/air-datepicker.min.css">
+
 <style>
 body{
   font-family:'Segoe UI',Tahoma,Verdana,sans-serif;
@@ -33,12 +35,11 @@ h2{text-align:center;color:#4e54c8;margin-bottom:8px}
 }
 .box h3{margin-top:0;font-size:16px}
 label{font-size:13px;font-weight:600;margin-top:12px;display:block}
-input,textarea{
+input{
   width:100%;margin-top:6px;padding:11px 13px;
   border-radius:10px;border:1px solid #ccc;font-size:14px;
 }
-input[readonly],textarea[readonly]{background:#eee}
-textarea{resize:none}
+input[readonly]{background:#eee}
 button{
   width:100%;margin-top:26px;padding:15px;
   border:none;border-radius:14px;
@@ -59,22 +60,18 @@ footer{text-align:center;font-size:12px;color:#eee;margin-top:18px}
 <div class="container">
 <h2>ADMIN SETTING LIBUR & CUTI</h2>
 <div class="desc">
-Panel admin terpusat.<br>
-Semua perubahan langsung aktif ke seluruh user.
+Panel admin terpusat – tanpa masalah timezone / indochina
 </div>
 
-<!-- ================= GAS URL ================= -->
+<!-- GAS -->
 <div class="box" style="margin-bottom:20px">
-<h3>🔗 GAS JAWABAN AKTIF</h3>
+<h3>🔗 GAS JAWABAN</h3>
 <label>URL Web App GAS</label>
-<input type="text" id="gasUrl" placeholder="https://script.google.com/macros/s/XXXXX/exec">
-<small>
-Diambil & disimpan dari Google Sheet MASTER CONFIG<br>
-(1x input setiap bulan)
-</small>
+<input type="text" id="gasUrl">
 </div>
 
 <div class="grid">
+
 <!-- AKTIF -->
 <div class="box">
 <h3>📌 Setting Aktif</h3>
@@ -82,8 +79,8 @@ Diambil & disimpan dari Google Sheet MASTER CONFIG<br>
 <input readonly id="curMaxHarian">
 <label>Limit Libur User</label>
 <input readonly id="curMaxUser">
-<label>Special Holiday</label>
-<textarea rows="3" readonly id="curHoliday"></textarea>
+<label>Special Holiday (String)</label>
+<input readonly id="curHoliday">
 </div>
 
 <!-- EDIT -->
@@ -93,11 +90,11 @@ Diambil & disimpan dari Google Sheet MASTER CONFIG<br>
 <input type="number" id="newMaxHarian" min="1">
 <label>Limit Libur User</label>
 <input type="number" id="newMaxUser" min="1">
-<label>Special Holiday</label>
-<textarea rows="3" id="newHoliday"
-placeholder="YYYY-MM-DD,YYYY-MM-DD"></textarea>
-<small>Contoh: 2026-01-01,2026-01-16</small>
+<label>Special Holiday (Klik kalender)</label>
+<input type="text" id="holidayPicker" readonly>
+<small>Klik tanggal → otomatis aman YYYY-MM-DD</small>
 </div>
+
 </div>
 
 <button onclick="saveConfig()">💾 SIMPAN SETTING</button>
@@ -106,47 +103,51 @@ placeholder="YYYY-MM-DD,YYYY-MM-DD"></textarea>
 
 <footer>© 2025 EDP Fai</footer>
 
+<script src="https://cdn.jsdelivr.net/npm/air-datepicker@3.5.0/air-datepicker.min.js"></script>
 <script>
 /* ================= KONFIG ================= */
 const MASTER_GAS_URL =
 "https://script.google.com/macros/s/AKfycby1XWMOjxdQXNqkNpKtayd0c55ZK3VkQvaZ_KSqibEUBjExlvaVUzunpfe4_HPnDX1q/exec";
 
+let holidayDates = [];
+
 /* ================= UTIL ================= */
-function statusEl(){
+function status(msg, err){
   const el=document.getElementById("status");
-  return (msg,err)=>{
-    el.textContent=msg;
-    el.className=err?"error":"success";
-  };
+  el.textContent=msg;
+  el.className=err?"error":"success";
 }
 
-// 🔒 STRING MURNI — ANTI TIMEZONE
-function normalizeHolidayString(str){
-  if(!str) return "";
-  return str
-    .split(",")
-    .map(s=>s.trim())
-    .filter(s=>/^\d{4}-\d{2}-\d{2}$/.test(s))
-    .join(",");
+function toYMD(date){
+  const y = date.getFullYear();
+  const m = String(date.getMonth()+1).padStart(2,"0");
+  const d = String(date.getDate()).padStart(2,"0");
+  return `${y}-${m}-${d}`;
 }
+
+/* ================= DATEPICKER ================= */
+const dp = new AirDatepicker('#holidayPicker',{
+  multipleDates:true,
+  dateFormat:'yyyy-MM-dd',
+  locale:{ daysMin:['Mg','Sn','Sl','Rb','Km','Jm','Sb'],
+    months:['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'] },
+  onSelect({date}){
+    holidayDates = (date||[]).map(d=>toYMD(d));
+    holidayPicker.value = holidayDates.join(", ");
+  }
+});
 
 /* ================= LOAD ================= */
 async function loadConfig(){
-  const status = statusEl();
-  status("⏳ Memuat master config...");
-
+  status("⏳ Memuat...");
   try{
-    const r = await fetch(MASTER_GAS_URL + "?mode=getMasterConfig");
-    const cfg = await r.json();
+    const r = await fetch(MASTER_GAS_URL+"?mode=getMasterConfig");
+    const m = await r.json();
 
-    gasUrl.value = cfg.GAS_URL || "";
+    gasUrl.value = m.GAS_URL || "";
+    if(!m.GAS_URL){ status("⚠️ GAS_URL belum di-set", true); return; }
 
-    if(!cfg.GAS_URL){
-      status("⚠️ GAS_URL belum di-set", true);
-      return;
-    }
-
-    const r2 = await fetch(cfg.GAS_URL + "?mode=config");
+    const r2 = await fetch(m.GAS_URL+"?mode=config");
     const s = await r2.json();
 
     curMaxHarian.value = s.MAX_KUOTA_HARIAN ?? "-";
@@ -155,54 +156,47 @@ async function loadConfig(){
 
     newMaxHarian.value = s.MAX_KUOTA_HARIAN ?? "";
     newMaxUser.value   = s.MAX_LIBUR_USER ?? "";
-    newHoliday.value   = s.SPECIAL_HOLIDAYS || "";
 
-    status("✔️ Setting aktif dimuat");
+    // preload calendar
+    if(s.SPECIAL_HOLIDAYS){
+      const arr = s.SPECIAL_HOLIDAYS.split(",");
+      dp.selectDate(arr.map(x=>new Date(x)));
+    }
+
+    status("✔️ Loaded");
   }catch{
-    status("❌ Gagal load config", true);
+    status("❌ Gagal load", true);
   }
 }
 
 /* ================= SAVE ================= */
 async function saveConfig(){
-  const status = statusEl();
-  const url = gasUrl.value.trim();
-  if(!url){
-    status("❌ URL GAS wajib", true);
-    return;
-  }
-
-  const holidayStr = normalizeHolidayString(newHoliday.value);
-  if(newHoliday.value && !holidayStr){
-    status("❌ Format tanggal salah. Gunakan YYYY-MM-DD", true);
-    return;
-  }
+  if(!gasUrl.value.trim()){ status("❌ URL GAS wajib", true); return; }
 
   status("⏳ Menyimpan...");
 
   try{
-    // simpan GAS_URL ke MASTER
-    const fd1 = new FormData();
+    // save master
+    const fd1=new FormData();
     fd1.append("mode","saveMasterConfig");
-    fd1.append("GAS_URL",url);
+    fd1.append("GAS_URL",gasUrl.value.trim());
     await fetch(MASTER_GAS_URL,{method:"POST",body:fd1});
 
-    // simpan setting ke GAS JAWABAN
-    const fd2 = new FormData();
+    // save config
+    const fd2=new FormData();
     fd2.append("mode","saveConfig");
-    fd2.append("MAX_KUOTA_HARIAN", newMaxHarian.value);
-    fd2.append("MAX_LIBUR_USER", newMaxUser.value);
-    fd2.append("SPECIAL_HOLIDAYS", holidayStr);
-    await fetch(url,{method:"POST",body:fd2});
+    fd2.append("MAX_KUOTA_HARIAN",newMaxHarian.value);
+    fd2.append("MAX_LIBUR_USER",newMaxUser.value);
+    fd2.append("SPECIAL_HOLIDAYS",holidayDates.join(","));
+    await fetch(gasUrl.value.trim(),{method:"POST",body:fd2});
 
-    status("✅ Setting tersimpan & langsung aktif");
+    status("✅ Setting tersimpan");
     loadConfig();
   }catch{
-    status("❌ Gagal menyimpan", true);
+    status("❌ Gagal simpan", true);
   }
 }
 
-/* ================= INIT ================= */
 loadConfig();
 </script>
 
