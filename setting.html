@@ -129,13 +129,22 @@ function toYMD(date){
 const dp = new AirDatepicker('#holidayPicker',{
   multipleDates:true,
   dateFormat:'yyyy-MM-dd',
-  locale:{ daysMin:['Mg','Sn','Sl','Rb','Km','Jm','Sb'],
-    months:['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'] },
+
+  firstDay: 0, // ✅ MINGGU SEBAGAI HARI PERTAMA
+
+  locale:{ 
+    days:['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'],
+    daysMin:['Mg','Sn','Sl','Rb','Km','Jm','Sb'],
+    months:['Januari','Februari','Maret','April','Mei','Juni',
+            'Juli','Agustus','September','Oktober','November','Desember']
+  },
+
   onSelect({date}){
-    holidayDates = (date||[]).map(d=>toYMD(d));
+    holidayDates = (date || []).map(d => toYMD(d));
     holidayPicker.value = holidayDates.join(", ");
   }
 });
+
 
 /* ================= LOAD ================= */
 async function loadConfig(){
@@ -202,3 +211,4 @@ loadConfig();
 
 </body>
 </html>
+
