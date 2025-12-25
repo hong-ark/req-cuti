@@ -16,7 +16,7 @@ body{
 }
 .container{
   background:#fff;
-  width:720px;
+  width:820px;
   max-width:95%;
   padding:30px;
   border-radius:20px;
@@ -24,8 +24,14 @@ body{
 }
 h2{
   text-align:center;
-  margin-bottom:25px;
+  margin-bottom:10px;
   color:#4e54c8;
+}
+.desc{
+  text-align:center;
+  font-size:13px;
+  color:#666;
+  margin-bottom:20px;
 }
 .grid{
   display:grid;
@@ -95,7 +101,7 @@ footer{
   font-size:12px;
   color:#eee;
 }
-@media(max-width:700px){
+@media(max-width:800px){
   .grid{grid-template-columns:1fr}
 }
 </style>
@@ -105,6 +111,22 @@ footer{
 
 <div class="container">
   <h2>ADMIN SETTING LIBUR & CUTI</h2>
+  <div class="desc">
+    Atur limit & libur tanpa edit script.  
+    Ganti URL GAS setiap bulan jika Web App berubah.
+  </div>
+
+  <!-- ===================== URL GAS ===================== -->
+  <div class="box" style="margin-bottom:20px;">
+    <h3>🔗 Google Apps Script (Web App)</h3>
+    <label>URL GAS Aktif</label>
+    <input type="text" id="gasUrl"
+      placeholder="https://script.google.com/macros/s/XXXXX/exec">
+    <small>
+      Diisi 1x setiap bulan sesuai Web App GAS yang aktif.<br>
+      Disimpan otomatis di browser admin.
+    </small>
+  </div>
 
   <div class="grid">
 
@@ -147,69 +169,99 @@ footer{
 <footer>© 2025 EDP Fai</footer>
 
 <script>
-/* ===================== KONFIG ===================== */
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwN1bwY5RejejJlwxty0E4g1qFwz2Ox5FkzdQU5LQwZqgevB-GGcu8j7zUHWzNAuTCi/exec";
+/* ===================== STORAGE ===================== */
+const STORAGE_KEY = "GAS_WEBAPP_URL";
 
-/* ===================== LOAD ===================== */
+/* ===================== STORAGE HELPERS ===================== */
+function getGasUrl(){
+  return localStorage.getItem(STORAGE_KEY) || "";
+}
+function setGasUrl(url){
+  localStorage.setItem(STORAGE_KEY, url);
+}
+
+/* ===================== LOAD CONFIG ===================== */
 async function loadConfig(){
   const status = document.getElementById("status");
+  const gasUrl = getGasUrl();
+
+  document.getElementById("gasUrl").value = gasUrl;
+
+  if (!gasUrl){
+    status.textContent = "⚠️ Masukkan URL GAS terlebih dahulu";
+    status.className = "error";
+    return;
+  }
+
   status.textContent = "⏳ Memuat setting...";
+  status.className = "";
 
   try{
-    const res = await fetch(SCRIPT_URL + "?mode=config");
+    const res = await fetch(gasUrl + "?mode=config");
     const cfg = await res.json();
 
-    // tampilkan aktif
-    curMaxHarian.value = cfg.MAX_KUOTA_HARIAN || "-";
-    curMaxUser.value   = cfg.MAX_LIBUR_USER || "-";
+    // tampilkan nilai aktif
+    curMaxHarian.value = cfg.MAX_KUOTA_HARIAN ?? "-";
+    curMaxUser.value   = cfg.MAX_LIBUR_USER ?? "-";
     curHoliday.value   = cfg.SPECIAL_HOLIDAYS || "-";
 
-    // prefill form edit
-    newMaxHarian.value = cfg.MAX_KUOTA_HARIAN || "";
-    newMaxUser.value   = cfg.MAX_LIBUR_USER || "";
+    // isi form edit
+    newMaxHarian.value = cfg.MAX_KUOTA_HARIAN ?? "";
+    newMaxUser.value   = cfg.MAX_LIBUR_USER ?? "";
     newHoliday.value   = cfg.SPECIAL_HOLIDAYS || "";
 
     status.textContent = "✔️ Setting aktif berhasil dimuat";
     status.className = "success";
-  }catch(e){
-    status.textContent = "❌ Gagal memuat setting";
+  }catch(err){
+    status.textContent = "❌ Gagal mengambil data dari GAS";
     status.className = "error";
   }
 }
 
-/* ===================== SAVE ===================== */
+/* ===================== SAVE CONFIG ===================== */
 async function saveConfig(){
   const status = document.getElementById("status");
+  const gasUrl = document.getElementById("gasUrl").value.trim();
+
+  if (!gasUrl){
+    status.textContent = "❌ URL GAS wajib diisi";
+    status.className = "error";
+    return;
+  }
+
+  // simpan URL ke browser
+  setGasUrl(gasUrl);
+
   status.textContent = "⏳ Menyimpan setting...";
   status.className = "";
 
   const fd = new FormData();
   fd.append("mode","saveConfig");
   fd.append("MAX_KUOTA_HARIAN", newMaxHarian.value);
-  fd.append("MAX_LIBUR_USER",  newMaxUser.value);
+  fd.append("MAX_LIBUR_USER", newMaxUser.value);
   fd.append("SPECIAL_HOLIDAYS", newHoliday.value.trim());
 
   try{
-    const res = await fetch(SCRIPT_URL,{ method:"POST", body:fd });
+    const res = await fetch(gasUrl,{ method:"POST", body:fd });
     const j = await res.json();
 
     if(j.status==="success"){
-      status.textContent = "✅ Setting berhasil disimpan & aktif";
+      status.textContent = "✅ Setting berhasil disimpan & langsung aktif";
       status.className = "success";
-      loadConfig(); // refresh nilai aktif
+      loadConfig();
     }else{
       status.textContent = "❌ Gagal menyimpan setting";
       status.className = "error";
     }
-  }catch(e){
-    status.textContent = "❌ Error koneksi ke GAS";
+  }catch(err){
+    status.textContent = "❌ Tidak bisa terhubung ke GAS";
     status.className = "error";
   }
 }
 
+/* ===================== INIT ===================== */
 loadConfig();
 </script>
 
 </body>
 </html>
-
