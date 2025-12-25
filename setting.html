@@ -16,214 +16,171 @@ body{
 }
 .container{
   background:#fff;
-  width:860px;
+  width:820px;
   max-width:95%;
   padding:30px;
   border-radius:20px;
   box-shadow:0 18px 40px rgba(0,0,0,.25);
 }
-h2{text-align:center;color:#4e54c8;margin-bottom:6px}
+h2{text-align:center;color:#4e54c8;margin-bottom:8px}
 .desc{text-align:center;font-size:13px;color:#666;margin-bottom:20px}
-
-.grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:24px;
-}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
 .box{
   background:#f7f9ff;
   padding:20px;
   border-radius:16px;
   border:1px solid #dbe2ff;
 }
-.box h3{margin-top:0;font-size:16px;color:#333}
-
-label{font-size:13px;font-weight:600;display:block;margin-top:12px}
+.box h3{margin-top:0;font-size:16px}
+label{font-size:13px;font-weight:600;margin-top:12px;display:block}
 input,textarea{
-  width:100%;
-  margin-top:6px;
-  padding:11px 13px;
-  border-radius:10px;
-  border:1px solid #ccc;
-  font-size:14px;
+  width:100%;margin-top:6px;padding:11px 13px;
+  border-radius:10px;border:1px solid #ccc;font-size:14px;
 }
-input[readonly],textarea[readonly]{background:#eee;color:#555}
+input[readonly],textarea[readonly]{background:#eee}
 textarea{resize:none}
-
 button{
-  width:100%;
-  margin-top:26px;
-  padding:15px;
-  border:none;
-  border-radius:14px;
+  width:100%;margin-top:26px;padding:15px;
+  border:none;border-radius:14px;
   background:linear-gradient(90deg,#11998e,#38ef7d);
-  color:#fff;
-  font-size:15px;
-  font-weight:600;
-  cursor:pointer;
+  color:#fff;font-size:15px;font-weight:600;cursor:pointer;
 }
-button:hover{
-  transform:translateY(-2px);
-  box-shadow:0 10px 22px rgba(17,153,142,.4);
-}
-
-#status{margin-top:16px;text-align:center;font-weight:600;min-height:22px}
+#status{text-align:center;margin-top:14px;font-weight:600}
 .success{color:#155724}
 .error{color:#721c24}
 small{font-size:12px;color:#666}
-
-footer{
-  margin-top:18px;
-  text-align:center;
-  font-size:12px;
-  color:#eee;
-}
-
-@media(max-width:800px){
-  .grid{grid-template-columns:1fr}
-}
+footer{text-align:center;font-size:12px;color:#eee;margin-top:18px}
+@media(max-width:800px){.grid{grid-template-columns:1fr}}
 </style>
 </head>
 
 <body>
 
 <div class="container">
-  <h2>ADMIN SETTING LIBUR & CUTI</h2>
-  <div class="desc">
-    Semua setting tersimpan terpusat di MASTER.<br>
-    Admin hanya perlu update URL GAS JAWABAN setiap bulan.
-  </div>
+<h2>ADMIN SETTING LIBUR & CUTI</h2>
+<div class="desc">
+Panel admin terpusat.  
+Semua perubahan langsung aktif ke seluruh user.
+</div>
 
-  <!-- ===================== GAS JAWABAN ===================== -->
-  <div class="box" style="margin-bottom:20px;">
-    <h3>🔗 URL GAS JAWABAN (Bulanan)</h3>
-    <label>URL Web App GAS JAWABAN</label>
-    <input type="text" id="gasJawabanUrl"
-      placeholder="https://script.google.com/macros/s/XXXXX/exec">
-    <small>
-      ⚠️ Diisi dengan <b>GAS JAWABAN</b> (sheet JAWABAN bulan aktif).<br>
-      ❌ Jangan isi URL GAS MASTER.
-    </small>
-  </div>
+<!-- ================= GAS URL ================= -->
+<div class="box" style="margin-bottom:20px">
+<h3>🔗 GAS JAWABAN AKTIF</h3>
+<label>URL Web App GAS</label>
+<input type="text" id="gasUrl">
+<small>
+Diambil & disimpan dari Google Sheet MASTER CONFIG  
+(1x input setiap bulan)
+</small>
+</div>
 
-  <div class="grid">
+<div class="grid">
+<!-- AKTIF -->
+<div class="box">
+<h3>📌 Setting Aktif</h3>
+<label>Limit Harian</label>
+<input readonly id="curMaxHarian">
+<label>Limit Libur User</label>
+<input readonly id="curMaxUser">
+<label>Special Holiday</label>
+<textarea rows="3" readonly id="curHoliday"></textarea>
+</div>
 
-    <!-- ===================== AKTIF ===================== -->
-    <div class="box">
-      <h3>📌 Setting Aktif Saat Ini</h3>
+<!-- EDIT -->
+<div class="box">
+<h3>✏️ Ubah Setting</h3>
+<label>Limit Harian</label>
+<input type="number" id="newMaxHarian">
+<label>Limit Libur User</label>
+<input type="number" id="newMaxUser">
+<label>Special Holiday</label>
+<textarea rows="3" id="newHoliday"
+placeholder="YYYY-MM-DD,YYYY-MM-DD"></textarea>
+</div>
+</div>
 
-      <label>Limit Off / Cuti per Hari</label>
-      <input type="text" id="curMaxHarian" readonly>
-
-      <label>Limit Libur per User</label>
-      <input type="text" id="curMaxUser" readonly>
-
-      <label>Special Holiday</label>
-      <textarea id="curHoliday" rows="3" readonly></textarea>
-    </div>
-
-    <!-- ===================== EDIT ===================== -->
-    <div class="box">
-      <h3>✏️ Ubah Setting</h3>
-
-      <label>Limit Off / Cuti per Hari</label>
-      <input type="number" id="newMaxHarian" min="1">
-
-      <label>Limit Libur per User</label>
-      <input type="number" id="newMaxUser" min="1">
-
-      <label>Special Holiday</label>
-      <textarea id="newHoliday" rows="3"
-        placeholder="YYYY-MM-DD,YYYY-MM-DD"></textarea>
-      <small>Contoh: 2026-01-01,2026-01-16</small>
-    </div>
-
-  </div>
-
-  <button onclick="saveConfig()">💾 SIMPAN SETTING</button>
-  <div id="status"></div>
+<button onclick="saveConfig()">💾 SIMPAN SETTING</button>
+<div id="status"></div>
 </div>
 
 <footer>© 2025 EDP Fai</footer>
 
 <script>
-/* ======================================================
-   🔒 GAS MASTER (HARDCODE – JANGAN DIUBAH ADMIN)
-   ====================================================== */
-const MASTER_GAS_URL =
-  "https://script.google.com/macros/s/AKfycby1XWMOjxdQXNqkNpKtayd0c55ZK3VkQvaZ_KSqibEUBjExlvaVUzunpfe4_HPnDX1q/exec";
+/* ================= KONFIG ================= */
+const MASTER_GAS_URL = "https://script.google.com/macros/s/AKfycby1XWMOjxdQXNqkNpKtayd0c55ZK3VkQvaZ_KSqibEUBjExlvaVUzunpfe4_HPnDX1q/exec";
 
-/* ===================== LOAD CONFIG ===================== */
+/* ================= LOAD ================= */
 async function loadConfig(){
-  const status = document.getElementById("status");
-  status.textContent = "⏳ Memuat data dari MASTER...";
-  status.className = "";
+  const status = statusEl();
+  status("⏳ Memuat master config...");
 
   try{
-    const res = await fetch(MASTER_GAS_URL + "?mode=getConfig");
-    const cfg = await res.json();
+    const r = await fetch(MASTER_GAS_URL + "?mode=getMasterConfig");
+    const cfg = await r.json();
 
-    // isi URL GAS JAWABAN
-    gasJawabanUrl.value = cfg.GAS_URL || "";
+    gasUrl.value = cfg.GAS_URL || "";
 
-    // tampilkan setting aktif
-    curMaxHarian.value = cfg.MAX_KUOTA_HARIAN ?? "-";
-    curMaxUser.value   = cfg.MAX_LIBUR_USER ?? "-";
-    curHoliday.value   = cfg.SPECIAL_HOLIDAYS || "-";
-
-    // form edit
-    newMaxHarian.value = cfg.MAX_KUOTA_HARIAN ?? "";
-    newMaxUser.value   = cfg.MAX_LIBUR_USER ?? "";
-    newHoliday.value   = cfg.SPECIAL_HOLIDAYS || "";
-
-    status.textContent = "✔️ Data berhasil dimuat dari MASTER";
-    status.className = "success";
-  }catch(e){
-    status.textContent = "❌ Gagal mengambil data dari MASTER GAS";
-    status.className = "error";
-  }
-}
-
-/* ===================== SAVE CONFIG ===================== */
-async function saveConfig(){
-  const status = document.getElementById("status");
-  const gasJawaban = gasJawabanUrl.value.trim();
-
-  if(!gasJawaban){
-    status.textContent = "❌ URL GAS JAWABAN wajib diisi";
-    status.className = "error";
-    return;
-  }
-
-  status.textContent = "⏳ Menyimpan setting ke MASTER...";
-  status.className = "";
-
-  const fd = new FormData();
-  fd.append("mode","saveConfig");
-  fd.append("GAS_URL", gasJawaban);
-  fd.append("MAX_KUOTA_HARIAN", newMaxHarian.value);
-  fd.append("MAX_LIBUR_USER", newMaxUser.value);
-  fd.append("SPECIAL_HOLIDAYS", newHoliday.value.trim());
-
-  try{
-    const res = await fetch(MASTER_GAS_URL,{ method:"POST", body:fd });
-    const j = await res.json();
-
-    if(j.status==="success"){
-      status.textContent = "✅ Setting berhasil disimpan & langsung aktif";
-      status.className = "success";
-      loadConfig();
-    }else{
-      status.textContent = "❌ Gagal menyimpan setting";
-      status.className = "error";
+    if(!cfg.GAS_URL){
+      status("⚠️ GAS_URL belum di-set", true);
+      return;
     }
-  }catch(e){
-    status.textContent = "❌ Tidak bisa terhubung ke MASTER GAS";
-    status.className = "error";
+
+    const r2 = await fetch(cfg.GAS_URL + "?mode=config");
+    const s = await r2.json();
+
+    curMaxHarian.value = s.MAX_KUOTA_HARIAN ?? "-";
+    curMaxUser.value   = s.MAX_LIBUR_USER ?? "-";
+    curHoliday.value   = s.SPECIAL_HOLIDAYS || "-";
+
+    newMaxHarian.value = s.MAX_KUOTA_HARIAN ?? "";
+    newMaxUser.value   = s.MAX_LIBUR_USER ?? "";
+    newHoliday.value   = s.SPECIAL_HOLIDAYS || "";
+
+    status("✔️ Setting aktif dimuat");
+  }catch{
+    status("❌ Gagal load config", true);
   }
 }
 
-/* ===================== INIT ===================== */
+/* ================= SAVE ================= */
+async function saveConfig(){
+  const status = statusEl();
+  const url = gasUrl.value.trim();
+  if(!url){ status("❌ URL GAS wajib", true); return; }
+
+  status("⏳ Menyimpan...");
+
+  try{
+    // simpan GAS_URL ke MASTER
+    const fd1=new FormData();
+    fd1.append("mode","saveMasterConfig");
+    fd1.append("GAS_URL",url);
+    await fetch(MASTER_GAS_URL,{method:"POST",body:fd1});
+
+    // simpan setting ke GAS JAWABAN
+    const fd2=new FormData();
+    fd2.append("mode","saveConfig");
+    fd2.append("MAX_KUOTA_HARIAN",newMaxHarian.value);
+    fd2.append("MAX_LIBUR_USER",newMaxUser.value);
+    fd2.append("SPECIAL_HOLIDAYS",newHoliday.value.trim());
+    await fetch(url,{method:"POST",body:fd2});
+
+    status("✅ Setting tersimpan & aktif");
+    loadConfig();
+  }catch{
+    status("❌ Gagal menyimpan", true);
+  }
+}
+
+/* ================= UTIL ================= */
+function statusEl(){
+  const el=document.getElementById("status");
+  return (msg,err)=>{
+    el.textContent=msg;
+    el.className=err?"error":"success";
+  };
+}
+
 loadConfig();
 </script>
 
