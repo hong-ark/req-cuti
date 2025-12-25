@@ -16,82 +16,87 @@ body{
 }
 .container{
   background:#fff;
-  width:420px;
-  padding:30px 28px 35px;
-  border-radius:18px;
-  box-shadow:0 15px 35px rgba(0,0,0,.25);
-  animation:fadeIn .5s ease;
+  width:720px;
+  max-width:95%;
+  padding:30px;
+  border-radius:20px;
+  box-shadow:0 18px 40px rgba(0,0,0,.25);
 }
 h2{
   text-align:center;
-  margin-bottom:20px;
-  font-size:22px;
-  font-weight:700;
+  margin-bottom:25px;
   color:#4e54c8;
 }
-label{
-  font-size:14px;
-  font-weight:600;
-  margin-top:14px;
-  display:block;
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:24px;
+}
+.box{
+  background:#f7f9ff;
+  padding:20px;
+  border-radius:16px;
+  border:1px solid #dbe2ff;
+}
+.box h3{
+  margin-top:0;
+  margin-bottom:15px;
+  font-size:16px;
   color:#333;
+}
+label{
+  font-size:13px;
+  font-weight:600;
+  display:block;
+  margin-top:12px;
 }
 input, textarea{
   width:100%;
   margin-top:6px;
-  padding:12px 14px;
+  padding:11px 13px;
   border-radius:10px;
   border:1px solid #ccc;
   font-size:14px;
   box-sizing:border-box;
 }
-input:focus, textarea:focus{
-  outline:none;
-  border-color:#4e54c8;
-  box-shadow:0 0 8px rgba(78,84,200,.25);
+input[readonly], textarea[readonly]{
+  background:#eee;
+  color:#555;
 }
 textarea{resize:none}
 button{
   width:100%;
-  margin-top:22px;
-  padding:14px;
+  margin-top:26px;
+  padding:15px;
   border:none;
-  border-radius:12px;
+  border-radius:14px;
   background:linear-gradient(90deg,#11998e,#38ef7d);
   color:#fff;
   font-size:15px;
   font-weight:600;
   cursor:pointer;
-  transition:.3s;
 }
 button:hover{
   transform:translateY(-2px);
-  box-shadow:0 8px 18px rgba(17,153,142,.4);
+  box-shadow:0 10px 22px rgba(17,153,142,.4);
 }
 #status{
-  margin-top:15px;
+  margin-top:16px;
   text-align:center;
   font-weight:600;
-  font-size:14px;
-  min-height:20px;
+  min-height:22px;
 }
 .success{color:#155724}
 .error{color:#721c24}
-small{
-  font-size:12px;
-  color:#666;
-  display:block;
-  margin-top:6px;
-}
-@keyframes fadeIn{
-  from{opacity:0;transform:translateY(-15px)}
-  to{opacity:1;transform:translateY(0)}
-}
+small{font-size:12px;color:#666}
 footer{
-  margin-top:20px;
+  margin-top:18px;
   text-align:center;
   font-size:12px;
   color:#eee;
+}
+@media(max-width:700px){
+  .grid{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -99,18 +104,41 @@ footer{
 <body>
 
 <div class="container">
-  <h2>ADMIN SETTING</h2>
+  <h2>ADMIN SETTING LIBUR & CUTI</h2>
 
-  <label>Limit Off / Cuti per Hari</label>
-  <input type="number" id="maxHarian" min="1">
+  <div class="grid">
 
-  <label>Limit Libur per User</label>
-  <input type="number" id="maxUser" min="1">
+    <!-- ===================== AKTIF ===================== -->
+    <div class="box">
+      <h3>📌 Setting Aktif Saat Ini</h3>
 
-  <label>Special Holiday</label>
-  <textarea id="specialHoliday" rows="3"
-    placeholder="YYYY-MM-DD,YYYY-MM-DD"></textarea>
-  <small>Contoh: 2026-01-01,2026-01-16</small>
+      <label>Limit Off / Cuti per Hari</label>
+      <input type="text" id="curMaxHarian" readonly>
+
+      <label>Limit Libur per User</label>
+      <input type="text" id="curMaxUser" readonly>
+
+      <label>Special Holiday</label>
+      <textarea id="curHoliday" rows="3" readonly></textarea>
+    </div>
+
+    <!-- ===================== EDIT ===================== -->
+    <div class="box">
+      <h3>✏️ Ubah Setting</h3>
+
+      <label>Limit Off / Cuti per Hari</label>
+      <input type="number" id="newMaxHarian" min="1">
+
+      <label>Limit Libur per User</label>
+      <input type="number" id="newMaxUser" min="1">
+
+      <label>Special Holiday</label>
+      <textarea id="newHoliday" rows="3"
+        placeholder="YYYY-MM-DD,YYYY-MM-DD"></textarea>
+      <small>Contoh: 2026-01-01,2026-01-16</small>
+    </div>
+
+  </div>
 
   <button onclick="saveConfig()">💾 SIMPAN SETTING</button>
   <div id="status"></div>
@@ -122,7 +150,7 @@ footer{
 /* ===================== KONFIG ===================== */
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzgQGMsvpbwlg2aSS8DC3-FGrzRkgz_LKOGFuWwbMSaThqMa8Eftghmdx1IPXldyA9QQQ/exec";
 
-/* ===================== LOAD SETTING ===================== */
+/* ===================== LOAD ===================== */
 async function loadConfig(){
   const status = document.getElementById("status");
   status.textContent = "⏳ Memuat setting...";
@@ -131,19 +159,25 @@ async function loadConfig(){
     const res = await fetch(SCRIPT_URL + "?mode=config");
     const cfg = await res.json();
 
-    document.getElementById("maxHarian").value = cfg.MAX_KUOTA_HARIAN || "";
-    document.getElementById("maxUser").value   = cfg.MAX_LIBUR_USER || "";
-    document.getElementById("specialHoliday").value = cfg.SPECIAL_HOLIDAYS || "";
+    // tampilkan aktif
+    curMaxHarian.value = cfg.MAX_KUOTA_HARIAN || "-";
+    curMaxUser.value   = cfg.MAX_LIBUR_USER || "-";
+    curHoliday.value   = cfg.SPECIAL_HOLIDAYS || "-";
 
-    status.textContent = "✔️ Setting dimuat";
+    // prefill form edit
+    newMaxHarian.value = cfg.MAX_KUOTA_HARIAN || "";
+    newMaxUser.value   = cfg.MAX_LIBUR_USER || "";
+    newHoliday.value   = cfg.SPECIAL_HOLIDAYS || "";
+
+    status.textContent = "✔️ Setting aktif berhasil dimuat";
     status.className = "success";
-  }catch(err){
+  }catch(e){
     status.textContent = "❌ Gagal memuat setting";
     status.className = "error";
   }
 }
 
-/* ===================== SAVE SETTING ===================== */
+/* ===================== SAVE ===================== */
 async function saveConfig(){
   const status = document.getElementById("status");
   status.textContent = "⏳ Menyimpan setting...";
@@ -151,26 +185,24 @@ async function saveConfig(){
 
   const fd = new FormData();
   fd.append("mode","saveConfig");
-  fd.append("MAX_KUOTA_HARIAN", document.getElementById("maxHarian").value);
-  fd.append("MAX_LIBUR_USER", document.getElementById("maxUser").value);
-  fd.append("SPECIAL_HOLIDAYS", document.getElementById("specialHoliday").value.trim());
+  fd.append("MAX_KUOTA_HARIAN", newMaxHarian.value);
+  fd.append("MAX_LIBUR_USER",  newMaxUser.value);
+  fd.append("SPECIAL_HOLIDAYS", newHoliday.value.trim());
 
   try{
-    const res = await fetch(SCRIPT_URL,{
-      method:"POST",
-      body:fd
-    });
-    const json = await res.json();
+    const res = await fetch(SCRIPT_URL,{ method:"POST", body:fd });
+    const j = await res.json();
 
-    if(json.status==="success"){
-      status.textContent = "✅ Setting berhasil disimpan";
+    if(j.status==="success"){
+      status.textContent = "✅ Setting berhasil disimpan & aktif";
       status.className = "success";
+      loadConfig(); // refresh nilai aktif
     }else{
       status.textContent = "❌ Gagal menyimpan setting";
       status.className = "error";
     }
-  }catch(err){
-    status.textContent = "❌ Error koneksi ke server";
+  }catch(e){
+    status.textContent = "❌ Error koneksi ke GAS";
     status.className = "error";
   }
 }
