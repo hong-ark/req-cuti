@@ -3,149 +3,100 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard Setting rekap dan limit pengaturaan masuk</title>
+<title>Menu Rekap & Setting</title>
 
 <style>
-    * {
-        box-sizing: border-box;
-        font-family: "Segoe UI", Arial, sans-serif;
-    }
-
     body {
         margin: 0;
-        min-height: 100vh;
-        background: linear-gradient(135deg, #1d2671, #c33764);
-        display: flex;
-        justify-content: center;
-        align-items: center;
+        background: #f5f7fa;
+        font-family: "Segoe UI", Arial, sans-serif;
+        color: #333;
     }
 
-    .dashboard {
-        width: 95%;
-        max-width: 900px;
-        background: rgba(255, 255, 255, 0.15);
-        backdrop-filter: blur(12px);
-        border-radius: 18px;
-        padding: 30px;
-        color: #fff;
-        box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+    .container {
+        max-width: 800px;
+        margin: 60px auto;
+        padding: 0 20px;
     }
 
     h1 {
-        text-align: center;
-        margin-bottom: 30px;
+        font-size: 22px;
         font-weight: 600;
-        letter-spacing: 1px;
+        margin-bottom: 30px;
+        color: #222;
     }
 
-    .grid {
+    .list {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 20px;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 16px;
     }
 
-    .card {
-        background: rgba(255,255,255,0.2);
-        border-radius: 15px;
-        padding: 25px 20px;
-        text-align: center;
-        cursor: pointer;
-        transition: all 0.3s ease;
+    .item {
+        background: #fff;
+        border-radius: 8px;
+        padding: 18px 20px;
         text-decoration: none;
-        color: #fff;
-        position: relative;
-        overflow: hidden;
+        color: inherit;
+        border: 1px solid #e5e7eb;
+        transition: all 0.2s ease;
     }
 
-    .card::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(
-            120deg,
-            transparent,
-            rgba(255,255,255,0.3),
-            transparent
-        );
-        transition: 0.6s;
-    }
-
-    .card:hover::before {
-        left: 100%;
-    }
-
-    .card:hover {
-        transform: translateY(-8px) scale(1.02);
-        background: rgba(255,255,255,0.3);
-    }
-
-    .icon {
-        font-size: 42px;
-        margin-bottom: 15px;
+    .item:hover {
+        border-color: #3b82f6;
+        box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+        transform: translateY(-2px);
     }
 
     .title {
-        font-size: 18px;
+        font-size: 15px;
         font-weight: 600;
+        margin-bottom: 4px;
+        color: #111827;
     }
 
     .desc {
         font-size: 13px;
-        opacity: 0.9;
-        margin-top: 6px;
+        color: #6b7280;
     }
 
     footer {
-        text-align: center;
-        margin-top: 30px;
+        margin-top: 40px;
         font-size: 12px;
-        opacity: 0.8;
-    }
-
-    @media (max-width: 480px) {
-        h1 {
-            font-size: 20px;
-        }
+        color: #9ca3af;
     }
 </style>
 </head>
 
 <body>
 
-<div class="dashboard">
-    <h1>Dashboard Rekap & Setting</h1>
+<div class="container">
+    <h1>Menu Rekap & Setting</h1>
 
-    <div class="grid">
-        <a class="card" href="https://docs.google.com/spreadsheets/d/1nseGPtn6cApBg6fWf2BBfsV3NQo-MONa_rY4-ZqfS6s/edit?gid=1664641699#gid=1664641699" target="_blank">
-            <div class="icon">⏱️</div>
+    <div class="list">
+        <a class="item" href="https://docs.google.com/spreadsheets/d/1nseGPtn6cApBg6fWf2BBfsV3NQo-MONa_rY4-ZqfS6s/edit?gid=1664641699#gid=1664641699" target="_blank">
             <div class="title">Setting Lembur</div>
             <div class="desc">Pengaturan data lembur karyawan</div>
         </a>
 
-        <a class="card" href="https://docs.google.com/spreadsheets/d/1D6ltu1-qBy0f-rkUcFzHB8uc1j8zrgFRcFE75e4MlhI/edit?gid=0#gid=0" target="_blank">
-            <div class="icon">📊</div>
+        <a class="item" href="https://docs.google.com/spreadsheets/d/1D6ltu1-qBy0f-rkUcFzHB8uc1j8zrgFRcFE75e4MlhI/edit?gid=0#gid=0" target="_blank">
             <div class="title">Rekap Closing</div>
-            <div class="desc">Rekap data closing harian</div>
+            <div class="desc">Rekap data closing</div>
         </a>
 
-        <a class="card" href="https://hong-ark.github.io/req-cuti/setting.html" target="_blank">
-            <div class="icon">⚙️</div>
+        <a class="item" href="https://hong-ark.github.io/req-cuti/setting.html" target="_blank">
             <div class="title">Setting Limit Web</div>
-            <div class="desc">Pengaturan limit sistem web</div>
+            <div class="desc">Pengaturan limit sistem</div>
         </a>
 
-        <a class="card" href="https://docs.google.com/spreadsheets/d/1FIlRZr5_GhR5n-1hd2xiP3uBOCqTxt7ulNX970u71XQ/edit?usp=sharing" target="_blank">
-            <div class="icon">📅</div>
+        <a class="item" href="https://docs.google.com/spreadsheets/d/1FIlRZr5_GhR5n-1hd2xiP3uBOCqTxt7ulNX970u71XQ/edit?usp=sharing" target="_blank">
             <div class="title">Rekap Closing Tahunan</div>
-            <div class="desc">Ringkasan closing per tahun</div>
+            <div class="desc">Ringkasan closing tahunan</div>
         </a>
     </div>
 
     <footer>
-        © 2025 • Dashboard Internal
+        © 2025
     </footer>
 </div>
 
