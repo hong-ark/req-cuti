@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>ADMIN SETTING LIBUR & CUTI</title>
+<title>PANEL SETTING LIBUR & CUTI</title>
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/air-datepicker@3.5.0/air-datepicker.min.css">
 
@@ -12,10 +12,43 @@ body{
   background:linear-gradient(135deg,#667eea,#764ba2);
   min-height:100vh;
   margin:0;
+}
+
+/* ===== LOADING ===== */
+#loading{
+  position:fixed;
+  inset:0;
+  background:#f5f7fa;
   display:flex;
   justify-content:center;
   align-items:center;
+  z-index:9999;
 }
+.loader-box{
+  text-align:center;
+  color:#444;
+  font-size:14px;
+}
+.spinner{
+  width:42px;
+  height:42px;
+  border:4px solid #ddd;
+  border-top:4px solid #4e54c8;
+  border-radius:50%;
+  margin:0 auto 12px;
+  animation:spin .9s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ===== APP ===== */
+#app{
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+}
+
 .container{
   background:#fff;
   width:820px;
@@ -24,9 +57,11 @@ body{
   border-radius:20px;
   box-shadow:0 18px 40px rgba(0,0,0,.25);
 }
+
 h2{text-align:center;color:#4e54c8;margin-bottom:8px}
 .desc{text-align:center;font-size:13px;color:#666;margin-bottom:20px}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+
 .box{
   background:#f7f9ff;
   padding:20px;
@@ -34,74 +69,108 @@ h2{text-align:center;color:#4e54c8;margin-bottom:8px}
   border:1px solid #dbe2ff;
 }
 .box h3{margin-top:0;font-size:16px}
+
 label{font-size:13px;font-weight:600;margin-top:12px;display:block}
+
 input{
-  width:100%;margin-top:6px;padding:11px 13px;
-  border-radius:10px;border:1px solid #ccc;font-size:14px;
+  width:100%;
+  margin-top:6px;
+  padding:11px 13px;
+  border-radius:10px;
+  border:1px solid #ccc;
+  font-size:14px;
 }
 input[readonly]{background:#eee}
+
 button{
-  width:100%;margin-top:26px;padding:15px;
-  border:none;border-radius:14px;
+  width:100%;
+  margin-top:26px;
+  padding:15px;
+  border:none;
+  border-radius:14px;
   background:linear-gradient(90deg,#11998e,#38ef7d);
-  color:#fff;font-size:15px;font-weight:600;cursor:pointer;
+  color:#fff;
+  font-size:15px;
+  font-weight:600;
+  cursor:pointer;
 }
+
 #status{text-align:center;margin-top:14px;font-weight:600}
 .success{color:#155724}
 .error{color:#721c24}
 small{font-size:12px;color:#666}
-footer{text-align:center;font-size:12px;color:#eee;margin-top:18px}
-@media(max-width:800px){.grid{grid-template-columns:1fr}}
+
+footer{
+  text-align:center;
+  font-size:12px;
+  color:#eee;
+  margin:18px 0;
+}
+
+@media(max-width:800px){
+  .grid{grid-template-columns:1fr}
+}
 </style>
 </head>
 
 <body>
 
-<div class="container">
-<h2>ADMIN SETTING LIBUR & CUTI</h2>
-<div class="desc">
-Halaman untuk setting limit di form-request
+<!-- LOADING -->
+<div id="loading">
+  <div class="loader-box">
+    <div class="spinner"></div>
+    <div class="loading-text">Memuat data...</div>
+  </div>
 </div>
 
-<!-- GAS -->
-<div class="box" style="margin-bottom:20px">
-<h3>🔗 GAS GOOGLE SHEET JAWABAN</h3>
-<label>URL Web App GAS</label>
-<input type="text" id="gasUrl">
+<!-- APP -->
+<div id="app" style="display:none">
+
+  <div class="container">
+    <h2>ADMIN SETTING LIBUR & CUTI</h2>
+    <div class="desc">Halaman untuk setting limit di form-request</div>
+
+    <!-- GAS -->
+    <div class="box" style="margin-bottom:20px">
+      <h3>🔗 GAS GOOGLE SHEET JAWABAN</h3>
+      <label>URL Web App GAS</label>
+      <input type="text" id="gasUrl">
+    </div>
+
+    <div class="grid">
+
+      <!-- AKTIF -->
+      <div class="box">
+        <h3>📌 Setting Aktif</h3>
+        <label>Limit Cuti/Libur Per Hari</label>
+        <input readonly id="curMaxHarian">
+        <label>Limit User pilih Libur</label>
+        <input readonly id="curMaxUser">
+        <label>Setting tanggal merah kalender</label>
+        <input readonly id="curHoliday">
+      </div>
+
+      <!-- EDIT -->
+      <div class="box">
+        <h3>✏️ Ubah Setting</h3>
+        <label>Limit Cuti/Libur Per Hari</label>
+        <input type="number" id="newMaxHarian" min="1">
+        <label>Limit User pilih Libur</label>
+        <input type="number" id="newMaxUser" min="1">
+        <label>Setting tanggal merah kalender</label>
+        <input type="text" id="holidayPicker" readonly>
+        <small>Klik tanggal untuk setting tanggal merah</small>
+      </div>
+
+    </div>
+
+    <button onclick="saveConfig()">💾 SIMPAN SETTING</button>
+    <div id="status"></div>
+  </div>
+
+  <footer>© 2025 EDP Fai</footer>
+
 </div>
-
-<div class="grid">
-
-<!-- AKTIF -->
-<div class="box">
-<h3>📌 Setting Aktif</h3>
-<label>Limit Cuti/Libur Per Hari</label>
-<input readonly id="curMaxHarian">
-<label>Limit User pilih Libur</label>
-<input readonly id="curMaxUser">
-<label>Setting tanggal merah kalender</label>
-<input readonly id="curHoliday">
-</div>
-
-<!-- EDIT -->
-<div class="box">
-<h3>✏️ Ubah Setting</h3>
-<label>Limit Cuti/Libur Per Hari</label>
-<input type="number" id="newMaxHarian" min="1">
-<label>Limit User pilih Libur</label>
-<input type="number" id="newMaxUser" min="1">
-<label>Setting tanggal merah kalender</label>
-<input type="text" id="holidayPicker" readonly>
-<small>Klik tanggal untuk setting tanggal merah</small>
-</div>
-
-</div>
-
-<button onclick="saveConfig()">💾 SIMPAN SETTING</button>
-<div id="status"></div>
-</div>
-
-<footer>© 2025 EDP Fai</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/air-datepicker@3.5.0/air-datepicker.min.js"></script>
 <script>
@@ -110,6 +179,12 @@ const MASTER_GAS_URL =
 "https://script.google.com/macros/s/AKfycby1XWMOjxdQXNqkNpKtayd0c55ZK3VkQvaZ_KSqibEUBjExlvaVUzunpfe4_HPnDX1q/exec";
 
 let holidayDates = [];
+
+/* ================= LOADING UTIL ================= */
+function showLoading(show){
+  document.getElementById("loading").style.display = show ? "flex" : "none";
+  document.getElementById("app").style.display = show ? "none" : "block";
+}
 
 /* ================= UTIL ================= */
 function status(msg, err){
@@ -129,32 +204,33 @@ function toYMD(date){
 const dp = new AirDatepicker('#holidayPicker',{
   multipleDates:true,
   dateFormat:'yyyy-MM-dd',
-
-  firstDay: 0, // ✅ MINGGU SEBAGAI HARI PERTAMA
-
+  firstDay:0,
   locale:{ 
     days:['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'],
     daysMin:['Mg','Sn','Sl','Rb','Km','Jm','Sb'],
     months:['Januari','Februari','Maret','April','Mei','Juni',
             'Juli','Agustus','September','Oktober','November','Desember']
   },
-
   onSelect({date}){
     holidayDates = (date || []).map(d => toYMD(d));
     holidayPicker.value = holidayDates.join(", ");
   }
 });
 
-
 /* ================= LOAD ================= */
 async function loadConfig(){
+  showLoading(true);
   status("⏳ Memuat...");
+
   try{
     const r = await fetch(MASTER_GAS_URL+"?mode=getMasterConfig");
     const m = await r.json();
 
     gasUrl.value = m.GAS_URL || "";
-    if(!m.GAS_URL){ status("⚠️ GAS_URL belum di-set", true); return; }
+    if(!m.GAS_URL){
+      status("⚠️ GAS_URL belum di-set", true);
+      return;
+    }
 
     const r2 = await fetch(m.GAS_URL+"?mode=config");
     const s = await r2.json();
@@ -166,7 +242,6 @@ async function loadConfig(){
     newMaxHarian.value = s.MAX_KUOTA_HARIAN ?? "";
     newMaxUser.value   = s.MAX_LIBUR_USER ?? "";
 
-    // preload calendar
     if(s.SPECIAL_HOLIDAYS){
       const arr = s.SPECIAL_HOLIDAYS.split(",");
       dp.selectDate(arr.map(x=>new Date(x)));
@@ -175,23 +250,27 @@ async function loadConfig(){
     status("✔️ Loaded");
   }catch{
     status("❌ Gagal load", true);
+  }finally{
+    showLoading(false);
   }
 }
 
 /* ================= SAVE ================= */
 async function saveConfig(){
-  if(!gasUrl.value.trim()){ status("❌ URL GAS wajib", true); return; }
+  if(!gasUrl.value.trim()){
+    status("❌ URL GAS wajib", true);
+    return;
+  }
 
+  showLoading(true);
   status("⏳ Menyimpan...");
 
   try{
-    // save master
     const fd1=new FormData();
     fd1.append("mode","saveMasterConfig");
     fd1.append("GAS_URL",gasUrl.value.trim());
     await fetch(MASTER_GAS_URL,{method:"POST",body:fd1});
 
-    // save config
     const fd2=new FormData();
     fd2.append("mode","saveConfig");
     fd2.append("MAX_KUOTA_HARIAN",newMaxHarian.value);
@@ -203,6 +282,7 @@ async function saveConfig(){
     loadConfig();
   }catch{
     status("❌ Gagal simpan", true);
+    showLoading(false);
   }
 }
 
@@ -211,5 +291,3 @@ loadConfig();
 
 </body>
 </html>
-
-
