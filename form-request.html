@@ -6,7 +6,6 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/air-datepicker@3.5.0/air-datepicker.min.css">
 
 <style>
-/* ====== STYLE (TIDAK DIUBAH) ====== */
 body{
   font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
   margin:0;min-height:100vh;
@@ -78,14 +77,11 @@ button{
 
 <script src="https://cdn.jsdelivr.net/npm/air-datepicker@3.5.0/air-datepicker.min.js"></script>
 <script>
-/* ======================================================
-   CONFIG MASTER (GANTI 1x SAJA)
-====================================================== */
-const CONFIG_SERVICE_URL = "https://script.google.com/macros/s/AKfycbyb737h9OZcfucP0W9t4ea7FyLUkrZ-QVNiR3PRatRW8jKpTU2sjmUb7BPuwfPyDlJB/exec";
+/* ================= CONFIG ================= */
+const CONFIG_SERVICE_URL =
+"https://script.google.com/macros/s/AKfycbyb737h9OZcfucP0W9t4ea7FyLUkrZ-QVNiR3PRatRW8jKpTU2sjmUb7BPuwfPyDlJB/exec";
 
-/* ======================================================
-   GLOBAL VAR
-====================================================== */
+/* ================= GLOBAL ================= */
 let GAS_URL = "";
 let MAX_KUOTA_HARIAN = 0;
 let MAX_LIBUR_USER  = 0;
@@ -93,9 +89,7 @@ let MAX_LIBUR_USER  = 0;
 let lastLiburRaw = "";
 let lastCutiRaw  = "";
 
-/* ======================================================
-   LOAD CONFIG
-====================================================== */
+/* ================= LOAD CONFIG ================= */
 async function loadConfig(){
   const r1 = await fetch(CONFIG_SERVICE_URL + "?mode=gasurl");
   const j1 = await r1.json();
@@ -107,42 +101,57 @@ async function loadConfig(){
   MAX_LIBUR_USER  = Number(c.MAX_LIBUR_USER);
 }
 
-/* ======================================================
-   HELPERS
-====================================================== */
+/* ================= HELPERS ================= */
 const qs = new URLSearchParams(location.search);
 nik.value   = qs.get("nik")||"";
 nama.value  = qs.get("nama")||"";
 group.value = qs.get("group")||"";
 
-const monthNames=["JAN","FEB","MAR","APR","MEI","JUN","JUL","AGS","SEP","OKT","NOV","DES"];
-
 function parseDays(s){
   return (s||"").split(",").map(x=>Number(x)).filter(n=>n>=1&&n<=31);
 }
 function daysToDates(arr){
-  const n=new Date();const m=new Date(n.getFullYear(),n.getMonth()+1,1);
+  const n=new Date();
+  const m=new Date(n.getFullYear(),n.getMonth()+1,1);
   return arr.map(d=>new Date(m.getFullYear(),m.getMonth(),d));
 }
 
-/* ======================================================
-   DATEPICKER
-====================================================== */
-function initPicker(id,full,raw){
-  const el=document.getElementById(id);
+/* ================= DATEPICKER ================= */
+function initPicker(id, full, raw){
+  const el = document.getElementById(id);
   if(el._adp) el._adp.destroy();
 
-  el._adp=new AirDatepicker(el,{
-    multipleDates:id==="libur"?MAX_LIBUR_USER:true,
-    dateFormat:"d",
-    selectedDates:daysToDates(parseDays(raw)),
-    disabledDates:daysToDates(full||[])
+  el._adp = new AirDatepicker(el,{
+    multipleDates: id === "libur" ? MAX_LIBUR_USER : true,
+    dateFormat: "d",
+
+    firstDay: 1, // Monday
+
+    locale: {
+      days: [
+        "Sunday","Monday","Tuesday","Wednesday",
+        "Thursday","Friday","Saturday"
+      ],
+      daysShort: [
+        "Sun","Mon","Tue","Wed","Thu","Fri","Sat"
+      ],
+      daysMin: ["Su","Mo","Tu","We","Th","Fr","Sa"],
+      months: [
+        "January","February","March","April","May","June",
+        "July","August","September","October","November","December"
+      ],
+      monthsShort: [
+        "Jan","Feb","Mar","Apr","May","Jun",
+        "Jul","Aug","Sep","Oct","Nov","Dec"
+      ]
+    },
+
+    selectedDates: daysToDates(parseDays(raw)),
+    disabledDates: daysToDates(full || [])
   });
 }
 
-/* ======================================================
-   BOOT
-====================================================== */
+/* ================= BOOT ================= */
 (async()=>{
   try{
     await loadConfig();
@@ -161,8 +170,8 @@ function initPicker(id,full,raw){
     const r = await fetch(GAS_URL);
     const fullDays = await r.json();
 
-    initPicker("libur",fullDays,lastLiburRaw);
-    initPicker("cuti",fullDays,lastCutiRaw);
+    initPicker("libur", fullDays, lastLiburRaw);
+    initPicker("cuti",  fullDays, lastCutiRaw);
 
     loading.style.display="none";
     requestForm.style.display="block";
@@ -171,29 +180,33 @@ function initPicker(id,full,raw){
   }
 })();
 
-/* ======================================================
-   SUBMIT
-====================================================== */
-requestForm.addEventListener("submit",async e=>{
+/* ================= SUBMIT ================= */
+requestForm.addEventListener("submit", async e=>{
   e.preventDefault();
   status.textContent="⏳ Mengirim...";
 
-  if(parseDays(libur.value).length>MAX_LIBUR_USER){
+  if(parseDays(libur.value).length > MAX_LIBUR_USER){
     status.textContent=`❌ Maks ${MAX_LIBUR_USER} tanggal libur`;
-    status.className="error";return;
+    status.className="error";
+    return;
   }
 
   const fd=new FormData(requestForm);
   fd.append("return","json");
 
-  const r=await fetch(GAS_URL,{method:"POST",body:fd});
-  const j=await r.json();
+  try{
+    const r=await fetch(GAS_URL,{method:"POST",body:fd});
+    const j=await r.json();
 
-  if(j.status==="success"){
-    status.textContent="✅ "+j.message;
-    status.className="success";
-  }else{
-    status.textContent="❌ "+j.message;
+    if(j.status==="success"){
+      status.textContent="✅ "+j.message;
+      status.className="success";
+    }else{
+      status.textContent="❌ "+j.message;
+      status.className="error";
+    }
+  }catch(err){
+    status.textContent="❌ Gagal mengirim data";
     status.className="error";
   }
 });
