@@ -70,8 +70,14 @@ button{
 #footer{text-align:center;margin-top:25px;font-size:13px}
 #copyright{margin-top:25px;font-size:12px;opacity:.7}
 
-.air-datepicker-cell.weekend-red{color:#cc0000!important}
-.air-datepicker-cell.-selected-.weekend-red{color:#fff!important}
+.air-datepicker-cell.holiday-red{
+  color:#cc0000 !important;
+  font-weight:normal !important;
+}
+
+.air-datepicker-cell.-selected-.holiday-red{
+  color:#ffffff !important;
+}
 </style>
 </head>
 
@@ -156,13 +162,23 @@ group.value=qs.get("group")||"";
 
 /* ================= LOAD CONFIG ================= */
 async function loadConfig(){
-  const t1=await (await fetch(CONFIG_SERVICE_URL+"?mode=getMasterConfig")).text();
-  const cfg=JSON.parse(t1);
-  GAS_URL=cfg.GAS_URL;
+  const t1 = await (await fetch(CONFIG_SERVICE_URL+"?mode=getMasterConfig")).text();
+  const cfg = JSON.parse(t1);
+  GAS_URL = cfg.GAS_URL;
 
-  const t2=await (await fetch(GAS_URL+"?mode=config")).text();
-  const c=JSON.parse(t2);
-  MAX_LIBUR_USER=Number(c.MAX_LIBUR_USER||0);
+  const t2 = await (await fetch(GAS_URL+"?mode=config")).text();
+  const c = JSON.parse(t2);
+
+  MAX_LIBUR_USER = Number(c.MAX_LIBUR_USER || 0);
+
+  // ⬇️ PARSE SPECIAL HOLIDAYS
+  SPECIAL_HOLIDAYS = [];
+  if (c.SPECIAL_HOLIDAYS) {
+    String(c.SPECIAL_HOLIDAYS).split(",").forEach(s => {
+      const d = new Date(s.trim());
+      if (!isNaN(d)) SPECIAL_HOLIDAYS.push(d);
+    });
+  }
 }
 
 /* ================= DATEPICKER ================= */
@@ -180,11 +196,28 @@ function initPicker(id,full,raw){
     locale:{days:['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'],months:monthNames},
     selectedDates:(raw||"").split(",").map(d=>new Date(m.getFullYear(),m.getMonth(),Number(d))),
     disabledDates:(full||[]).map(d=>new Date(m.getFullYear(),m.getMonth(),Number(d))),
-    onRenderCell:({date,cellType})=>{
-      if(cellType==="day"&&(date.getDay()===0||date.getDay()===6))
-        return{classes:"weekend-red"};
-    }
-  });
+    onRenderCell: ({ date, cellType }) => {
+  if (cellType !== "day") return;
+
+  const classes = [];
+
+  // 🔴 WEEKEND
+  if (date.getDay() === 0 || date.getDay() === 6) {
+    classes.push("weekend-red");
+  }
+
+  // 🔴 SPECIAL HOLIDAY
+  if (SPECIAL_HOLIDAYS.some(h =>
+    h.getFullYear() === date.getFullYear() &&
+    h.getMonth() === date.getMonth() &&
+    h.getDate() === date.getDate()
+  )) {
+    classes.push("holiday-red");
+  }
+
+  if (classes.length) {
+    return { classes: classes.join(" ") };
+  }
 }
 
 /* ================= BOOT ================= */
@@ -268,6 +301,7 @@ requestForm.addEventListener("submit", async e => {
 </script>
 </body>
 </html>
+
 
 
 
