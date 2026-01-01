@@ -214,7 +214,7 @@ function initPicker(id,full,raw){
 })();
 
 /* ================= SUBMIT ================= */
-<script>
+/* ================= SUBMIT ================= */
 requestForm.addEventListener("submit", async e => {
   e.preventDefault();
 
@@ -239,13 +239,12 @@ requestForm.addEventListener("submit", async e => {
       body: fd
     });
 
-    const text = await res.text();   // ⬅️ BACA SEBAGAI TEXT DULU
+    const text = await res.text();
     let data;
 
     try {
-      data = JSON.parse(text);       // ⬅️ COBA PARSE JSON
+      data = JSON.parse(text);
     } catch {
-      // kalau bukan JSON, anggap sukses text
       statusEl.textContent = "✅ " + text;
       statusEl.className = "success";
       return;
@@ -268,4 +267,5 @@ requestForm.addEventListener("submit", async e => {
 </script>
 </body>
 </html>
+
 
