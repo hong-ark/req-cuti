@@ -214,27 +214,58 @@ function initPicker(id,full,raw){
 })();
 
 /* ================= SUBMIT ================= */
-requestForm.addEventListener("submit",async e=>{
+<script>
+requestForm.addEventListener("submit", async e => {
   e.preventDefault();
-  status.textContent="⏳ Mengirim...";
 
-  if((libur.value||"").split(",").length>MAX_LIBUR_USER){
-    status.textContent=`❌ Maks ${MAX_LIBUR_USER} tanggal libur`;
-    status.className="error";return;
+  const statusEl = document.getElementById("status");
+  statusEl.textContent = "⏳ Mengirim...";
+  statusEl.className = "";
+
+  // validasi jumlah libur
+  const liburCount = (libur.value || "").split(",").filter(Boolean).length;
+  if (liburCount > MAX_LIBUR_USER) {
+    statusEl.textContent = `❌ Maksimal ${MAX_LIBUR_USER} tanggal libur`;
+    statusEl.className = "error";
+    return;
   }
 
-  const fd=new FormData(requestForm);
-  fd.append("return","json");
+  const fd = new FormData(requestForm);
+  fd.append("return", "json");
 
-  try{
-    const j=await (await fetch(GAS_URL,{method:"POST",body:fd})).json();
-    status.textContent=j.status==="success"?"✅ "+j.message:"❌ "+j.message;
-    status.className=j.status==="success"?"success":"error";
-  }catch{
-    status.textContent="❌ Gagal mengirim data";
-    status.className="error";
+  try {
+    const res = await fetch(GAS_URL, {
+      method: "POST",
+      body: fd
+    });
+
+    const text = await res.text();   // ⬅️ BACA SEBAGAI TEXT DULU
+    let data;
+
+    try {
+      data = JSON.parse(text);       // ⬅️ COBA PARSE JSON
+    } catch {
+      // kalau bukan JSON, anggap sukses text
+      statusEl.textContent = "✅ " + text;
+      statusEl.className = "success";
+      return;
+    }
+
+    if (data.status === "success") {
+      statusEl.textContent = "✅ " + (data.message || "Data berhasil disimpan");
+      statusEl.className = "success";
+    } else {
+      statusEl.textContent = "❌ " + (data.message || "Gagal menyimpan data");
+      statusEl.className = "error";
+    }
+
+  } catch (err) {
+    statusEl.textContent = "❌ Gagal mengirim data (cek koneksi / GAS)";
+    statusEl.className = "error";
+    console.error(err);
   }
 });
 </script>
 </body>
 </html>
+
