@@ -3,42 +3,122 @@
 <head>
 <meta charset="UTF-8">
 <title id="page-title">REQUEST LIBUR / CUTI</title>
+
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/air-datepicker@3.5.0/air-datepicker.min.css">
 
 <style>
 body{
   font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
-  margin:0;min-height:100vh;
-  display:flex;justify-content:center;align-items:center;
+  margin:0;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
   background:linear-gradient(135deg,#74ebd5,#ACB6E5);
   padding:20px;
 }
+
 .container{
-  background:#fff;padding:35px 30px 50px;border-radius:20px;
+  background:#fff;
+  padding:35px 30px 50px;
+  border-radius:20px;
   box-shadow:0 12px 35px rgba(0,0,0,0.15);
-  width:480px;max-width:100%;
+  width:480px;
+  max-width:100%;
+  animation:fadeIn .6s ease-in-out;
 }
-h2{text-align:center;font-size:24px;font-weight:700}
-label{display:block;margin-bottom:6px;font-weight:600}
+
+h2{
+  text-align:center;
+  margin-bottom:10px;
+  font-size:24px;
+  font-weight:700;
+  background:linear-gradient(90deg,#4e54c8,#8f94fb);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+
+#info-text{
+  font-size:14px;
+  color:#333;
+  text-align:center;
+  margin-bottom:20px;
+  padding:12px 15px;
+  border-radius:12px;
+  background:#f0f4ff;
+  border:1px solid #c5d0ff;
+  font-weight:600;
+}
+
+label{font-weight:600;font-size:14px}
 input,select{
-  width:100%;padding:12px;border-radius:10px;border:1px solid #ddd;
-  margin-bottom:14px
+  width:100%;
+  padding:12px 14px;
+  border-radius:10px;
+  border:1px solid #ddd;
+  margin-bottom:14px;
 }
 input[readonly]{background:#f3f3f3}
+
 button{
-  width:100%;padding:14px;border:none;border-radius:12px;
-  background:#38ef7d;font-weight:700;cursor:pointer
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:12px;
+  background:linear-gradient(90deg,#11998e,#38ef7d);
+  color:#fff;
+  font-weight:700;
+  cursor:pointer;
 }
-#status{text-align:center;margin-top:10px}
+
+#status{
+  margin-top:15px;
+  text-align:center;
+  font-weight:600;
+}
 .success{color:#155724}
 .error{color:#721c24}
-#loading{text-align:center;font-weight:600}
+
+#footer{
+  font-size:13px;
+  color:#444;
+  text-align:center;
+  margin-top:25px;
+}
+#countdown{margin-top:6px;font-weight:600}
+
+#copyright{
+  margin-top:25px;
+  font-size:12px;
+  opacity:.7;
+}
+
+#loading{
+  text-align:center;
+  font-weight:600;
+}
+
+@keyframes fadeIn{
+  from{opacity:0;transform:translateY(-10px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* tanggal merah */
+.air-datepicker-cell.weekend-red{color:#cc0000 !important}
+.air-datepicker-cell.-selected-.weekend-red{color:#fff !important}
 </style>
 </head>
 
 <body>
+
 <div class="container">
   <h2 id="header-text">REQUEST LIBUR / CUTI</h2>
+
+  <div id="info-text">
+    Silakan request jadwal sesuai keperluan.<br>
+    Data bisa diubah selama periode masih dibuka.
+  </div>
 
   <div id="loading">⏳ Memuat data...</div>
 
@@ -70,84 +150,82 @@ button{
       <option>TIDAK MENGIKUTI</option>
     </select>
 
-    <button type="submit">KIRIM</button>
+    <button type="submit">KIRIM REQUEST</button>
     <div id="status"></div>
+
+    <div id="footer">
+      <div id="footer-note"></div>
+      <div id="countdown"></div>
+    </div>
   </form>
 </div>
 
+<footer id="copyright">© 2025 EDP Fai</footer>
+
 <script src="https://cdn.jsdelivr.net/npm/air-datepicker@3.5.0/air-datepicker.min.js"></script>
 <script>
-/* ================= CONFIG ================= */
+/* ================= MASTER CONFIG ================= */
 const CONFIG_SERVICE_URL =
 "https://script.google.com/macros/s/AKfycbyb737h9OZcfucP0W9t4ea7FyLUkrZ-QVNiR3PRatRW8jKpTU2sjmUb7BPuwfPyDlJB/exec";
 
 /* ================= GLOBAL ================= */
-let GAS_URL = "";
-let MAX_KUOTA_HARIAN = 0;
-let MAX_LIBUR_USER  = 0;
+let GAS_URL="",MAX_LIBUR_USER=0;
 
-let lastLiburRaw = "";
-let lastCutiRaw  = "";
+/* ================= HEADER ================= */
+const monthNames=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+(function(){
+  const d=new Date();
+  const m=new Date(d.getFullYear(),d.getMonth()+1,1);
+  const t=`REQUEST LIBUR / CUTI BULAN ${monthNames[m.getMonth()].toUpperCase()}`;
+  header-text.textContent=t;
+  page-title.textContent=t;
+})();
+
+/* ================= URL PARAM ================= */
+const qs=new URLSearchParams(location.search);
+nik.value=qs.get("nik")||"";
+nama.value=qs.get("nama")||"";
+group.value=qs.get("group")||"";
 
 /* ================= LOAD CONFIG ================= */
 async function loadConfig(){
-  const r1 = await fetch(CONFIG_SERVICE_URL + "?mode=gasurl");
-  const j1 = await r1.json();
-  GAS_URL = j1.GAS_URL;
+  const r1=await fetch(CONFIG_SERVICE_URL+"?mode=gasurl");
+  const j1=await r1.json();
+  GAS_URL=j1.GAS_URL;
 
-  const r2 = await fetch(GAS_URL + "?mode=config");
-  const c  = await r2.json();
-  MAX_KUOTA_HARIAN = Number(c.MAX_KUOTA_HARIAN);
-  MAX_LIBUR_USER  = Number(c.MAX_LIBUR_USER);
+  const r2=await fetch(GAS_URL+"?mode=config");
+  const c=await r2.json();
+  MAX_LIBUR_USER=Number(c.MAX_LIBUR_USER||0);
 }
 
 /* ================= HELPERS ================= */
-const qs = new URLSearchParams(location.search);
-nik.value   = qs.get("nik")||"";
-nama.value  = qs.get("nama")||"";
-group.value = qs.get("group")||"";
-
-function parseDays(s){
-  return (s||"").split(",").map(x=>Number(x)).filter(n=>n>=1&&n<=31);
-}
+function parseDays(s){return (s||"").split(",").map(Number).filter(n=>n>=1&&n<=31)}
 function daysToDates(arr){
-  const n=new Date();
-  const m=new Date(n.getFullYear(),n.getMonth()+1,1);
+  const n=new Date(),m=new Date(n.getFullYear(),n.getMonth()+1,1);
   return arr.map(d=>new Date(m.getFullYear(),m.getMonth(),d));
 }
 
 /* ================= DATEPICKER ================= */
-function initPicker(id, full, raw){
-  const el = document.getElementById(id);
+function initPicker(id,full,raw){
+  const el=document.getElementById(id);
   if(el._adp) el._adp.destroy();
 
-  el._adp = new AirDatepicker(el,{
-    multipleDates: id === "libur" ? MAX_LIBUR_USER : true,
-    dateFormat: "d",
-
-    firstDay: 1, // Monday
-
-    locale: {
-      days: [
-        "Sunday","Monday","Tuesday","Wednesday",
-        "Thursday","Friday","Saturday"
-      ],
-      daysShort: [
-        "Sun","Mon","Tue","Wed","Thu","Fri","Sat"
-      ],
-      daysMin: ["Su","Mo","Tu","We","Th","Fr","Sa"],
-      months: [
-        "January","February","March","April","May","June",
-        "July","August","September","October","November","December"
-      ],
-      monthsShort: [
-        "Jan","Feb","Mar","Apr","May","Jun",
-        "Jul","Aug","Sep","Oct","Nov","Dec"
-      ]
+  el._adp=new AirDatepicker(el,{
+    multipleDates:id==="libur"?MAX_LIBUR_USER:true,
+    dateFormat:"d",
+    firstDay:0,
+    locale:{
+      days:['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'],
+      daysShort:['Min','Sen','Sel','Rab','Kam','Jum','Sab'],
+      daysMin:['Mg','Sn','Sl','Rb','Km','Jm','Sb'],
+      months:monthNames
     },
-
-    selectedDates: daysToDates(parseDays(raw)),
-    disabledDates: daysToDates(full || [])
+    selectedDates:daysToDates(parseDays(raw)),
+    disabledDates:daysToDates(full||[]),
+    onRenderCell:({date,cellType})=>{
+      if(cellType==="day" && (date.getDay()===0||date.getDay()===6))
+        return{classes:"weekend-red"}
+    }
   });
 }
 
@@ -156,22 +234,22 @@ function initPicker(id, full, raw){
   try{
     await loadConfig();
 
-    const u = await fetch(`${GAS_URL}?nik=${nik.value}`);
-    const d = await u.json();
+    const u=await fetch(`${GAS_URL}?nik=${nik.value}`);
+    const d=await u.json();
+
+    let libRaw="",cutRaw="";
     if(d.status==="found"){
-      lastLiburRaw=d.libur||"";
-      lastCutiRaw=d.cuti||"";
-      libur.value=lastLiburRaw;
-      cuti.value=lastCutiRaw;
+      libRaw=d.libur||""; cutRaw=d.cuti||"";
+      libur.value=libRaw; cuti.value=cutRaw;
       requestLainnya.value=d.requestLainnya||"";
       ekstrakulikuler.value=d.ekstrakulikuler||"";
     }
 
-    const r = await fetch(GAS_URL);
-    const fullDays = await r.json();
+    const r=await fetch(GAS_URL);
+    const full=await r.json();
 
-    initPicker("libur", fullDays, lastLiburRaw);
-    initPicker("cuti",  fullDays, lastCutiRaw);
+    initPicker("libur",full,libRaw);
+    initPicker("cuti",full,cutRaw);
 
     loading.style.display="none";
     requestForm.style.display="block";
@@ -181,14 +259,13 @@ function initPicker(id, full, raw){
 })();
 
 /* ================= SUBMIT ================= */
-requestForm.addEventListener("submit", async e=>{
+requestForm.addEventListener("submit",async e=>{
   e.preventDefault();
   status.textContent="⏳ Mengirim...";
 
-  if(parseDays(libur.value).length > MAX_LIBUR_USER){
-    status.textContent=`❌ Maks ${MAX_LIBUR_USER} tanggal libur`;
-    status.className="error";
-    return;
+  if(parseDays(libur.value).length>MAX_LIBUR_USER){
+    status.textContent=`❌ Maks ${MAX_LIBUR_USER} hari libur`;
+    status.className="error"; return;
   }
 
   const fd=new FormData(requestForm);
@@ -197,15 +274,9 @@ requestForm.addEventListener("submit", async e=>{
   try{
     const r=await fetch(GAS_URL,{method:"POST",body:fd});
     const j=await r.json();
-
-    if(j.status==="success"){
-      status.textContent="✅ "+j.message;
-      status.className="success";
-    }else{
-      status.textContent="❌ "+j.message;
-      status.className="error";
-    }
-  }catch(err){
+    status.textContent=j.status==="success"?"✅ "+j.message:"❌ "+j.message;
+    status.className=j.status==="success"?"success":"error";
+  }catch{
     status.textContent="❌ Gagal mengirim data";
     status.className="error";
   }
