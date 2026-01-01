@@ -153,23 +153,34 @@ let SPECIAL_HOLIDAYS = [];
 
 const monthNames=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
 
+<script>
 /* ================= HEADER ================= */
 (function(){
   const now = new Date();
   const next = new Date(now.getFullYear(), now.getMonth() + 1, 1);
   const m = monthNames[next.getMonth()].toUpperCase();
 
-  document.getElementById("header-text").textContent =
-    `REQUEST LIBUR / CUTI BULAN ${m}`;
+  const headerEl = document.getElementById("header-text");
+  const titleEl  = document.getElementById("page-title");
+  const footerEl = document.getElementById("footer-note");
 
-  document.getElementById("page-title").textContent =
-    `REQUEST LIBUR / CUTI BULAN ${m}`;
+  if (headerEl) {
+    headerEl.textContent = `REQUEST LIBUR / CUTI BULAN ${m}`;
+  }
 
-  document.getElementById("footer-note").innerHTML =
-    `Kuota libur bulan <b>${m}</b>.<br>
-     8 jika tidak lembur, lembur = 9.<br>
-     Jika kuota hari penuh tidak bisa direquest.`;
+  if (titleEl) {
+    titleEl.textContent = `REQUEST LIBUR / CUTI BULAN ${m}`;
+  }
+
+  if (footerEl) {
+    footerEl.innerHTML =
+      `Kuota libur bulan <b>${m}</b>.<br>
+       8 jika tidak lembur, lembur = 9.<br>
+       Jika kuota hari penuh tidak bisa direquest.`;
+  }
 })();
+</script>
+
 /* ================= PARAM ================= */
 const qs=new URLSearchParams(location.search);
 nik.value=qs.get("nik")||"";
@@ -276,4 +287,5 @@ requestForm.addEventListener("submit",async e=>{
 </script>
 </body>
 </html>
+
 
