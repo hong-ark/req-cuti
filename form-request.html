@@ -23,57 +23,66 @@ body{
   padding:35px 30px 50px;
   border-radius:20px;
   box-shadow:0 12px 35px rgba(0,0,0,0.15);
-  width:480px;max-width:100%;
-  animation:fadeIn .6s ease-in-out;
+  width:480px;
+  max-width:100%;
 }
 h2{
-  text-align:center;margin-bottom:10px;font-size:24px;font-weight:700;
+  text-align:center;
+  font-size:24px;
+  font-weight:700;
   background:linear-gradient(90deg,#4e54c8,#8f94fb);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
 }
 #info-text{
-  font-size:14px;color:#333;text-align:center;margin-bottom:20px;
-  padding:12px 15px;border-radius:12px;
-  background:#f0f4ff;border:1px solid #c5d0ff;
+  font-size:14px;
+  color:#333;
+  text-align:center;
+  margin-bottom:20px;
+  padding:12px 15px;
+  border-radius:12px;
+  background:#f0f4ff;
+  border:1px solid #c5d0ff;
   font-weight:600;
 }
-label{display:block;margin-bottom:6px;font-weight:600}
+label{font-weight:600}
 input,select{
-  width:100%;padding:12px 14px;border-radius:10px;
-  border:1px solid #ddd;margin-bottom:16px;
+  width:100%;
+  padding:12px 14px;
+  border-radius:10px;
+  border:1px solid #ddd;
+  margin-bottom:14px;
 }
 input[readonly]{background:#f3f3f3}
 button{
-  width:100%;padding:14px;border:none;border-radius:12px;
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:12px;
   background:linear-gradient(90deg,#11998e,#38ef7d);
-  color:#fff;font-weight:700;cursor:pointer;
+  color:#fff;
+  font-weight:700;
 }
-#status{margin-top:15px;text-align:center;font-weight:600}
+#loading{text-align:center;font-weight:600}
+#status{margin-top:12px;text-align:center;font-weight:600}
 .success{color:#155724;background:#d4edda;padding:6px;border-radius:8px}
 .error{color:#721c24;background:#f8d7da;padding:6px;border-radius:8px}
-#footer{font-size:13px;color:#444;text-align:center;margin-top:25px}
-#countdown{margin-top:6px;font-weight:600}
+#footer{text-align:center;margin-top:25px;font-size:13px}
 #copyright{margin-top:25px;font-size:12px;opacity:.7}
-#loading{text-align:center;font-weight:600}
 
 .air-datepicker-cell.weekend-red{color:#cc0000!important}
 .air-datepicker-cell.-selected-.weekend-red{color:#fff!important}
-
-@keyframes fadeIn{
-  from{opacity:0;transform:translateY(-15px)}
-  to{opacity:1;transform:translateY(0)}
-}
 </style>
 </head>
 
 <body>
 
 <div class="container">
-  <h2 id="header-text">REQUEST LIBUR / CUTI</h2>
+  <h2 id="header-text"></h2>
 
   <div id="info-text">
-    Silakan Request Jadwal sesuai keperluan saja.<br>
-    Inputan bisa direvisi / diganti berulang kali. Gunakan dengan bijak!
+    Silakan request jadwal sesuai keperluan.<br>
+    Data bisa direvisi selama periode masih dibuka.
   </div>
 
   <div id="loading">⏳ Memuat data...</div>
@@ -120,62 +129,42 @@ button{
 
 <script src="https://cdn.jsdelivr.net/npm/air-datepicker@3.5.0/air-datepicker.min.js"></script>
 <script>
-/* ================= MASTER CONFIG ================= */
+/* ================= CONFIG ================= */
 const CONFIG_SERVICE_URL =
 "https://script.google.com/macros/s/AKfycbyGidWkOpl1la4eGccP6TGvrYMueSa0r0HNQai22tCTl3_IPjFScd3EE0c6u3zeDfGf/exec";
 
 let GAS_URL="", MAX_LIBUR_USER=0;
 const monthNames=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
 
-/* HEADER DINAMIS */
-(()=>{
-  const d=new Date();
-  const n=new Date(d.getFullYear(),d.getMonth()+1,1);
-  const m=monthNames[n.getMonth()].toUpperCase();
-  header-text.textContent=`REQUEST LIBUR / CUTI BULAN ${m}`;
-  page-title.textContent=`REQUEST LIBUR / CUTI BULAN ${m}`;
-  footer-note.innerHTML=`Kuota libur bulan <b>${m}</b>.<br>Tanggal penuh tidak bisa direquest.`;
+/* ================= HEADER ================= */
+(function(){
+  const now=new Date();
+  const next=new Date(now.getFullYear(),now.getMonth()+1,1);
+  const m=monthNames[next.getMonth()].toUpperCase();
+  document.getElementById("header-text").textContent=`REQUEST LIBUR / CUTI BULAN ${m}`;
+  document.getElementById("page-title").textContent=`REQUEST LIBUR / CUTI BULAN ${m}`;
+  document.getElementById("footer-note").innerHTML=
+    `Kuota libur bulan <b>${m}</b>.<br>Tanggal penuh tidak bisa direquest.`;
 })();
 
-/* PARAM URL */
+/* ================= PARAM ================= */
 const qs=new URLSearchParams(location.search);
 nik.value=qs.get("nik")||"";
 nama.value=qs.get("nama")||"";
 group.value=qs.get("group")||"";
 
-/* LOAD CONFIG */
+/* ================= LOAD CONFIG ================= */
 async function loadConfig(){
-  const r1 = await fetch(CONFIG_SERVICE_URL + "?mode=getMasterConfig");
-  const t1 = await r1.text();
+  const t1=await (await fetch(CONFIG_SERVICE_URL+"?mode=getMasterConfig")).text();
+  const cfg=JSON.parse(t1);
+  GAS_URL=cfg.GAS_URL;
 
-  let j1;
-  try {
-    j1 = JSON.parse(t1);
-  } catch {
-    throw new Error("Master config bukan JSON: " + t1);
-  }
-
-  if (!j1.GAS_URL) {
-    throw new Error("GAS_URL tidak ditemukan di master config");
-  }
-
-  GAS_URL = j1.GAS_URL;
-
-  const r2 = await fetch(GAS_URL + "?mode=config");
-  const t2 = await r2.text();
-
-  let c;
-  try {
-    c = JSON.parse(t2);
-  } catch {
-    throw new Error("Config GAS jawaban bukan JSON: " + t2);
-  }
-
-  MAX_LIBUR_USER = Number(c.MAX_LIBUR_USER || 0);
+  const t2=await (await fetch(GAS_URL+"?mode=config")).text();
+  const c=JSON.parse(t2);
+  MAX_LIBUR_USER=Number(c.MAX_LIBUR_USER||0);
 }
 
-
-/* DATEPICKER */
+/* ================= DATEPICKER ================= */
 function initPicker(id,full,raw){
   const el=document.getElementById(id);
   if(el._adp) el._adp.destroy();
@@ -187,10 +176,7 @@ function initPicker(id,full,raw){
     multipleDates:id==="libur"?MAX_LIBUR_USER:true,
     dateFormat:"d",
     firstDay:0,
-    locale:{
-      days:['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'],
-      months:monthNames
-    },
+    locale:{days:['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'],months:monthNames},
     selectedDates:(raw||"").split(",").map(d=>new Date(m.getFullYear(),m.getMonth(),Number(d))),
     disabledDates:(full||[]).map(d=>new Date(m.getFullYear(),m.getMonth(),Number(d))),
     onRenderCell:({date,cellType})=>{
@@ -200,13 +186,14 @@ function initPicker(id,full,raw){
   });
 }
 
-/* BOOT */
+/* ================= BOOT ================= */
 (async()=>{
   try{
     await loadConfig();
 
     const u=await fetch(`${GAS_URL}?nik=${nik.value}`);
     const d=await u.json();
+
     let l="",c="";
     if(d.status==="found"){
       l=d.libur||""; c=d.cuti||"";
@@ -215,9 +202,7 @@ function initPicker(id,full,raw){
       ekstrakulikuler.value=d.ekstrakulikuler||"";
     }
 
-    const r=await fetch(GAS_URL);
-    const full=await r.json();
-
+    const full=await (await fetch(GAS_URL)).json();
     initPicker("libur",full,l);
     initPicker("cuti",full,c);
 
@@ -228,7 +213,7 @@ function initPicker(id,full,raw){
   }
 })();
 
-/* SUBMIT */
+/* ================= SUBMIT ================= */
 requestForm.addEventListener("submit",async e=>{
   e.preventDefault();
   status.textContent="⏳ Mengirim...";
@@ -242,8 +227,7 @@ requestForm.addEventListener("submit",async e=>{
   fd.append("return","json");
 
   try{
-    const r=await fetch(GAS_URL,{method:"POST",body:fd});
-    const j=await r.json();
+    const j=await (await fetch(GAS_URL,{method:"POST",body:fd})).json();
     status.textContent=j.status==="success"?"✅ "+j.message:"❌ "+j.message;
     status.className=j.status==="success"?"success":"error";
   }catch{
@@ -254,4 +238,3 @@ requestForm.addEventListener("submit",async e=>{
 </script>
 </body>
 </html>
-
