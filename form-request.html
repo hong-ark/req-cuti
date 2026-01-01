@@ -155,16 +155,21 @@ const monthNames=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agus
 
 /* ================= HEADER ================= */
 (function(){
-  const now=new Date();
-  const next=new Date(now.getFullYear(),now.getMonth()+1,1);
-  const m=monthNames[next.getMonth()].toUpperCase();
-  header-text.textContent=`REQUEST LIBUR / CUTI BULAN ${m}`;
-  page-title.textContent=`REQUEST LIBUR / CUTI BULAN ${m}`;
-  footer-note.innerHTML=
-    `Kuota libur bulan <b>${m}</b>.<br>8 jika tidak lembur, lembur = 9.<br>
+  const now = new Date();
+  const next = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+  const m = monthNames[next.getMonth()].toUpperCase();
+
+  document.getElementById("header-text").textContent =
+    `REQUEST LIBUR / CUTI BULAN ${m}`;
+
+  document.getElementById("page-title").textContent =
+    `REQUEST LIBUR / CUTI BULAN ${m}`;
+
+  document.getElementById("footer-note").innerHTML =
+    `Kuota libur bulan <b>${m}</b>.<br>
+     8 jika tidak lembur, lembur = 9.<br>
      Jika kuota hari penuh tidak bisa direquest.`;
 })();
-
 /* ================= PARAM ================= */
 const qs=new URLSearchParams(location.search);
 nik.value=qs.get("nik")||"";
@@ -271,3 +276,4 @@ requestForm.addEventListener("submit",async e=>{
 </script>
 </body>
 </html>
+
