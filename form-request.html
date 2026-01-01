@@ -104,7 +104,7 @@ button{
   to{opacity:1;transform:translateY(0)}
 }
 
-/* tanggal merah */
+/* weekend merah */
 .air-datepicker-cell.weekend-red{color:#cc0000 !important}
 .air-datepicker-cell.-selected-.weekend-red{color:#fff !important}
 </style>
@@ -163,13 +163,15 @@ button{
 <footer id="copyright">© 2025 EDP Fai</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/air-datepicker@3.5.0/air-datepicker.min.js"></script>
+
 <script>
 /* ================= MASTER CONFIG ================= */
 const CONFIG_SERVICE_URL =
 "https://script.google.com/macros/s/AKfycbyb737h9OZcfucP0W9t4ea7FyLUkrZ-QVNiR3PRatRW8jKpTU2sjmUb7BPuwfPyDlJB/exec";
 
 /* ================= GLOBAL ================= */
-let GAS_URL="",MAX_LIBUR_USER=0;
+let GAS_URL = "";
+let MAX_LIBUR_USER = 0;
 
 /* ================= HEADER ================= */
 const monthNames=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
@@ -177,31 +179,36 @@ const monthNames=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agus
   const d=new Date();
   const m=new Date(d.getFullYear(),d.getMonth()+1,1);
   const t=`REQUEST LIBUR / CUTI BULAN ${monthNames[m.getMonth()].toUpperCase()}`;
-  header-text.textContent=t;
-  page-title.textContent=t;
+  document.getElementById("header-text").textContent=t;
+  document.getElementById("page-title").textContent=t;
 })();
 
 /* ================= URL PARAM ================= */
 const qs=new URLSearchParams(location.search);
-nik.value=qs.get("nik")||"";
-nama.value=qs.get("nama")||"";
-group.value=qs.get("group")||"";
+document.getElementById("nik").value   = qs.get("nik")   || "";
+document.getElementById("nama").value  = qs.get("nama")  || "";
+document.getElementById("group").value = qs.get("group") || "";
 
 /* ================= LOAD CONFIG ================= */
 async function loadConfig(){
-  const r1=await fetch(CONFIG_SERVICE_URL+"?mode=gasurl");
-  const j1=await r1.json();
-  GAS_URL=j1.GAS_URL;
+  const r1=await fetch(CONFIG_SERVICE_URL+"?mode=getMasterConfig");
+  const cfg=await r1.json();
+
+  GAS_URL = cfg.GAS_URL || "";
+  if(!GAS_URL) throw new Error("GAS_URL belum diset di MASTER CONFIG");
 
   const r2=await fetch(GAS_URL+"?mode=config");
-  const c=await r2.json();
-  MAX_LIBUR_USER=Number(c.MAX_LIBUR_USER||0);
+  const c =await r2.json();
+  MAX_LIBUR_USER = Number(c.MAX_LIBUR_USER || 0);
 }
 
 /* ================= HELPERS ================= */
-function parseDays(s){return (s||"").split(",").map(Number).filter(n=>n>=1&&n<=31)}
+function parseDays(s){
+  return (s||"").split(",").map(n=>parseInt(n,10)).filter(n=>n>=1&&n<=31);
+}
 function daysToDates(arr){
-  const n=new Date(),m=new Date(n.getFullYear(),n.getMonth()+1,1);
+  const now=new Date();
+  const m=new Date(now.getFullYear(),now.getMonth()+1,1);
   return arr.map(d=>new Date(m.getFullYear(),m.getMonth(),d));
 }
 
@@ -224,7 +231,7 @@ function initPicker(id,full,raw){
     disabledDates:daysToDates(full||[]),
     onRenderCell:({date,cellType})=>{
       if(cellType==="day" && (date.getDay()===0||date.getDay()===6))
-        return{classes:"weekend-red"}
+        return{classes:"weekend-red"};
     }
   });
 }
@@ -234,15 +241,20 @@ function initPicker(id,full,raw){
   try{
     await loadConfig();
 
-    const u=await fetch(`${GAS_URL}?nik=${nik.value}`);
+    const nik=document.getElementById("nik").value.trim();
+    if(!nik) throw new Error("NIK tidak ditemukan di URL");
+
+    const u=await fetch(`${GAS_URL}?nik=${encodeURIComponent(nik)}`);
     const d=await u.json();
 
     let libRaw="",cutRaw="";
     if(d.status==="found"){
-      libRaw=d.libur||""; cutRaw=d.cuti||"";
-      libur.value=libRaw; cuti.value=cutRaw;
-      requestLainnya.value=d.requestLainnya||"";
-      ekstrakulikuler.value=d.ekstrakulikuler||"";
+      libRaw=d.libur||"";
+      cutRaw=d.cuti||"";
+      document.getElementById("libur").value=libRaw;
+      document.getElementById("cuti").value=cutRaw;
+      document.getElementById("requestLainnya").value=d.requestLainnya||"";
+      document.getElementById("ekstrakulikuler").value=d.ekstrakulikuler||"";
     }
 
     const r=await fetch(GAS_URL);
@@ -251,24 +263,25 @@ function initPicker(id,full,raw){
     initPicker("libur",full,libRaw);
     initPicker("cuti",full,cutRaw);
 
-    loading.style.display="none";
-    requestForm.style.display="block";
+    document.getElementById("loading").style.display="none";
+    document.getElementById("requestForm").style.display="block";
   }catch(e){
-    loading.textContent="❌ "+e.message;
+    document.getElementById("loading").textContent="❌ "+e.message;
   }
 })();
 
 /* ================= SUBMIT ================= */
-requestForm.addEventListener("submit",async e=>{
+document.getElementById("requestForm").addEventListener("submit",async e=>{
   e.preventDefault();
+  const status=document.getElementById("status");
   status.textContent="⏳ Mengirim...";
 
-  if(parseDays(libur.value).length>MAX_LIBUR_USER){
+  if(parseDays(document.getElementById("libur").value).length>MAX_LIBUR_USER){
     status.textContent=`❌ Maks ${MAX_LIBUR_USER} hari libur`;
     status.className="error"; return;
   }
 
-  const fd=new FormData(requestForm);
+  const fd=new FormData(e.target);
   fd.append("return","json");
 
   try{
