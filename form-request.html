@@ -145,14 +145,35 @@ group.value=qs.get("group")||"";
 
 /* LOAD CONFIG */
 async function loadConfig(){
-  const r1=await fetch(CONFIG_SERVICE_URL+"?mode=getMasterConfig");
-  const j1=await r1.json();
-  GAS_URL=j1.GAS_URL;
+  const r1 = await fetch(CONFIG_SERVICE_URL + "?mode=getMasterConfig");
+  const t1 = await r1.text();
 
-  const r2=await fetch(GAS_URL+"?mode=config");
-  const c=await r2.json();
-  MAX_LIBUR_USER=Number(c.MAX_LIBUR_USER||0);
+  let j1;
+  try {
+    j1 = JSON.parse(t1);
+  } catch {
+    throw new Error("Master config bukan JSON: " + t1);
+  }
+
+  if (!j1.GAS_URL) {
+    throw new Error("GAS_URL tidak ditemukan di master config");
+  }
+
+  GAS_URL = j1.GAS_URL;
+
+  const r2 = await fetch(GAS_URL + "?mode=config");
+  const t2 = await r2.text();
+
+  let c;
+  try {
+    c = JSON.parse(t2);
+  } catch {
+    throw new Error("Config GAS jawaban bukan JSON: " + t2);
+  }
+
+  MAX_LIBUR_USER = Number(c.MAX_LIBUR_USER || 0);
 }
+
 
 /* DATEPICKER */
 function initPicker(id,full,raw){
@@ -233,3 +254,4 @@ requestForm.addEventListener("submit",async e=>{
 </script>
 </body>
 </html>
+
