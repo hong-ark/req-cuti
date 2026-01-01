@@ -22,7 +22,7 @@ body{
   background:#fff;
   padding:35px 30px 50px;
   border-radius:20px;
-  box-shadow:0 12px 35px rgba(0,0,0,0.15);
+  box-shadow:0 12px 35px rgba(0,0,0,.15);
   width:480px;
   max-width:100%;
 }
@@ -67,8 +67,22 @@ button{
 #status{margin-top:12px;text-align:center;font-weight:600}
 .success{color:#155724;background:#d4edda;padding:6px;border-radius:8px}
 .error{color:#721c24;background:#f8d7da;padding:6px;border-radius:8px}
-#footer{text-align:center;margin-top:25px;font-size:13px}
-#copyright{margin-top:25px;font-size:12px;opacity:.7}
+
+#footer{
+  margin-top:30px;
+  text-align:center;
+  font-size:13px;
+  line-height:1.5;
+  color:#444;
+}
+#footer-note{font-weight:600;margin-bottom:8px}
+#countdown{font-weight:600;color:#333}
+
+#copyright{
+  margin-top:25px;
+  font-size:12px;
+  opacity:.7;
+}
 
 .air-datepicker-cell.weekend-red{color:#cc0000!important}
 .air-datepicker-cell.-selected-.weekend-red{color:#fff!important}
@@ -118,6 +132,7 @@ button{
     <button type="submit">KIRIM REQUEST</button>
     <div id="status"></div>
 
+    <!-- FOOTER -->
     <div id="footer">
       <div id="footer-note"></div>
       <div id="countdown"></div>
@@ -136,15 +151,16 @@ const CONFIG_SERVICE_URL =
 let GAS_URL="", MAX_LIBUR_USER=0;
 const monthNames=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
 
-/* ================= HEADER ================= */
+/* ================= HEADER + FOOTER NOTE ================= */
 (function(){
   const now=new Date();
   const next=new Date(now.getFullYear(),now.getMonth()+1,1);
   const m=monthNames[next.getMonth()].toUpperCase();
-  document.getElementById("header-text").textContent=`REQUEST LIBUR / CUTI BULAN ${m}`;
-  document.getElementById("page-title").textContent=`REQUEST LIBUR / CUTI BULAN ${m}`;
-  document.getElementById("footer-note").innerHTML=
-    `Kuota libur bulan <b>${m}</b>.<br>Tanggal penuh tidak bisa direquest.`;
+  header-text.textContent=`REQUEST LIBUR / CUTI BULAN ${m}`;
+  page-title.textContent=`REQUEST LIBUR / CUTI BULAN ${m}`;
+  footer-note.innerHTML=
+    `Kuota libur bulan <b>${m}</b>.<br>
+     Tanggal yang sudah penuh tidak bisa direquest.`;
 })();
 
 /* ================= PARAM ================= */
@@ -155,13 +171,11 @@ group.value=qs.get("group")||"";
 
 /* ================= LOAD CONFIG ================= */
 async function loadConfig(){
-  const t1=await (await fetch(CONFIG_SERVICE_URL+"?mode=getMasterConfig")).text();
-  const cfg=JSON.parse(t1);
-  GAS_URL=cfg.GAS_URL;
+  const cfg = await (await fetch(CONFIG_SERVICE_URL+"?mode=getMasterConfig")).json();
+  GAS_URL = cfg.GAS_URL;
 
-  const t2=await (await fetch(GAS_URL+"?mode=config")).text();
-  const c=JSON.parse(t2);
-  MAX_LIBUR_USER=Number(c.MAX_LIBUR_USER||0);
+  const c = await (await fetch(GAS_URL+"?mode=config")).json();
+  MAX_LIBUR_USER = Number(c.MAX_LIBUR_USER||0);
 }
 
 /* ================= DATEPICKER ================= */
@@ -186,14 +200,49 @@ function initPicker(id,full,raw){
   });
 }
 
+/* ================= COUNTDOWN ================= */
+function startCountdown(){
+  const now=new Date();
+  const open=new Date(now.getFullYear(),now.getMonth(),1,0,10,0);
+  const close=new Date(now.getFullYear(),now.getMonth(),15,23,59,59);
+  const nextOpen=new Date(now.getFullYear(),now.getMonth()+1,1,0,10,0);
+  const el=document.getElementById("countdown");
+  const form=document.getElementById("requestForm");
+
+  function tick(){
+    const cur=new Date();
+    let target,mode;
+    if(cur<open){target=open;mode="belum";}
+    else if(cur<=close){target=close;mode="buka";}
+    else{target=nextOpen;mode="tutup";}
+
+    const diff=target-cur;
+    const d=Math.floor(diff/86400000);
+    const h=Math.floor(diff/3600000)%24;
+    const m=Math.floor(diff/60000)%60;
+    const s=Math.floor(diff/1000)%60;
+
+    if(mode==="belum"){
+      el.textContent=`⏳ Belum dibuka. Buka dalam ${d}H ${h}J ${m}M ${s}D`;
+      form.querySelectorAll("input,select,button").forEach(x=>x.disabled=true);
+    }else if(mode==="buka"){
+      el.textContent=`Sisa waktu request: ${d}H ${h}J ${m}M ${s}D`;
+      form.querySelectorAll("input,select,button").forEach(x=>x.disabled=false);
+    }else{
+      el.textContent="⏰ Waktu request sudah berakhir.";
+      form.querySelectorAll("input,select,button").forEach(x=>x.disabled=true);
+    }
+  }
+  tick(); setInterval(tick,1000);
+}
+
 /* ================= BOOT ================= */
 (async()=>{
+  startCountdown();
   try{
     await loadConfig();
 
-    const u=await fetch(`${GAS_URL}?nik=${nik.value}`);
-    const d=await u.json();
-
+    const d=await (await fetch(`${GAS_URL}?nik=${nik.value}`)).json();
     let l="",c="";
     if(d.status==="found"){
       l=d.libur||""; c=d.cuti||"";
@@ -238,4 +287,3 @@ requestForm.addEventListener("submit",async e=>{
 </script>
 </body>
 </html>
-
