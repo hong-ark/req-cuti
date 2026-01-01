@@ -18,95 +18,51 @@ body{
   background:linear-gradient(135deg,#74ebd5,#ACB6E5);
   padding:20px;
 }
-
 .container{
   background:#fff;
   padding:35px 30px 50px;
   border-radius:20px;
   box-shadow:0 12px 35px rgba(0,0,0,0.15);
-  width:480px;
-  max-width:100%;
+  width:480px;max-width:100%;
   animation:fadeIn .6s ease-in-out;
 }
-
 h2{
-  text-align:center;
-  margin-bottom:10px;
-  font-size:24px;
-  font-weight:700;
+  text-align:center;margin-bottom:10px;font-size:24px;font-weight:700;
   background:linear-gradient(90deg,#4e54c8,#8f94fb);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
 }
-
 #info-text{
-  font-size:14px;
-  color:#333;
-  text-align:center;
-  margin-bottom:20px;
-  padding:12px 15px;
-  border-radius:12px;
-  background:#f0f4ff;
-  border:1px solid #c5d0ff;
+  font-size:14px;color:#333;text-align:center;margin-bottom:20px;
+  padding:12px 15px;border-radius:12px;
+  background:#f0f4ff;border:1px solid #c5d0ff;
   font-weight:600;
 }
-
-label{font-weight:600;font-size:14px}
+label{display:block;margin-bottom:6px;font-weight:600}
 input,select{
-  width:100%;
-  padding:12px 14px;
-  border-radius:10px;
-  border:1px solid #ddd;
-  margin-bottom:14px;
+  width:100%;padding:12px 14px;border-radius:10px;
+  border:1px solid #ddd;margin-bottom:16px;
 }
 input[readonly]{background:#f3f3f3}
-
 button{
-  width:100%;
-  padding:14px;
-  border:none;
-  border-radius:12px;
+  width:100%;padding:14px;border:none;border-radius:12px;
   background:linear-gradient(90deg,#11998e,#38ef7d);
-  color:#fff;
-  font-weight:700;
-  cursor:pointer;
+  color:#fff;font-weight:700;cursor:pointer;
 }
-
-#status{
-  margin-top:15px;
-  text-align:center;
-  font-weight:600;
-}
-.success{color:#155724}
-.error{color:#721c24}
-
-#footer{
-  font-size:13px;
-  color:#444;
-  text-align:center;
-  margin-top:25px;
-}
+#status{margin-top:15px;text-align:center;font-weight:600}
+.success{color:#155724;background:#d4edda;padding:6px;border-radius:8px}
+.error{color:#721c24;background:#f8d7da;padding:6px;border-radius:8px}
+#footer{font-size:13px;color:#444;text-align:center;margin-top:25px}
 #countdown{margin-top:6px;font-weight:600}
+#copyright{margin-top:25px;font-size:12px;opacity:.7}
+#loading{text-align:center;font-weight:600}
 
-#copyright{
-  margin-top:25px;
-  font-size:12px;
-  opacity:.7;
-}
-
-#loading{
-  text-align:center;
-  font-weight:600;
-}
+.air-datepicker-cell.weekend-red{color:#cc0000!important}
+.air-datepicker-cell.-selected-.weekend-red{color:#fff!important}
 
 @keyframes fadeIn{
-  from{opacity:0;transform:translateY(-10px)}
+  from{opacity:0;transform:translateY(-15px)}
   to{opacity:1;transform:translateY(0)}
 }
-
-/* weekend merah */
-.air-datepicker-cell.weekend-red{color:#cc0000 !important}
-.air-datepicker-cell.-selected-.weekend-red{color:#fff !important}
 </style>
 </head>
 
@@ -116,8 +72,8 @@ button{
   <h2 id="header-text">REQUEST LIBUR / CUTI</h2>
 
   <div id="info-text">
-    Silakan request jadwal sesuai keperluan.<br>
-    Data bisa diubah selama periode masih dibuka.
+    Silakan Request Jadwal sesuai keperluan saja.<br>
+    Inputan bisa direvisi / diganti berulang kali. Gunakan dengan bijak!
   </div>
 
   <div id="loading">⏳ Memuat data...</div>
@@ -132,10 +88,10 @@ button{
     <label>Group</label>
     <input id="group" name="group" readonly>
 
-    <label>Libur</label>
+    <label>Request Libur</label>
     <input id="libur" name="libur" readonly>
 
-    <label>Cuti</label>
+    <label>Request Cuti</label>
     <input id="cuti" name="cuti" readonly>
 
     <label>Request Lainnya</label>
@@ -163,59 +119,48 @@ button{
 <footer id="copyright">© 2025 EDP Fai</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/air-datepicker@3.5.0/air-datepicker.min.js"></script>
-
 <script>
 /* ================= MASTER CONFIG ================= */
 const CONFIG_SERVICE_URL =
-"https://script.google.com/macros/s/AKfycbxgdC5vXNNA7LOgEf-WUlpzjx5NZQOG8IxFBkceOl7XOZarDomGSLjEWFvUh6pvjhbo/exec";
+"https://script.google.com/macros/s/AKfycbyGidWkOpl1la4eGccP6TGvrYMueSa0r0HNQai22tCTl3_IPjFScd3EE0c6u3zeDfGf/exec";
 
-/* ================= GLOBAL ================= */
-let GAS_URL = "";
-let MAX_LIBUR_USER = 0;
-
-/* ================= HEADER ================= */
+let GAS_URL="", MAX_LIBUR_USER=0;
 const monthNames=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
-(function(){
+
+/* HEADER DINAMIS */
+(()=>{
   const d=new Date();
-  const m=new Date(d.getFullYear(),d.getMonth()+1,1);
-  const t=`REQUEST LIBUR / CUTI BULAN ${monthNames[m.getMonth()].toUpperCase()}`;
-  document.getElementById("header-text").textContent=t;
-  document.getElementById("page-title").textContent=t;
+  const n=new Date(d.getFullYear(),d.getMonth()+1,1);
+  const m=monthNames[n.getMonth()].toUpperCase();
+  header-text.textContent=`REQUEST LIBUR / CUTI BULAN ${m}`;
+  page-title.textContent=`REQUEST LIBUR / CUTI BULAN ${m}`;
+  footer-note.innerHTML=`Kuota libur bulan <b>${m}</b>.<br>Tanggal penuh tidak bisa direquest.`;
 })();
 
-/* ================= URL PARAM ================= */
+/* PARAM URL */
 const qs=new URLSearchParams(location.search);
-document.getElementById("nik").value   = qs.get("nik")   || "";
-document.getElementById("nama").value  = qs.get("nama")  || "";
-document.getElementById("group").value = qs.get("group") || "";
+nik.value=qs.get("nik")||"";
+nama.value=qs.get("nama")||"";
+group.value=qs.get("group")||"";
 
-/* ================= LOAD CONFIG ================= */
+/* LOAD CONFIG */
 async function loadConfig(){
   const r1=await fetch(CONFIG_SERVICE_URL+"?mode=getMasterConfig");
-  const cfg=await r1.json();
-
-  GAS_URL = cfg.GAS_URL || "";
-  if(!GAS_URL) throw new Error("GAS_URL belum diset di MASTER CONFIG");
+  const j1=await r1.json();
+  GAS_URL=j1.GAS_URL;
 
   const r2=await fetch(GAS_URL+"?mode=config");
-  const c =await r2.json();
-  MAX_LIBUR_USER = Number(c.MAX_LIBUR_USER || 0);
+  const c=await r2.json();
+  MAX_LIBUR_USER=Number(c.MAX_LIBUR_USER||0);
 }
 
-/* ================= HELPERS ================= */
-function parseDays(s){
-  return (s||"").split(",").map(n=>parseInt(n,10)).filter(n=>n>=1&&n<=31);
-}
-function daysToDates(arr){
-  const now=new Date();
-  const m=new Date(now.getFullYear(),now.getMonth()+1,1);
-  return arr.map(d=>new Date(m.getFullYear(),m.getMonth(),d));
-}
-
-/* ================= DATEPICKER ================= */
+/* DATEPICKER */
 function initPicker(id,full,raw){
   const el=document.getElementById(id);
   if(el._adp) el._adp.destroy();
+
+  const base=new Date();
+  const m=new Date(base.getFullYear(),base.getMonth()+1,1);
 
   el._adp=new AirDatepicker(el,{
     multipleDates:id==="libur"?MAX_LIBUR_USER:true,
@@ -223,65 +168,56 @@ function initPicker(id,full,raw){
     firstDay:0,
     locale:{
       days:['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'],
-      daysShort:['Min','Sen','Sel','Rab','Kam','Jum','Sab'],
-      daysMin:['Mg','Sn','Sl','Rb','Km','Jm','Sb'],
       months:monthNames
     },
-    selectedDates:daysToDates(parseDays(raw)),
-    disabledDates:daysToDates(full||[]),
+    selectedDates:(raw||"").split(",").map(d=>new Date(m.getFullYear(),m.getMonth(),Number(d))),
+    disabledDates:(full||[]).map(d=>new Date(m.getFullYear(),m.getMonth(),Number(d))),
     onRenderCell:({date,cellType})=>{
-      if(cellType==="day" && (date.getDay()===0||date.getDay()===6))
+      if(cellType==="day"&&(date.getDay()===0||date.getDay()===6))
         return{classes:"weekend-red"};
     }
   });
 }
 
-/* ================= BOOT ================= */
+/* BOOT */
 (async()=>{
   try{
     await loadConfig();
 
-    const nik=document.getElementById("nik").value.trim();
-    if(!nik) throw new Error("NIK tidak ditemukan di URL");
-
-    const u=await fetch(`${GAS_URL}?nik=${encodeURIComponent(nik)}`);
+    const u=await fetch(`${GAS_URL}?nik=${nik.value}`);
     const d=await u.json();
-
-    let libRaw="",cutRaw="";
+    let l="",c="";
     if(d.status==="found"){
-      libRaw=d.libur||"";
-      cutRaw=d.cuti||"";
-      document.getElementById("libur").value=libRaw;
-      document.getElementById("cuti").value=cutRaw;
-      document.getElementById("requestLainnya").value=d.requestLainnya||"";
-      document.getElementById("ekstrakulikuler").value=d.ekstrakulikuler||"";
+      l=d.libur||""; c=d.cuti||"";
+      libur.value=l; cuti.value=c;
+      requestLainnya.value=d.requestLainnya||"";
+      ekstrakulikuler.value=d.ekstrakulikuler||"";
     }
 
     const r=await fetch(GAS_URL);
     const full=await r.json();
 
-    initPicker("libur",full,libRaw);
-    initPicker("cuti",full,cutRaw);
+    initPicker("libur",full,l);
+    initPicker("cuti",full,c);
 
-    document.getElementById("loading").style.display="none";
-    document.getElementById("requestForm").style.display="block";
+    loading.style.display="none";
+    requestForm.style.display="block";
   }catch(e){
-    document.getElementById("loading").textContent="❌ "+e.message;
+    loading.textContent="❌ "+e.message;
   }
 })();
 
-/* ================= SUBMIT ================= */
-document.getElementById("requestForm").addEventListener("submit",async e=>{
+/* SUBMIT */
+requestForm.addEventListener("submit",async e=>{
   e.preventDefault();
-  const status=document.getElementById("status");
   status.textContent="⏳ Mengirim...";
 
-  if(parseDays(document.getElementById("libur").value).length>MAX_LIBUR_USER){
-    status.textContent=`❌ Maks ${MAX_LIBUR_USER} hari libur`;
-    status.className="error"; return;
+  if((libur.value||"").split(",").length>MAX_LIBUR_USER){
+    status.textContent=`❌ Maks ${MAX_LIBUR_USER} tanggal libur`;
+    status.className="error";return;
   }
 
-  const fd=new FormData(e.target);
+  const fd=new FormData(requestForm);
   fd.append("return","json");
 
   try{
@@ -297,4 +233,3 @@ document.getElementById("requestForm").addEventListener("submit",async e=>{
 </script>
 </body>
 </html>
-
