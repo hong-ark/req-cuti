@@ -70,11 +70,19 @@ button{
 #footer{text-align:center;margin-top:25px;font-size:13px}
 #copyright{margin-top:25px;font-size:12px;opacity:.7}
 
+/* 🔴 WEEKEND */
+.air-datepicker-cell.weekend-red{
+  color:#cc0000 !important;
+}
+.air-datepicker-cell.-selected-.weekend-red{
+  color:#ffffff !important;
+}
+
+/* 🔴 SPECIAL HOLIDAY */
 .air-datepicker-cell.holiday-red{
   color:#cc0000 !important;
   font-weight:normal !important;
 }
-
 .air-datepicker-cell.-selected-.holiday-red{
   color:#ffffff !important;
 }
@@ -139,7 +147,10 @@ button{
 const CONFIG_SERVICE_URL =
 "https://script.google.com/macros/s/AKfycbyGidWkOpl1la4eGccP6TGvrYMueSa0r0HNQai22tCTl3_IPjFScd3EE0c6u3zeDfGf/exec";
 
-let GAS_URL="", MAX_LIBUR_USER=0;
+let GAS_URL = "";
+let MAX_LIBUR_USER = 0;
+let SPECIAL_HOLIDAYS = [];
+
 const monthNames=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
 
 /* ================= HEADER ================= */
@@ -147,11 +158,11 @@ const monthNames=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agus
   const now=new Date();
   const next=new Date(now.getFullYear(),now.getMonth()+1,1);
   const m=monthNames[next.getMonth()].toUpperCase();
-  document.getElementById("header-text").textContent=`REQUEST LIBUR / CUTI BULAN ${m}`;
-  document.getElementById("page-title").textContent=`REQUEST LIBUR / CUTI BULAN ${m}`;
-  document.getElementById("footer-note").innerHTML=
-    `Kuota libur bulan <b>${m}</b>.<br> 8 Jika tidak lembur, Lembur=9. <br>
-    Jika kuota hari full/penuh tidak bisa direquest.`;
+  header-text.textContent=`REQUEST LIBUR / CUTI BULAN ${m}`;
+  page-title.textContent=`REQUEST LIBUR / CUTI BULAN ${m}`;
+  footer-note.innerHTML=
+    `Kuota libur bulan <b>${m}</b>.<br>8 jika tidak lembur, lembur = 9.<br>
+     Jika kuota hari penuh tidak bisa direquest.`;
 })();
 
 /* ================= PARAM ================= */
@@ -162,21 +173,17 @@ group.value=qs.get("group")||"";
 
 /* ================= LOAD CONFIG ================= */
 async function loadConfig(){
-  const t1 = await (await fetch(CONFIG_SERVICE_URL+"?mode=getMasterConfig")).text();
-  const cfg = JSON.parse(t1);
+  const cfg = JSON.parse(await (await fetch(CONFIG_SERVICE_URL+"?mode=getMasterConfig")).text());
   GAS_URL = cfg.GAS_URL;
 
-  const t2 = await (await fetch(GAS_URL+"?mode=config")).text();
-  const c = JSON.parse(t2);
+  const c = JSON.parse(await (await fetch(GAS_URL+"?mode=config")).text());
+  MAX_LIBUR_USER = Number(c.MAX_LIBUR_USER||0);
 
-  MAX_LIBUR_USER = Number(c.MAX_LIBUR_USER || 0);
-
-  // ⬇️ PARSE SPECIAL HOLIDAYS
   SPECIAL_HOLIDAYS = [];
-  if (c.SPECIAL_HOLIDAYS) {
-    String(c.SPECIAL_HOLIDAYS).split(",").forEach(s => {
-      const d = new Date(s.trim());
-      if (!isNaN(d)) SPECIAL_HOLIDAYS.push(d);
+  if(c.SPECIAL_HOLIDAYS){
+    String(c.SPECIAL_HOLIDAYS).split(",").forEach(s=>{
+      const d=new Date(s.trim());
+      if(!isNaN(d)) SPECIAL_HOLIDAYS.push(d);
     });
   }
 }
@@ -194,30 +201,17 @@ function initPicker(id,full,raw){
     dateFormat:"d",
     firstDay:0,
     locale:{days:['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'],months:monthNames},
-    selectedDates:(raw||"").split(",").map(d=>new Date(m.getFullYear(),m.getMonth(),Number(d))),
+    selectedDates:(raw||"").split(",").filter(Boolean).map(d=>new Date(m.getFullYear(),m.getMonth(),Number(d))),
     disabledDates:(full||[]).map(d=>new Date(m.getFullYear(),m.getMonth(),Number(d))),
-    onRenderCell: ({ date, cellType }) => {
-  if (cellType !== "day") return;
-
-  const classes = [];
-
-  // 🔴 WEEKEND
-  if (date.getDay() === 0 || date.getDay() === 6) {
-    classes.push("weekend-red");
-  }
-
-  // 🔴 SPECIAL HOLIDAY
-  if (SPECIAL_HOLIDAYS.some(h =>
-    h.getFullYear() === date.getFullYear() &&
-    h.getMonth() === date.getMonth() &&
-    h.getDate() === date.getDate()
-  )) {
-    classes.push("holiday-red");
-  }
-
-  if (classes.length) {
-    return { classes: classes.join(" ") };
-  }
+    onRenderCell:({date,cellType})=>{
+      if(cellType!=="day") return;
+      const classes=[];
+      if(date.getDay()===0||date.getDay()===6) classes.push("weekend-red");
+      if(SPECIAL_HOLIDAYS.some(h=>h.getFullYear()===date.getFullYear()&&h.getMonth()===date.getMonth()&&h.getDate()===date.getDate()))
+        classes.push("holiday-red");
+      if(classes.length) return {classes:classes.join(" ")};
+    }
+  });
 }
 
 /* ================= BOOT ================= */
@@ -225,9 +219,7 @@ function initPicker(id,full,raw){
   try{
     await loadConfig();
 
-    const u=await fetch(`${GAS_URL}?nik=${nik.value}`);
-    const d=await u.json();
-
+    const d=await (await fetch(`${GAS_URL}?nik=${nik.value}`)).json();
     let l="",c="";
     if(d.status==="found"){
       l=d.libur||""; c=d.cuti||"";
@@ -248,60 +240,34 @@ function initPicker(id,full,raw){
 })();
 
 /* ================= SUBMIT ================= */
-/* ================= SUBMIT ================= */
-requestForm.addEventListener("submit", async e => {
+requestForm.addEventListener("submit",async e=>{
   e.preventDefault();
+  status.textContent="⏳ Mengirim...";
+  status.className="";
 
-  const statusEl = document.getElementById("status");
-  statusEl.textContent = "⏳ Mengirim...";
-  statusEl.className = "";
-
-  // validasi jumlah libur
-  const liburCount = (libur.value || "").split(",").filter(Boolean).length;
-  if (liburCount > MAX_LIBUR_USER) {
-    statusEl.textContent = `❌ Maksimal ${MAX_LIBUR_USER} tanggal libur`;
-    statusEl.className = "error";
-    return;
+  if((libur.value||"").split(",").filter(Boolean).length>MAX_LIBUR_USER){
+    status.textContent=`❌ Maksimal ${MAX_LIBUR_USER} tanggal libur`;
+    status.className="error";return;
   }
 
-  const fd = new FormData(requestForm);
-  fd.append("return", "json");
+  const fd=new FormData(requestForm);
+  fd.append("return","json");
 
-  try {
-    const res = await fetch(GAS_URL, {
-      method: "POST",
-      body: fd
-    });
-
-    const text = await res.text();
-    let data;
-
-    try {
-      data = JSON.parse(text);
-    } catch {
-      statusEl.textContent = "✅ " + text;
-      statusEl.className = "success";
-      return;
+  try{
+    const text=await (await fetch(GAS_URL,{method:"POST",body:fd})).text();
+    let j; try{j=JSON.parse(text);}catch{}
+    if(j?.status==="success"){
+      status.textContent="✅ "+(j.message||"Berhasil");
+      status.className="success";
+    }else{
+      status.textContent=j?.message?"❌ "+j.message:"✅ "+text;
+      status.className=j?.status==="success"?"success":"error";
     }
-
-    if (data.status === "success") {
-      statusEl.textContent = "✅ " + (data.message || "Data berhasil disimpan");
-      statusEl.className = "success";
-    } else {
-      statusEl.textContent = "❌ " + (data.message || "Gagal menyimpan data");
-      statusEl.className = "error";
-    }
-
-  } catch (err) {
-    statusEl.textContent = "❌ Gagal mengirim data (cek koneksi / GAS)";
-    statusEl.className = "error";
-    console.error(err);
+  }catch{
+    status.textContent="❌ Gagal mengirim data";
+    status.className="error";
   }
 });
 </script>
 </body>
 </html>
-
-
-
-
