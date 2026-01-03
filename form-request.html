@@ -171,7 +171,7 @@ const monthNames = [
   if (footerEl) {
     footerEl.innerHTML =
       `Kuota libur bulan <b>${m}</b>.<br>
-       8 jika tidak lembur, lembur = 9.<br>
+       8 jika Lembur, Tidak Lembur = 9.<br>
        Jika kuota hari penuh tidak bisa direquest.`;
   }
 })();
@@ -212,13 +212,21 @@ function initPicker(id, full, raw){
   const m = new Date(base.getFullYear(), base.getMonth() + 1, 1);
 
   el._adp = new AirDatepicker(el,{
-    multipleDates: id === "libur" ? MAX_LIBUR_USER : true,
-    dateFormat: "d",
-    firstDay: 0,
-    locale: {
-      days:['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'],
-      months: monthNames
-    },
+  multipleDates: id === "libur" ? MAX_LIBUR_USER : true,
+  dateFormat: "d",
+  firstDay: 0, // Minggu
+  locale: {
+    days: [
+      'Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'
+    ],
+    daysShort: [
+      'Min','Sen','Sel','Rab','Kam','Jum','Sab'
+    ],
+    daysMin: [
+      'Min','Sen','Sel','Rab','Kam','Jum','Sab'
+    ],
+    months: monthNames
+  },
     selectedDates: (raw||"").split(",").filter(Boolean)
       .map(d => new Date(m.getFullYear(), m.getMonth(), Number(d))),
     disabledDates: (full||[])
@@ -308,6 +316,7 @@ requestForm.addEventListener("submit", async e=>{
 </script>
 </body>
 </html>
+
 
 
 
