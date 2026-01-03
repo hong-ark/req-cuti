@@ -150,6 +150,7 @@ const CONFIG_SERVICE_URL =
 let GAS_URL = "";
 let MAX_LIBUR_USER = 0;
 let SPECIAL_HOLIDAYS = [];
+let IS_REVISION = false;
 
 const monthNames = [
   "Januari","Februari","Maret","April","Mei","Juni",
@@ -255,6 +256,7 @@ function initPicker(id, full, raw){
 
     let l="", c="";
     if (d.status==="found"){
+      IS_REVISION = true;
       l=d.libur||""; c=d.cuti||"";
       libur.value=l; cuti.value=c;
       requestLainnya.value=d.requestLainnya||"";
@@ -299,8 +301,10 @@ requestForm.addEventListener("submit", async e=>{
     try { json = JSON.parse(text); } catch {}
 
     if (json?.status === "success"){
-      status.textContent = "✅ " + (json.message || "Data berhasil disimpan");
-      status.className = "success";
+  status.textContent = IS_REVISION
+    ? "✅ DATA BERHASIL DIREVISI"
+    : "✅ DATE BERHASIL DISIMPAN";
+  status.className = "success";
     } else {
       status.textContent = json?.message
         ? "❌ " + json.message
@@ -316,6 +320,7 @@ requestForm.addEventListener("submit", async e=>{
 </script>
 </body>
 </html>
+
 
 
 
