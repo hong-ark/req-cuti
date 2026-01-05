@@ -91,13 +91,41 @@ button{
 }
 
 .dots span{
-  width:12px;
-  height:12px;
-  background:linear-gradient(135deg,#4e54c8,#8f94fb);
-  border-radius:50%;
-  animation:dotBounce 1.4s infinite ease-in-out both;
+  width:14px;
+  height:14px;
+  border-radius:3px; /* persegi sedikit rounded */
+  animation:squareBounce 1.2s infinite ease-in-out both;
 }
 
+/* Warna sesuai gambar */
+.dots span:nth-child(1){
+  background:#e53935; /* merah */
+}
+.dots span:nth-child(2){
+  background:#1e88e5; /* biru */
+}
+.dots span:nth-child(3){
+  background:#fbc02d; /* kuning */
+}
+
+.dots span:nth-child(1){ animation-delay:0s; }
+.dots span:nth-child(2){ animation-delay:.15s; }
+.dots span:nth-child(3){ animation-delay:.3s; }
+
+@keyframes squareBounce{
+  0%,80%,100%{
+    transform:translateY(0) scale(0.9);
+    opacity:.5;
+  }
+  40%{
+    transform:translateY(-12px) scale(1.1);
+    opacity:1;
+  }
+}
+.dots{
+  display:flex;
+  gap:12px;
+}
 .dots span:nth-child(1){ animation-delay:0s; }
 .dots span:nth-child(2){ animation-delay:.2s; }
 .dots span:nth-child(3){ animation-delay:.4s; }
@@ -368,6 +396,7 @@ requestForm.addEventListener("submit", async e=>{
 </script>
 </body>
 </html>
+
 
 
 
