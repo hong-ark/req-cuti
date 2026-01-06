@@ -285,42 +285,51 @@ function initPicker(id, full, raw){
   const el = document.getElementById(id);
   if (el._adp) el._adp.destroy();
 
-  const base = new Date();
-  const m = new Date(base.getFullYear(), base.getMonth() + 1, 1);
+  const now = new Date();
+  const startMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+  const endMonth   = new Date(now.getFullYear(), now.getMonth() + 2, 0);
 
   el._adp = new AirDatepicker(el,{
-  multipleDates: id === "libur" ? MAX_LIBUR_USER : true,
-  dateFormat: "d",
-  firstDay: 0, // Minggu
-  locale: {
-    days: [
-      'Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'
-    ],
-    daysShort: [
-      'Min','Sen','Sel','Rab','Kam','Jum','Sab'
-    ],
-    daysMin: [
-      'Min','Sen','Sel','Rab','Kam','Jum','Sab'
-    ],
-    months: monthNames
-  },
+    multipleDates: id === "libur" ? MAX_LIBUR_USER : true,
+    dateFormat: "d",
+    view: "days",
+    minView: "days",
+    locale: localeID,
+
+    minDate: startMonth,
+    maxDate: endMonth,
+
     selectedDates: (raw||"").split(",").filter(Boolean)
-      .map(d => new Date(m.getFullYear(), m.getMonth(), Number(d))),
+      .map(d => new Date(
+        startMonth.getFullYear(),
+        startMonth.getMonth(),
+        Number(d)
+      )),
+
     disabledDates: (full||[])
-      .map(d => new Date(m.getFullYear(), m.getMonth(), Number(d))),
+      .map(d => new Date(
+        startMonth.getFullYear(),
+        startMonth.getMonth(),
+        Number(d)
+      )),
+
     onRenderCell: ({date, cellType})=>{
       if (cellType !== "day") return;
+
       const cls = [];
       if (date.getDay()===0 || date.getDay()===6) cls.push("weekend-red");
+
       if (SPECIAL_HOLIDAYS.some(h =>
         h.getFullYear()===date.getFullYear() &&
         h.getMonth()===date.getMonth() &&
         h.getDate()===date.getDate()
       )) cls.push("holiday-red");
+
       if (cls.length) return { classes: cls.join(" ") };
     }
   });
 }
+
 
 /* ================= BOOT ================= */
 (async()=>{
@@ -396,6 +405,7 @@ requestForm.addEventListener("submit", async e=>{
 </script>
 </body>
 </html>
+
 
 
 
