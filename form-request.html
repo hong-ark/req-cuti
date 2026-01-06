@@ -8,152 +8,161 @@
 
 <style>
 body{
-  font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+  font-family:"Poppins","Segoe UI",Arial,sans-serif;
   margin:0;
   min-height:100vh;
   display:flex;
   flex-direction:column;
   justify-content:center;
   align-items:center;
-  background:linear-gradient(135deg,#74ebd5,#ACB6E5);
+  background:linear-gradient(135deg,#bdbdbd,#e0e0e0);
   padding:20px;
+  color:#e5e5e5;
 }
+
 .container{
-  background:#fff;
+  background:#0f0f0f;
   padding:35px 30px 50px;
-  border-radius:20px;
-  box-shadow:0 12px 35px rgba(0,0,0,0.15);
+  border-radius:18px;
   width:480px;
   max-width:100%;
+  box-shadow:0 12px 30px rgba(0,0,0,0.45);
+  border:1px solid rgba(255,255,255,0.05);
 }
+
+/* ===== JUDUL ===== */
 h2{
   text-align:center;
-  font-size:24px;
-  font-weight:700;
-  background:linear-gradient(90deg,#4e54c8,#8f94fb);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
+  font-size:26px;
+  font-weight:800;
+  color:#ffffff;
+  letter-spacing:1px;
+  margin-bottom:18px;
 }
+
+/* ===== INFO ===== */
 #info-text{
   font-size:14px;
-  color:#333;
+  color:#d1d1d1;
   text-align:center;
-  margin-bottom:20px;
-  padding:12px 15px;
+  margin-bottom:22px;
+  padding:14px 16px;
   border-radius:12px;
-  background:#f0f4ff;
-  border:1px solid #c5d0ff;
+  background:#1a1a1a;
+  border:1px solid #333;
   font-weight:600;
 }
-label{font-weight:600}
+
+/* ===== FORM ===== */
+label{
+  font-weight:600;
+  color:#dddddd;
+}
+
 input,select{
   width:100%;
   padding:12px 14px;
   border-radius:10px;
-  border:1px solid #ddd;
+  border:1px solid #333;
+  background:#1a1a1a;
+  color:#ffffff;
   margin-bottom:14px;
 }
-input[readonly]{background:#f3f3f3}
+
+input::placeholder{
+  color:#888;
+}
+
+input[readonly]{
+  background:#151515;
+}
+
+/* ===== BUTTON ===== */
 button{
   width:100%;
   padding:14px;
   border:none;
   border-radius:12px;
-  background:linear-gradient(90deg,#11998e,#38ef7d);
-  color:#fff;
+  background:#2f2f2f;
+  color:#ffffff;
+  font-weight:700;
+  cursor:pointer;
+  transition:background .3s ease;
+}
+
+button:hover{
+  background:#444;
+}
+
+/* ===== STATUS ===== */
+#status{
+  margin-top:14px;
+  text-align:center;
   font-weight:700;
 }
-#loading{text-align:center;font-weight:600}
-#status{margin-top:12px;text-align:center;font-weight:600}
-.success{color:#155724;background:#d4edda;padding:6px;border-radius:8px}
-.error{color:#721c24;background:#f8d7da;padding:6px;border-radius:8px}
-#footer{text-align:center;margin-top:25px;font-size:13px}
-#copyright{margin-top:25px;font-size:12px;opacity:.7}
 
-/* 🔴 WEEKEND */
-.air-datepicker-cell.weekend-red{
-  color:#cc0000 !important;
-}
-.air-datepicker-cell.-selected-.weekend-red{
-  color:#ffffff !important;
-}
-/* DOT BOUNCE LOADER */
-.dot-loader{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
+.success{
+  color:#b7f5c7;
+  background:#0f3d22;
+  padding:8px;
+  border-radius:8px;
 }
 
-.dots{
-  display:flex;
-  gap:10px;
+.error{
+  color:#f5b7b7;
+  background:#3d0f0f;
+  padding:8px;
+  border-radius:8px;
 }
 
-.dots span{
-  width:14px;
-  height:14px;
-  border-radius:3px; /* persegi sedikit rounded */
-  animation:squareBounce 1.2s infinite ease-in-out both;
-}
-
-/* Warna sesuai gambar */
-.dots span:nth-child(1){
-  background:#e53935; /* merah */
-}
-.dots span:nth-child(2){
-  background:#1e88e5; /* biru */
-}
-.dots span:nth-child(3){
-  background:#fbc02d; /* kuning */
-}
-
-.dots span:nth-child(1){ animation-delay:0s; }
-.dots span:nth-child(2){ animation-delay:.15s; }
-.dots span:nth-child(3){ animation-delay:.3s; }
-
-@keyframes squareBounce{
-  0%,80%,100%{
-    transform:translateY(0) scale(0.9);
-    opacity:.5;
-  }
-  40%{
-    transform:translateY(-12px) scale(1.1);
-    opacity:1;
-  }
-}
-.dots{
-  display:flex;
-  gap:12px;
-}
-.dots span:nth-child(1){ animation-delay:0s; }
-.dots span:nth-child(2){ animation-delay:.2s; }
-.dots span:nth-child(3){ animation-delay:.4s; }
-
-@keyframes dotBounce{
-  0%,80%,100%{
-    transform:translateY(0);
-    opacity:.4;
-  }
-  40%{
-    transform:translateY(-10px);
-    opacity:1;
-  }
+/* ===== LOADING ===== */
+#loading{
+  text-align:center;
+  font-weight:600;
 }
 
 .loading-text{
   margin-top:12px;
   font-weight:600;
   font-size:14px;
-  color:#4e54c8;
+  color:#bbbbbb;
 }
-/* 🔴 SPECIAL HOLIDAY */
+
+/* ===== FOOTER ===== */
+#footer{
+  text-align:center;
+  margin-top:25px;
+  font-size:13px;
+  color:#b0b0b0;
+}
+
+#copyright{
+  margin-top:25px;
+  font-size:12px;
+  opacity:.7;
+  color:#444;
+}
+
+/* ===== DATEPICKER ===== */
+.air-datepicker{
+  background:#0f0f0f !important;
+  color:#ffffff;
+}
+
+.air-datepicker-cell{
+  color:#dddddd;
+}
+
+.air-datepicker-cell.-selected-{
+  background:#444 !important;
+}
+
+.air-datepicker-cell.weekend-red{
+  color:#ff6b6b !important;
+}
+
 .air-datepicker-cell.holiday-red{
-  color:#cc0000 !important;
-  font-weight:normal !important;
-}
-.air-datepicker-cell.-selected-.holiday-red{
-  color:#ffffff !important;
+  color:#ff6b6b !important;
 }
 </style>
 </head>
@@ -422,6 +431,7 @@ requestForm.addEventListener("submit", async e=>{
 </script>
 </body>
 </html>
+
 
 
 
