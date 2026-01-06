@@ -188,13 +188,18 @@ button{
     <input id="group" name="group" readonly>
 
     <label>Request Libur</label>
-    <input id="libur" name="libur" readonly>
+<input id="libur" name="libur" readonly placeholder="Klik untuk pilih tanggal">
 
-    <label>Request Cuti</label>
-    <input id="cuti" name="cuti" readonly>
+<label>Request Cuti</label>
+<input id="cuti" name="cuti" readonly placeholder="Klik untuk pilih tanggal">
 
-    <label>Request Lainnya</label>
-    <input id="requestLainnya" name="requestLainnya" maxlength="80">
+<label>Request Lainnya</label>
+<input
+  id="requestLainnya"
+  name="requestLainnya"
+  maxlength="80"
+  placeholder="Req tambahan silakan tulis disini">
+
 
     <label>Ekstrakulikuler</label>
     <select id="ekstrakulikuler" name="ekstrakulikuler" required>
@@ -417,6 +422,7 @@ requestForm.addEventListener("submit", async e=>{
 </script>
 </body>
 </html>
+
 
 
 
