@@ -6,95 +6,142 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
-    body {
-      font-family: "Poppins", "Segoe UI", Arial, sans-serif;
-      background: linear-gradient(135deg, #2193b0, #6dd5ed);
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
+  body {
+    font-family: "Poppins", "Segoe UI", Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: radial-gradient(circle at top, #1a1a1a, #000);
+    overflow: hidden;
+    color: #e5e5e5;
+  }
 
-    .container {
-      background: #fff;
-      padding: 30px;
-      border-radius: 14px;
-      box-shadow: 0 8px 18px rgba(0,0,0,0.15);
-      width: 100%;
-      max-width: 420px;
-      text-align: center;
-    }
+  /* ====== EFEK ASAP ====== */
+  body::before,
+  body::after {
+    content: "";
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(
+      rgba(255,255,255,0.04) 10%,
+      rgba(0,0,0,0) 60%
+    );
+    animation: smoke 60s linear infinite;
+    opacity: 0.6;
+  }
 
-    h2 {
-      background: linear-gradient(90deg, #2193b0, #6dd5ed);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      font-weight: 800;
-      margin-bottom: 10px;
-    }
+  body::after {
+    animation-duration: 90s;
+    opacity: 0.4;
+  }
 
-    .info {
-      font-size: 0.8rem;
-      color: #666;
-      margin-bottom: 20px;
+  @keyframes smoke {
+    from {
+      transform: translate(-25%, -25%) rotate(0deg);
     }
+    to {
+      transform: translate(-25%, -25%) rotate(360deg);
+    }
+  }
 
-    label {
-      display: block;
-      margin-top: 15px;
-      font-weight: bold;
-      color: #333;
-      text-align: left;
-    }
+  /* ====== CONTAINER ====== */
+  .container {
+    position: relative;
+    z-index: 2;
+    background: rgba(20, 20, 20, 0.85);
+    backdrop-filter: blur(6px);
+    padding: 30px;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 0 30px rgba(0,0,0,0.9);
+    border: 1px solid rgba(255,255,255,0.05);
+    text-align: center;
+  }
 
-    input {
-      width: 100%;
-      padding: 12px;
-      margin-top: 8px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 14px;
-    }
+  h2 {
+    font-weight: 800;
+    margin-bottom: 10px;
+    color: #f1f1f1;
+    letter-spacing: 1px;
+  }
 
-    button {
-      margin-top: 20px;
-      padding: 12px 18px;
-      border: none;
-      border-radius: 8px;
-      background: #2193b0;
-      color: #fff;
-      font-weight: bold;
-      cursor: pointer;
-      transition: background 0.3s;
-      width: 100%;
-    }
+  .info {
+    font-size: 0.8rem;
+    color: #aaa;
+    margin-bottom: 20px;
+  }
 
-    button:hover {
-      background: #176d7a;
-    }
+  label {
+    display: block;
+    margin-top: 15px;
+    font-weight: bold;
+    color: #ddd;
+    text-align: left;
+  }
 
-    button:disabled {
-      background: #9ca3af;
-      cursor: not-allowed;
-    }
+  input {
+    width: 100%;
+    padding: 12px;
+    margin-top: 8px;
+    border-radius: 8px;
+    font-size: 14px;
+    background: #0f0f0f;
+    border: 1px solid #333;
+    color: #fff;
+  }
 
-    #hasil {
-      margin-top: 20px;
-      font-weight: bold;
-      color: #444;
-    }
+  input::placeholder {
+    color: #777;
+  }
 
-    #formCutiBtn {
-      display: none;
-      background: #28a745;
-    }
+  input:focus {
+    outline: none;
+    border-color: #666;
+  }
 
-    #formCutiBtn:hover {
-      background: #1e7e34;
-    }
-  </style>
+  button {
+    margin-top: 20px;
+    padding: 12px 18px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #444, #111);
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+    width: 100%;
+    transition: all 0.3s ease;
+  }
+
+  button:hover {
+    background: linear-gradient(135deg, #666, #222);
+  }
+
+  button:disabled {
+    background: #333;
+    cursor: not-allowed;
+  }
+
+  #hasil {
+    margin-top: 20px;
+    font-weight: bold;
+    color: #ddd;
+  }
+
+  #formCutiBtn {
+    display: none;
+    background: linear-gradient(135deg, #1f7a3f, #0f3d20);
+  }
+
+  #formCutiBtn:hover {
+    background: linear-gradient(135deg, #2ea366, #145a32);
+  }
+</style>
+
 </head>
 <body>
 
@@ -188,3 +235,4 @@
 
 </body>
 </html>
+
