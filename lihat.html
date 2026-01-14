@@ -34,6 +34,14 @@
       transform: translateY(-1px);
     }
 
+    /* ===== LOADING ===== */
+    #loading {
+      display: none;
+      margin-left: 12px;
+      font-size: 13px;
+      color: #555;
+    }
+
     table {
       border-collapse: collapse;
       width: 100%;
@@ -75,6 +83,7 @@
 <h2 id="pageTitle"></h2>
 
 <button class="btn" onclick="loadData()">📂 LIHAT DATA</button>
+<span id="loading">⏳ Loading data...</span>
 
 <div id="wrap">
   <table id="tbl"></table>
@@ -95,7 +104,7 @@
     `DATA REQUEST CUTI - LIBUR ${bulan[target.getMonth()]} ${target.getFullYear()}`;
 })();
 
-/* ===== API ===== */
+/* ===== API GOOGLE APPS SCRIPT ===== */
 const GAS_URL =
   "https://script.google.com/macros/s/AKfycbz5fYIf3DzuxGrTyId79mIPB9Ss8uyKiWVdBdDShOar-ykbJg3ZmdcJ9nCMLPPJeDIfzg/exec?api=req";
 
@@ -119,6 +128,7 @@ function loadData() {
 function render(data) {
   const tbl = document.getElementById("tbl");
   const wrap = document.getElementById("wrap");
+
   tbl.innerHTML = "";
   wrap.style.display = "block";
 
@@ -153,9 +163,3 @@ function render(data) {
 
 </body>
 </html>
-
-
-
-
-
-
