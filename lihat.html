@@ -100,11 +100,18 @@ const GAS_URL =
   "https://script.google.com/macros/s/AKfycbwVlPiMOWhQQTfSH7eKZ2hdwKNmX71Hjbk1ehhjafcrMKZdcQcmd9i2XwNriUmTFufPhw/exec?api=req";
 
 function loadData() {
+  const loading = document.getElementById("loading");
+  loading.style.display = "inline";
+
   fetch(GAS_URL)
     .then(res => res.json())
-    .then(data => render(data))
+    .then(data => {
+      render(data);
+      loading.style.display = "none";
+    })
     .catch(err => {
       console.error(err);
+      loading.style.display = "none";
       alert("Gagal load data");
     });
 }
@@ -146,6 +153,7 @@ function render(data) {
 
 </body>
 </html>
+
 
 
 
