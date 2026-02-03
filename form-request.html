@@ -298,6 +298,7 @@ const CONFIG_SERVICE_URL =
 
 let GAS_URL = "";
 let MAX_LIBUR_USER = 0;
+let MAX_KUOTA_HARIAN = 0;   // ⬅️ INI
 let SPECIAL_HOLIDAYS = [];
 let IS_REVISION = false;
 let quotaMap = {};
@@ -444,6 +445,8 @@ function initPicker(id, full, raw){
     }
 
     quotaMap = await (await fetch(GAS_URL)).json();
+    console.log("MAX_KUOTA_HARIAN:", MAX_KUOTA_HARIAN);
+console.log("quotaMap:", quotaMap);
 
 initPicker("libur", quotaMap, l);
 initPicker("cuti", quotaMap, c);
@@ -501,6 +504,7 @@ requestForm.addEventListener("submit", async e=>{
 </script>
 </body>
 </html>
+
 
 
 
