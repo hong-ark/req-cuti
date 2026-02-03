@@ -29,7 +29,17 @@ body{
   box-shadow:0 12px 30px rgba(0,0,0,0.45);
   border:1px solid rgba(255,255,255,0.05);
 }
+/* ===== KUOTA FULL (DISABLED) ===== */
+.air-datepicker-cell.quota-full{
+  background:#1f1f1f !important;
+  color:#777 !important;
+  cursor:not-allowed;
+}
 
+.air-datepicker-cell.-disabled-.quota-full{
+  background:#1f1f1f !important;
+  color:#777 !important;
+}
 /* ===== JUDUL ===== */
 h2{
   text-align:center;
@@ -290,6 +300,7 @@ let GAS_URL = "";
 let MAX_LIBUR_USER = 0;
 let SPECIAL_HOLIDAYS = [];
 let IS_REVISION = false;
+let quotaMap = {};
 
 const monthNames = [
   "Januari","Februari","Maret","April","Mei","Juni",
@@ -344,7 +355,8 @@ async function loadConfig(){
   GAS_URL = cfg.GAS_URL;
 
   const c = await (await fetch(GAS_URL + "?mode=config")).json();
-  MAX_LIBUR_USER = Number(c.MAX_LIBUR_USER || 0);
+  MAX_LIBUR_USER   = Number(c.MAX_LIBUR_USER || 0);
+MAX_KUOTA_HARIAN = Number(c.MAX_KUOTA_HARIAN || 0);
 
   SPECIAL_HOLIDAYS = [];
   if (c.SPECIAL_HOLIDAYS) {
@@ -360,6 +372,12 @@ function initPicker(id, full, raw){
   const el = document.getElementById(id);
   if (el._adp) el._adp.destroy();
 
+  // ✅ INI POSISI YANG BENAR
+  const selected = (raw || "")
+    .split(",")
+    .filter(Boolean)
+    .map(Number);
+
   const now = new Date();
   const startMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
   const endMonth   = new Date(now.getFullYear(), now.getMonth() + 2, 0);
@@ -370,41 +388,43 @@ function initPicker(id, full, raw){
     view: "days",
     minView: "days",
     locale: localeID,
-
     minDate: startMonth,
     maxDate: endMonth,
 
-    selectedDates: (raw||"").split(",").filter(Boolean)
-      .map(d => new Date(
-        startMonth.getFullYear(),
-        startMonth.getMonth(),
-        Number(d)
-      )),
-
-    disabledDates: (full||[])
-      .map(d => new Date(
-        startMonth.getFullYear(),
-        startMonth.getMonth(),
-        Number(d)
-      )),
+    selectedDates: selected.map(d =>
+      new Date(startMonth.getFullYear(), startMonth.getMonth(), d)
+    ),
 
     onRenderCell: ({date, cellType})=>{
       if (cellType !== "day") return;
 
+      const day = date.getDate();
       const cls = [];
-      if (date.getDay()===0 || date.getDay()===6) cls.push("weekend-red");
+
+      if (date.getDay() === 0 || date.getDay() === 6)
+        cls.push("weekend-red");
 
       if (SPECIAL_HOLIDAYS.some(h =>
-        h.getFullYear()===date.getFullYear() &&
-        h.getMonth()===date.getMonth() &&
-        h.getDate()===date.getDate()
+        h.getFullYear() === date.getFullYear() &&
+        h.getMonth() === date.getMonth() &&
+        h.getDate() === day
       )) cls.push("holiday-red");
 
-      if (cls.length) return { classes: cls.join(" ") };
+      const used = quotaMap?.[day] || 0;
+      const isFull = used >= MAX_KUOTA_HARIAN;
+
+      // 🔥 FULL → disable kecuali tanggal revisi sendiri
+      if (isFull && !selected.includes(day)){
+        cls.push("quota-full");
+        return { disabled:true, classes:cls.join(" ") };
+      }
+
+      if (cls.length){
+        return { classes: cls.join(" ") };
+      }
     }
   });
 }
-
 
 /* ================= BOOT ================= */
 (async()=>{
@@ -423,9 +443,10 @@ function initPicker(id, full, raw){
       ekstrakulikuler.value=d.ekstrakulikuler||"";
     }
 
-    const full = await (await fetch(GAS_URL)).json();
-    initPicker("libur", full, l);
-    initPicker("cuti", full, c);
+    quotaMap = await (await fetch(GAS_URL)).json();
+
+initPicker("libur", quotaMap, l);
+initPicker("cuti", quotaMap, c);
 
     loading.style.display="none";
     requestForm.style.display="block";
@@ -480,6 +501,7 @@ requestForm.addEventListener("submit", async e=>{
 </script>
 </body>
 </html>
+
 
 
 
