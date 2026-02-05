@@ -62,7 +62,33 @@ h2{
   border:1px solid #333;
   font-weight:600;
 }
+/* ===== FLOATING VIEW BUTTON ===== */
+.fab-view{
+  position:fixed;
+  right:20px;
+  bottom:20px;
+  background:#1f2937;
+  color:#fff;
+  text-decoration:none;
+  padding:14px 18px;
+  border-radius:999px;
+  font-weight:700;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  box-shadow:0 10px 25px rgba(0,0,0,.4);
+  transition:all .25s ease;
+  z-index:999;
+}
 
+.fab-view:hover{
+  background:#374151;
+  transform:translateY(-3px);
+}
+
+.fab-view span{
+  font-size:14px;
+}
 /* ===== FORM ===== */
 label{
   font-weight:600;
@@ -502,8 +528,13 @@ requestForm.addEventListener("submit", async e=>{
   }
 });
 </script>
+  <a href="https://hong-ark.github.io/req-cuti/lihat.html" class="fab-view" target="_blank">
+  📋
+  <span>Lihat Request</span>
+</a>
 </body>
 </html>
+
 
 
 
