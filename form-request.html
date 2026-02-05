@@ -164,7 +164,17 @@ button:hover{
   font-size:14px;
   color:#bbbbbb;
 }
+.fab-view.hidden{
+  opacity:0;
+  pointer-events:none;
+  transform:translateY(10px);
+}
 
+.fab-view.show{
+  opacity:1;
+  pointer-events:auto;
+  transform:translateY(0);
+}
 /* ===== FOOTER ===== */
 #footer{
   text-align:center;
@@ -479,6 +489,7 @@ initPicker("cuti", quotaMap, c);
 
     loading.style.display="none";
     requestForm.style.display="block";
+    document.querySelector(".fab-view")?.classList.add("show");
   }catch(e){
     loading.textContent="❌ "+e.message;
   }
@@ -528,12 +539,13 @@ requestForm.addEventListener("submit", async e=>{
   }
 });
 </script>
-  <a href="https://hong-ark.github.io/req-cuti/lihat.html" class="fab-view" target="_blank">
+ <a href="https://hong-ark.github.io/req-cuti/lihat.html" class="fab-view hidden" target="_blank">
   📋
   <span>Lihat Request</span>
 </a>
 </body>
 </html>
+
 
 
 
