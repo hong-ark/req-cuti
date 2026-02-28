@@ -135,13 +135,14 @@
     /* ===============================
        🔒 PROTEKSI OPEN / CLOSE
        =============================== */
-// const day = new Date().getDate();
-// if (day < 1 || day > 15) {
-//   window.location.replace(
-//     "https://hong-ark.github.io/req-cuti/req-cuti.html"
-//   );
-// }
+const DEBUG_MODE = false; // ubah jadi true kalau mau bebas test
 
+const day = new Date().getDate();
+if (!DEBUG_MODE && (day < 1 || day > 15)) {
+  window.location.replace(
+    "https://hong-ark.github.io/req-cuti/req-cuti.html"
+  );
+}
     /* ===============================
        🔎 CEK NIK
        =============================== */
@@ -205,6 +206,7 @@
 
 </body>
 </html>
+
 
 
 
