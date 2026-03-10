@@ -59,11 +59,13 @@ let rataNormal = Math.floor(sisaManDay / hariNormal);
 
 let liburPerHariNormal = personil - rataNormal;
 
+let rataMasukAll = Math.floor(totalManDay / hariBulan);
+let rataLiburAll = personil - rataMasukAll;
+
 let html = `
 <b>Total Man-Day:</b> ${Math.floor(totalManDay)}<br><br>
-<b>Rata-rata Personil Masuk Hari Normal:</b> ${rataNormal} orang<br>
-<b>Rata-rata Personil Libur Hari Normal:</b> ${Math.floor(liburPerHariNormal)} orang<br><br>
-<b>Personil Masuk Saat Tanggal Merah:</b> ${masukMerah} orang
+<b>Rata-rata Personil Masuk per Hari:</b> ${rataMasukAll} orang<br>
+<b>Rata-rata Personil Libur per Hari:</b> ${rataLiburAll} orang
 `;
 
 
