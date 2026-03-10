@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Kalkulator Kebutuhan Personil</title>
+<style>
+body{font-family:Arial, sans-serif;background:#f4f6f8;padding:40px}
+.container{max-width:600px;margin:auto;background:white;padding:30px;border-radius:10px;box-shadow:0 10px 25px rgba(0,0,0,0.1)}
+h1{margin-bottom:20px}
+label{display:block;margin-top:15px}
+input{width:100%;padding:8px;margin-top:5px}
+button{margin-top:20px;padding:10px 15px;border:none;background:#2563eb;color:white;border-radius:6px;cursor:pointer}
+.result{margin-top:25px;background:#f1f5f9;padding:15px;border-radius:8px}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>Kalkulator Personil Kerja</h1>
+
+<label>Jumlah Personil</label>
+<input type="number" id="personil" value="57">
+
+<label>Jumlah Hari Dalam Bulan</label>
+<input type="number" id="hariBulan" value="30">
+
+<label>Libur per Personil</label>
+<input type="number" id="libur" value="8">
+
+<label>Jumlah Tanggal Merah</label>
+<input type="number" id="tanggalMerah" value="2">
+
+<label>Personil Masuk Saat Tanggal Merah</label>
+<input type="number" id="masukMerah" value="37">
+
+<button onclick="hitung()">Hitung</button>
+
+<div class="result" id="hasil"></div>
+</div>
+
+<script>
+function hitung(){
+
+let personil = parseFloat(document.getElementById('personil').value);
+let hariBulan = parseFloat(document.getElementById('hariBulan').value);
+let libur = parseFloat(document.getElementById('libur').value);
+let tanggalMerah = parseFloat(document.getElementById('tanggalMerah').value);
+let masukMerah = parseFloat(document.getElementById('masukMerah').value);
+
+let hariKerja = hariBulan - libur;
+let totalManDay = personil * hariKerja;
+
+let totalTanggalMerah = masukMerah * tanggalMerah;
+
+let sisaManDay = totalManDay - totalTanggalMerah;
+
+let hariNormal = hariBulan - tanggalMerah;
+
+let rataNormal = sisaManDay / hariNormal;
+
+let liburPerHariNormal = personil - rataNormal;
+
+let html = `
+<b>Total Man-Day:</b> ${totalManDay.toFixed(2)}<br><br>
+<b>Rata-rata Personil Masuk Hari Normal:</b> ${rataNormal.toFixed(2)} orang<br>
+<b>Rata-rata Personil Libur Hari Normal:</b> ${liburPerHariNormal.toFixed(2)} orang<br><br>
+<b>Personil Masuk Saat Tanggal Merah:</b> ${masukMerah} orang
+`;
+
+
+document.getElementById('hasil').innerHTML = html;
+}
+</script>
+
+</body>
+</html>
