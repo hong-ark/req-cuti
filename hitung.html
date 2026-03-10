@@ -55,14 +55,14 @@ let sisaManDay = totalManDay - totalTanggalMerah;
 
 let hariNormal = hariBulan - tanggalMerah;
 
-let rataNormal = sisaManDay / hariNormal;
+let rataNormal = Math.floor(sisaManDay / hariNormal);
 
 let liburPerHariNormal = personil - rataNormal;
 
 let html = `
-<b>Total Personil masuk:</b> ${totalManDay.toFixed(2)}<br><br>
-<b>Rata-rata Personil Masuk Hari Normal:</b> ${rataNormal.toFixed(2)} orang<br>
-<b>Rata-rata jumlah Libur Hari Normal:</b> ${liburPerHariNormal.toFixed(2)} orang<br><br>
+<b>Total Man-Day:</b> ${Math.floor(totalManDay)}<br><br>
+<b>Rata-rata Personil Masuk Hari Normal:</b> ${rataNormal} orang<br>
+<b>Rata-rata Personil Libur Hari Normal:</b> ${Math.floor(liburPerHariNormal)} orang<br><br>
 <b>Personil Masuk Saat Tanggal Merah:</b> ${masukMerah} orang
 `;
 
@@ -72,5 +72,4 @@ document.getElementById('hasil').innerHTML = html;
 </script>
 
 </body>
-
 </html>
