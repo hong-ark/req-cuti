@@ -14,7 +14,7 @@ body{
 }
 
 .container{
-    max-width:900px;
+    max-width:950px;
     margin:auto;
     background:white;
     padding:25px;
@@ -23,13 +23,19 @@ body{
 }
 
 h1{
-    margin:0 0 20px 0;
+    margin-bottom:20px;
+}
+
+.header-jadwal{
+    font-size:20px;
+    font-weight:bold;
+    margin-top:20px;
 }
 
 input{
     padding:10px;
     font-size:16px;
-    width:200px;
+    width:220px;
 }
 
 button{
@@ -64,12 +70,11 @@ button:hover{
 }
 
 .day{
-    min-height:80px;
+    min-height:90px;
     background:#fafafa;
     border:1px solid #ddd;
     padding:6px;
     border-radius:4px;
-    position:relative;
 }
 
 .day-number{
@@ -78,18 +83,42 @@ button:hover{
 }
 
 .shift{
-    margin-top:5px;
-    padding:3px 5px;
-    border-radius:4px;
-    font-size:12px;
-    color:white;
-    display:inline-block;
+    margin-top:8px;
+    padding:5px;
+    border-radius:5px;
+    font-size:13px;
+    text-align:center;
+    font-weight:bold;
 }
 
-.shift.M{ background:#34a853; }
-.shift.S{ background:#fbbc05; color:black;}
-.shift.P{ background:#ea4335; }
-.shift.L{ background:#9aa0a6; }
+/* Warna Shift */
+
+.shift.P{
+    background:#8BC34A;
+}
+
+.shift.P1{
+    background:#2E7D32;
+    color:white;
+}
+
+.shift.S{
+    background:#FF9800;
+}
+
+.shift.M{
+    background:#FFEB3B;
+}
+
+.shift.C{
+    background:#2196F3;
+    color:white;
+}
+
+.shift.OFF{
+    background:#E53935;
+    color:white;
+}
 
 .loading{
     margin-top:20px;
@@ -104,20 +133,22 @@ button:hover{
 
 <div class="container">
 
-<h1>📅 Jadwal Shift Karyawan</h1>
+<h1>📅 Cek Jadwal Karyawan</h1>
 
 <input id="nik" placeholder="Masukkan NIK">
 <button onclick="loadJadwal()">Cek Jadwal</button>
 
-<div id="nama"></div>
+<div class="header-jadwal" id="header"></div>
 
 <div class="calendar" id="calendar"></div>
 
 </div>
 
+
 <script>
 
 const GAS_URL="https://script.google.com/macros/s/AKfycbwHIAJ8MdhFCN5fJRgd9QGKuCvd7IH0dpIZn9RcdGeb4cBtOyjDGxI7Z19y2xoS4rIihg/exec"
+
 
 async function loadJadwal(){
 
@@ -155,11 +186,15 @@ function renderCalendar(data){
     let jadwal=data.jadwal
     let nama=data.nama
 
-    document.getElementById("nama").innerHTML="<h3>"+nama+"</h3>"
-
     let now=new Date()
     let year=now.getFullYear()
     let month=now.getMonth()
+
+    let monthName=now.toLocaleString('id-ID',{month:'long'})
+
+    document.getElementById("header").innerHTML=
+    "Jadwal "+monthName+" - "+nama
+
 
     let firstDay=new Date(year,month,1).getDay()
     let days=new Date(year,month+1,0).getDate()
@@ -184,15 +219,13 @@ function renderCalendar(data){
 
     for(let d=1;d<=days;d++){
 
-        let shift=shiftMap[d] || ""
+        let shift=shiftMap[d] || "OFF"
 
         html+='<div class="day">'
 
         html+='<div class="day-number">'+d+'</div>'
 
-        if(shift){
-            html+='<div class="shift '+shift.charAt(0)+'">'+shift+'</div>'
-        }
+        html+='<div class="shift '+shift+'">'+shift+'</div>'
 
         html+='</div>'
     }
