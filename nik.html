@@ -2,54 +2,43 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Jadwal Shift Karyawan</title>
+<title>Cek Jadwal Karyawan</title>
+
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 
 <style>
 
 body{
-    font-family: "Segoe UI", Arial;
-    background:#f1f3f4;
-    margin:0;
-    padding:30px;
+    font-family: Arial;
+    background:#f5f5f5;
+    padding:40px;
 }
 
 .container{
-    max-width:950px;
-    margin:auto;
     background:white;
-    padding:25px;
-    border-radius:10px;
-    box-shadow:0 5px 15px rgba(0,0,0,0.15);
+    padding:30px;
+    max-width:900px;
+    margin:auto;
+    border-radius:8px;
+    box-shadow:0 2px 10px rgba(0,0,0,0.1);
 }
 
-h1{
-    margin-bottom:20px;
-}
-
-.header-jadwal{
-    font-size:20px;
+.header{
+    text-align:center;
+    font-size:22px;
     font-weight:bold;
-    margin-top:20px;
+    margin-bottom:20px;
 }
 
 input{
     padding:10px;
-    font-size:16px;
-    width:220px;
+    width:200px;
 }
 
 button{
-    padding:10px 18px;
-    font-size:15px;
-    background:#1a73e8;
-    color:white;
-    border:none;
-    border-radius:5px;
+    padding:10px 20px;
     cursor:pointer;
-}
-
-button:hover{
-    background:#1558b0;
+    margin-left:5px;
 }
 
 .calendar{
@@ -59,7 +48,7 @@ button:hover{
 .calendar-grid{
     display:grid;
     grid-template-columns:repeat(7,1fr);
-    gap:5px;
+    gap:6px;
 }
 
 .day-name{
@@ -70,169 +59,202 @@ button:hover{
 }
 
 .day{
-    min-height:90px;
+    min-height:80px;
     background:#fafafa;
     border:1px solid #ddd;
     padding:6px;
     border-radius:4px;
 }
 
+.weekend{
+    border:2px solid #ff6b6b;
+}
+
 .day-number{
     font-size:13px;
-    color:#555;
 }
 
 .shift{
-    margin-top:8px;
-    padding:5px;
+    margin-top:6px;
+    padding:4px;
     border-radius:5px;
-    font-size:13px;
     text-align:center;
+    font-size:13px;
     font-weight:bold;
 }
 
-/* Warna Shift */
+/* warna shift */
 
 .shift.P{
-    background:#8BC34A;
+    background:#a5d6a7;
 }
 
 .shift.P1{
-    background:#2E7D32;
+    background:#2e7d32;
     color:white;
 }
 
 .shift.S{
-    background:#FF9800;
+    background:#d97706;
+    color:white;
 }
 
 .shift.M{
-    background:#FFEB3B;
+    background:#ffeb3b;
 }
 
 .shift.C{
-    background:#2196F3;
+    background:#2196f3;
     color:white;
 }
 
 .shift.OFF{
-    background:#E53935;
+    background:#e53935;
     color:white;
 }
 
-.loading{
+.share{
     margin-top:20px;
-    font-style:italic;
+    text-align:center;
 }
 
 </style>
 </head>
 
-
 <body>
 
 <div class="container">
 
-<h1>📅 Cek Jadwal Karyawan</h1>
+<h2>Cek Jadwal Shift</h2>
 
 <input id="nik" placeholder="Masukkan NIK">
-<button onclick="loadJadwal()">Cek Jadwal</button>
+<button onclick="cekJadwal()">Cek</button>
 
-<div class="header-jadwal" id="header"></div>
+<div id="calendarArea">
+
+<div class="header" id="header"></div>
 
 <div class="calendar" id="calendar"></div>
 
 </div>
 
+<div class="share">
+<button onclick="shareImage()">Share JPEG</button>
+</div>
+
+</div>
 
 <script>
 
 const GAS_URL="https://script.google.com/macros/s/AKfycbwHIAJ8MdhFCN5fJRgd9QGKuCvd7IH0dpIZn9RcdGeb4cBtOyjDGxI7Z19y2xoS4rIihg/exec"
 
 
-async function loadJadwal(){
+async function cekJadwal(){
 
-    let nik=document.getElementById("nik").value
+let nik=document.getElementById("nik").value
 
-    if(!nik){
-        alert("Masukkan NIK")
-        return
-    }
+if(!nik){
+alert("Masukkan NIK")
+return
+}
 
-    document.getElementById("calendar").innerHTML='<div class="loading">Loading...</div>'
+document.getElementById("calendar").innerHTML="Loading..."
 
-    try{
+try{
 
-        let res=await fetch(GAS_URL+"?nik="+nik)
-        let data=await res.json()
+let res=await fetch(GAS_URL+"?nik="+nik)
+let data=await res.json()
 
-        if(!data.ok){
-            document.getElementById("calendar").innerHTML="NIK tidak ditemukan"
-            return
-        }
+if(!data.ok){
+document.getElementById("calendar").innerHTML="NIK tidak ditemukan"
+return
+}
 
-        renderCalendar(data)
+renderCalendar(data)
 
-    }catch(e){
-        document.getElementById("calendar").innerHTML="Error mengambil data"
-    }
+}catch(e){
+
+document.getElementById("calendar").innerHTML="Error mengambil data"
+
+}
+
+}
+
+
+function renderCalendar(data){
+
+let jadwal=data.jadwal
+let nama=data.nama
+
+let now=new Date()
+let year=now.getFullYear()
+let month=now.getMonth()
+
+let monthName=now.toLocaleString('id-ID',{month:'long'})
+
+document.getElementById("header").innerHTML=
+"Jadwal "+monthName+" - "+nama
+
+
+let firstDay=new Date(year,month,1).getDay()
+let days=new Date(year,month+1,0).getDate()
+
+let shiftMap={}
+
+jadwal.forEach(j=>{
+shiftMap[parseInt(j.tanggal)]=j.shift
+})
+
+let html='<div class="calendar-grid">'
+
+let dayNames=["Ming","Sen","Sel","Rab","Kam","Jum","Sab"]
+
+dayNames.forEach(d=>{
+html+='<div class="day-name">'+d+'</div>'
+})
+
+for(let i=0;i<firstDay;i++){
+html+='<div></div>'
+}
+
+for(let d=1;d<=days;d++){
+
+let shift=shiftMap[d] || "OFF"
+
+let dayIndex=(firstDay+d-1)%7
+let weekend=(dayIndex==0||dayIndex==6)?"weekend":""
+
+html+='<div class="day '+weekend+'">'
+
+html+='<div class="day-number">'+d+'</div>'
+
+html+='<div class="shift '+shift+'">'+shift+'</div>'
+
+html+='</div>'
+
+}
+
+html+='</div>'
+
+document.getElementById("calendar").innerHTML=html
 
 }
 
 
 
-function renderCalendar(data){
+async function shareImage(){
 
-    let jadwal=data.jadwal
-    let nama=data.nama
+const element=document.getElementById("calendarArea")
 
-    let now=new Date()
-    let year=now.getFullYear()
-    let month=now.getMonth()
+const canvas=await html2canvas(element)
 
-    let monthName=now.toLocaleString('id-ID',{month:'long'})
+const image=canvas.toDataURL("image/jpeg")
 
-    document.getElementById("header").innerHTML=
-    "Jadwal "+monthName+" - "+nama
+const link=document.createElement("a")
 
-
-    let firstDay=new Date(year,month,1).getDay()
-    let days=new Date(year,month+1,0).getDate()
-
-    let shiftMap={}
-
-    jadwal.forEach(j=>{
-        shiftMap[parseInt(j.tanggal)]=j.shift
-    })
-
-    let html='<div class="calendar-grid">'
-
-    let dayNames=["Ming","Sen","Sel","Rab","Kam","Jum","Sab"]
-
-    dayNames.forEach(d=>{
-        html+='<div class="day-name">'+d+'</div>'
-    })
-
-    for(let i=0;i<firstDay;i++){
-        html+='<div></div>'
-    }
-
-    for(let d=1;d<=days;d++){
-
-        let shift=shiftMap[d] || "OFF"
-
-        html+='<div class="day">'
-
-        html+='<div class="day-number">'+d+'</div>'
-
-        html+='<div class="shift '+shift+'">'+shift+'</div>'
-
-        html+='</div>'
-    }
-
-    html+='</div>'
-
-    document.getElementById("calendar").innerHTML=html
+link.href=image
+link.download="jadwal_karyawan.jpg"
+link.click()
 
 }
 
