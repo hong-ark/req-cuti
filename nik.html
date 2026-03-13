@@ -10,7 +10,7 @@
 
 body{
 font-family:Segoe UI,Arial;
-background:linear-gradient(135deg,#4facfe,#00f2fe);
+background:white;
 margin:0;
 padding:40px;
 }
@@ -19,14 +19,14 @@ padding:40px;
 background:white;
 max-width:950px;
 margin:auto;
-border-radius:12px;
+border-radius:10px;
 padding:30px;
-box-shadow:0 10px 25px rgba(0,0,0,0.2);
+box-shadow:0 4px 12px rgba(0,0,0,0.1);
 }
 
 .title{
 text-align:center;
-font-size:26px;
+font-size:24px;
 font-weight:bold;
 margin-bottom:20px;
 }
@@ -37,7 +37,7 @@ margin-bottom:20px;
 }
 
 input{
-padding:12px;
+padding:10px;
 width:220px;
 border-radius:6px;
 border:1px solid #ccc;
@@ -45,12 +45,12 @@ font-size:15px;
 }
 
 button{
-padding:12px 20px;
+padding:10px 18px;
 border:none;
 border-radius:6px;
 background:#1a73e8;
 color:white;
-font-size:15px;
+font-size:14px;
 cursor:pointer;
 }
 
@@ -80,10 +80,10 @@ background:#e8eaed;
 border-radius:4px;
 }
 
-/* Weekend header */
+/* weekend header border */
 
 .day-name.weekend{
-border:2px solid #ff6b6b;
+border:1.5px solid #ff4d4d;
 }
 
 .day{
@@ -97,6 +97,8 @@ padding:6px;
 .day-number{
 font-size:13px;
 }
+
+/* shift block */
 
 .shift{
 margin-top:6px;
@@ -137,9 +139,21 @@ background:#e53935;
 color:white;
 }
 
+/* share button */
+
 .share{
 text-align:center;
 margin-top:20px;
+}
+
+.share button{
+background:#2e7d32;
+padding:8px 16px;
+font-size:13px;
+}
+
+.share button:hover{
+background:#1b5e20;
 }
 
 </style>
