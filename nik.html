@@ -2,108 +2,204 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Cek Jadwal Karyawan</title>
+<title>Jadwal Shift Karyawan</title>
 
 <style>
 
 body{
-    font-family: Arial;
-    background:#f5f5f5;
-    padding:40px;
+    font-family: "Segoe UI", Arial;
+    background:#f1f3f4;
+    margin:0;
+    padding:30px;
 }
 
 .container{
-    background:white;
-    padding:30px;
-    max-width:600px;
+    max-width:900px;
     margin:auto;
-    border-radius:8px;
-    box-shadow:0 2px 10px rgba(0,0,0,0.1);
+    background:white;
+    padding:25px;
+    border-radius:10px;
+    box-shadow:0 5px 15px rgba(0,0,0,0.15);
+}
+
+h1{
+    margin:0 0 20px 0;
 }
 
 input{
     padding:10px;
+    font-size:16px;
     width:200px;
 }
 
 button{
-    padding:10px 20px;
+    padding:10px 18px;
+    font-size:15px;
+    background:#1a73e8;
+    color:white;
+    border:none;
+    border-radius:5px;
     cursor:pointer;
 }
 
-.result{
+button:hover{
+    background:#1558b0;
+}
+
+.calendar{
+    margin-top:25px;
+}
+
+.calendar-grid{
+    display:grid;
+    grid-template-columns:repeat(7,1fr);
+    gap:5px;
+}
+
+.day-name{
+    text-align:center;
+    font-weight:bold;
+    padding:10px;
+    background:#e8eaed;
+}
+
+.day{
+    min-height:80px;
+    background:#fafafa;
+    border:1px solid #ddd;
+    padding:6px;
+    border-radius:4px;
+    position:relative;
+}
+
+.day-number{
+    font-size:13px;
+    color:#555;
+}
+
+.shift{
+    margin-top:5px;
+    padding:3px 5px;
+    border-radius:4px;
+    font-size:12px;
+    color:white;
+    display:inline-block;
+}
+
+.shift.M{ background:#34a853; }
+.shift.S{ background:#fbbc05; color:black;}
+.shift.P{ background:#ea4335; }
+.shift.L{ background:#9aa0a6; }
+
+.loading{
     margin-top:20px;
+    font-style:italic;
 }
 
 </style>
 </head>
 
+
 <body>
 
 <div class="container">
 
-<h2>Cek Jadwal Shift</h2>
+<h1>📅 Jadwal Shift Karyawan</h1>
 
 <input id="nik" placeholder="Masukkan NIK">
-<button onclick="cekJadwal()">Cek</button>
+<button onclick="loadJadwal()">Cek Jadwal</button>
 
-<div class="result" id="result"></div>
+<div id="nama"></div>
+
+<div class="calendar" id="calendar"></div>
 
 </div>
 
 <script>
 
-async function cekJadwal(){
+const GAS_URL="https://script.google.com/macros/s/AKfycbwHIAJ8MdhFCN5fJRgd9QGKuCvd7IH0dpIZn9RcdGeb4cBtOyjDGxI7Z19y2xoS4rIihg/exec"
 
-    let nik = document.getElementById("nik").value
+async function loadJadwal(){
+
+    let nik=document.getElementById("nik").value
 
     if(!nik){
         alert("Masukkan NIK")
         return
     }
 
-    let url = "https://script.google.com/macros/s/AKfycbwHIAJ8MdhFCN5fJRgd9QGKuCvd7IH0dpIZn9RcdGeb4cBtOyjDGxI7Z19y2xoS4rIihg/exec?nik="+nik
-
-    document.getElementById("result").innerHTML="Loading..."
+    document.getElementById("calendar").innerHTML='<div class="loading">Loading...</div>'
 
     try{
 
-        let res = await fetch(url)
-        let data = await res.json()
+        let res=await fetch(GAS_URL+"?nik="+nik)
+        let data=await res.json()
 
         if(!data.ok){
-            document.getElementById("result").innerHTML="NIK tidak ditemukan"
+            document.getElementById("calendar").innerHTML="NIK tidak ditemukan"
             return
         }
 
-        let html = `
-        <h3>${data.nama}</h3>
-        <p>Periode : ${data.bulan}</p>
-        <table border="1" cellpadding="6">
-        <tr>
-        <th>Tanggal</th>
-        <th>Shift</th>
-        </tr>
-        `
-
-        data.jadwal.forEach(j=>{
-            html += `
-            <tr>
-            <td>${j.tanggal}</td>
-            <td>${j.shift}</td>
-            </tr>
-            `
-        })
-
-        html += "</table>"
-
-        document.getElementById("result").innerHTML = html
+        renderCalendar(data)
 
     }catch(e){
-
-        document.getElementById("result").innerHTML="Error mengambil data"
-
+        document.getElementById("calendar").innerHTML="Error mengambil data"
     }
+
+}
+
+
+
+function renderCalendar(data){
+
+    let jadwal=data.jadwal
+    let nama=data.nama
+
+    document.getElementById("nama").innerHTML="<h3>"+nama+"</h3>"
+
+    let now=new Date()
+    let year=now.getFullYear()
+    let month=now.getMonth()
+
+    let firstDay=new Date(year,month,1).getDay()
+    let days=new Date(year,month+1,0).getDate()
+
+    let shiftMap={}
+
+    jadwal.forEach(j=>{
+        shiftMap[parseInt(j.tanggal)]=j.shift
+    })
+
+    let html='<div class="calendar-grid">'
+
+    let dayNames=["Ming","Sen","Sel","Rab","Kam","Jum","Sab"]
+
+    dayNames.forEach(d=>{
+        html+='<div class="day-name">'+d+'</div>'
+    })
+
+    for(let i=0;i<firstDay;i++){
+        html+='<div></div>'
+    }
+
+    for(let d=1;d<=days;d++){
+
+        let shift=shiftMap[d] || ""
+
+        html+='<div class="day">'
+
+        html+='<div class="day-number">'+d+'</div>'
+
+        if(shift){
+            html+='<div class="shift '+shift.charAt(0)+'">'+shift+'</div>'
+        }
+
+        html+='</div>'
+    }
+
+    html+='</div>'
+
+    document.getElementById("calendar").innerHTML=html
 
 }
 
