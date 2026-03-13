@@ -2,120 +2,144 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Cek Jadwal Karyawan</title>
+<title>Jadwal Shift Karyawan</title>
 
 <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 
 <style>
 
 body{
-    font-family: Arial;
-    background:#f5f5f5;
-    padding:40px;
+font-family:Segoe UI,Arial;
+background:linear-gradient(135deg,#4facfe,#00f2fe);
+margin:0;
+padding:40px;
 }
 
 .container{
-    background:white;
-    padding:30px;
-    max-width:900px;
-    margin:auto;
-    border-radius:8px;
-    box-shadow:0 2px 10px rgba(0,0,0,0.1);
+background:white;
+max-width:950px;
+margin:auto;
+border-radius:12px;
+padding:30px;
+box-shadow:0 10px 25px rgba(0,0,0,0.2);
 }
 
-.header{
-    text-align:center;
-    font-size:22px;
-    font-weight:bold;
-    margin-bottom:20px;
+.title{
+text-align:center;
+font-size:26px;
+font-weight:bold;
+margin-bottom:20px;
+}
+
+.search-box{
+text-align:center;
+margin-bottom:20px;
 }
 
 input{
-    padding:10px;
-    width:200px;
+padding:12px;
+width:220px;
+border-radius:6px;
+border:1px solid #ccc;
+font-size:15px;
 }
 
 button{
-    padding:10px 20px;
-    cursor:pointer;
-    margin-left:5px;
+padding:12px 20px;
+border:none;
+border-radius:6px;
+background:#1a73e8;
+color:white;
+font-size:15px;
+cursor:pointer;
 }
 
-.calendar{
-    margin-top:25px;
+button:hover{
+background:#1558b0;
+}
+
+.header{
+text-align:center;
+font-size:22px;
+font-weight:bold;
+margin-top:20px;
+margin-bottom:15px;
 }
 
 .calendar-grid{
-    display:grid;
-    grid-template-columns:repeat(7,1fr);
-    gap:6px;
+display:grid;
+grid-template-columns:repeat(7,1fr);
+gap:6px;
 }
 
 .day-name{
-    text-align:center;
-    font-weight:bold;
-    padding:10px;
-    background:#e8eaed;
+text-align:center;
+padding:10px;
+font-weight:bold;
+background:#e8eaed;
+border-radius:4px;
+}
+
+/* Weekend header */
+
+.day-name.weekend{
+border:2px solid #ff6b6b;
 }
 
 .day{
-    min-height:80px;
-    background:#fafafa;
-    border:1px solid #ddd;
-    padding:6px;
-    border-radius:4px;
-}
-
-.weekend{
-    border:2px solid #ff6b6b;
+min-height:85px;
+background:#fafafa;
+border:1px solid #ddd;
+border-radius:6px;
+padding:6px;
 }
 
 .day-number{
-    font-size:13px;
+font-size:13px;
 }
 
 .shift{
-    margin-top:6px;
-    padding:4px;
-    border-radius:5px;
-    text-align:center;
-    font-size:13px;
-    font-weight:bold;
+margin-top:6px;
+padding:4px;
+border-radius:5px;
+font-size:13px;
+text-align:center;
+font-weight:bold;
 }
 
 /* warna shift */
 
 .shift.P{
-    background:#a5d6a7;
+background:#a5d6a7;
 }
 
 .shift.P1{
-    background:#2e7d32;
-    color:white;
+background:#2e7d32;
+color:white;
 }
 
 .shift.S{
-    background:#d97706;
-    color:white;
+background:#d97706;
+color:white;
 }
 
 .shift.M{
-    background:#ffeb3b;
+background:#ffeb3b;
 }
 
 .shift.C{
-    background:#2196f3;
-    color:white;
+background:#2196f3;
+color:white;
 }
 
 .shift.OFF{
-    background:#e53935;
-    color:white;
+background:#e53935;
+color:white;
 }
 
 .share{
-    margin-top:20px;
-    text-align:center;
+text-align:center;
+margin-top:20px;
 }
 
 </style>
@@ -125,21 +149,34 @@ button{
 
 <div class="container">
 
-<h2>Cek Jadwal Shift</h2>
+<div class="title">
+📅 Sistem Jadwal Shift Karyawan
+</div>
+
+<div class="search-box">
 
 <input id="nik" placeholder="Masukkan NIK">
-<button onclick="cekJadwal()">Cek</button>
+
+<button onclick="cekJadwal()">
+Cek Jadwal
+</button>
+
+</div>
 
 <div id="calendarArea">
 
 <div class="header" id="header"></div>
 
-<div class="calendar" id="calendar"></div>
+<div id="calendar"></div>
 
 </div>
 
 <div class="share">
-<button onclick="shareImage()">Share JPEG</button>
+
+<button onclick="shareImage()">
+Share JPEG
+</button>
+
 </div>
 
 </div>
@@ -147,7 +184,6 @@ button{
 <script>
 
 const GAS_URL="https://script.google.com/macros/s/AKfycbwHIAJ8MdhFCN5fJRgd9QGKuCvd7IH0dpIZn9RcdGeb4cBtOyjDGxI7Z19y2xoS4rIihg/exec"
-
 
 async function cekJadwal(){
 
@@ -180,7 +216,6 @@ document.getElementById("calendar").innerHTML="Error mengambil data"
 
 }
 
-
 function renderCalendar(data){
 
 let jadwal=data.jadwal
@@ -195,7 +230,6 @@ let monthName=now.toLocaleString('id-ID',{month:'long'})
 document.getElementById("header").innerHTML=
 "Jadwal "+monthName+" - "+nama
 
-
 let firstDay=new Date(year,month,1).getDay()
 let days=new Date(year,month+1,0).getDate()
 
@@ -209,8 +243,12 @@ let html='<div class="calendar-grid">'
 
 let dayNames=["Ming","Sen","Sel","Rab","Kam","Jum","Sab"]
 
-dayNames.forEach(d=>{
-html+='<div class="day-name">'+d+'</div>'
+dayNames.forEach((d,i)=>{
+
+let weekend=(i==0||i==6)?"weekend":""
+
+html+='<div class="day-name '+weekend+'">'+d+'</div>'
+
 })
 
 for(let i=0;i<firstDay;i++){
@@ -221,10 +259,7 @@ for(let d=1;d<=days;d++){
 
 let shift=shiftMap[d] || "OFF"
 
-let dayIndex=(firstDay+d-1)%7
-let weekend=(dayIndex==0||dayIndex==6)?"weekend":""
-
-html+='<div class="day '+weekend+'">'
+html+='<div class="day">'
 
 html+='<div class="day-number">'+d+'</div>'
 
@@ -239,8 +274,6 @@ html+='</div>'
 document.getElementById("calendar").innerHTML=html
 
 }
-
-
 
 async function shareImage(){
 
