@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Cek Jadwal Karyawan</title>
+
+<style>
+
+body{
+    font-family: Arial;
+    background:#f5f5f5;
+    padding:40px;
+}
+
+.container{
+    background:white;
+    padding:30px;
+    max-width:600px;
+    margin:auto;
+    border-radius:8px;
+    box-shadow:0 2px 10px rgba(0,0,0,0.1);
+}
+
+input{
+    padding:10px;
+    width:200px;
+}
+
+button{
+    padding:10px 20px;
+    cursor:pointer;
+}
+
+.result{
+    margin-top:20px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Cek Jadwal Shift</h2>
+
+<input id="nik" placeholder="Masukkan NIK">
+<button onclick="cekJadwal()">Cek</button>
+
+<div class="result" id="result"></div>
+
+</div>
+
+<script>
+
+async function cekJadwal(){
+
+    let nik = document.getElementById("nik").value
+
+    if(!nik){
+        alert("Masukkan NIK")
+        return
+    }
+
+    let url = "https://script.google.com/macros/s/AKfycbwHIAJ8MdhFCN5fJRgd9QGKuCvd7IH0dpIZn9RcdGeb4cBtOyjDGxI7Z19y2xoS4rIihg/exec?nik="+nik
+
+    document.getElementById("result").innerHTML="Loading..."
+
+    try{
+
+        let res = await fetch(url)
+        let data = await res.json()
+
+        if(!data.ok){
+            document.getElementById("result").innerHTML="NIK tidak ditemukan"
+            return
+        }
+
+        let html = `
+        <h3>${data.nama}</h3>
+        <p>Periode : ${data.bulan}</p>
+        <table border="1" cellpadding="6">
+        <tr>
+        <th>Tanggal</th>
+        <th>Shift</th>
+        </tr>
+        `
+
+        data.jadwal.forEach(j=>{
+            html += `
+            <tr>
+            <td>${j.tanggal}</td>
+            <td>${j.shift}</td>
+            </tr>
+            `
+        })
+
+        html += "</table>"
+
+        document.getElementById("result").innerHTML = html
+
+    }catch(e){
+
+        document.getElementById("result").innerHTML="Error mengambil data"
+
+    }
+
+}
+
+</script>
+
+</body>
+</html>
