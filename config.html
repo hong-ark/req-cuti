@@ -1,0 +1,240 @@
+<div class="container mt-4">
+
+    <div class="card">
+
+        <div class="card-header d-flex justify-content-between align-items-center">
+
+            <h5 class="mb-0">
+                <i class="bi bi-gear-fill"></i>
+                Konfigurasi Jadwal
+            </h5>
+
+            <button class="btn btn-secondary btn-sm" onclick="loadConfig()">
+                <i class="bi bi-arrow-clockwise"></i>
+                Reload
+            </button>
+
+        </div>
+
+        <div class="card-body">
+
+            <form id="configForm">
+
+                <table class="table table-bordered align-middle">
+
+                    <thead class="table-light">
+
+                        <tr>
+
+                            <th width="40%">Parameter</th>
+
+                            <th>Value</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="configBody">
+
+                    </tbody>
+
+                </table>
+
+                <div class="text-end">
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary">
+
+                        <i class="bi bi-save"></i>
+                        Simpan
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+const API_URL =
+"https://script.google.com/macros/s/AKfycbwXX-KPR0qCmrCH4qy6_59gwsHtTSetjwfsWoj5Y9CqjFIE5K5elp09vw5_afv1s3Eg/exec";
+
+document.addEventListener("DOMContentLoaded", function(){
+
+    loadConfig();
+
+});
+
+function loadConfig(){
+
+    $("#configBody").html(`
+        <tr>
+            <td colspan="2" class="text-center">
+                Loading...
+            </td>
+        </tr>
+    `);
+
+    fetch(API_URL + "?action=getconfig")
+    .then(r=>r.json())
+    .then(cfg=>{
+
+        let html="";
+
+        html+=row("Tahun","YEAR",cfg.YEAR);
+        html+=row("Bulan","MONTH",cfg.MONTH);
+
+        html+=row("Mulai Request","REQUEST_START",cfg.REQUEST_START);
+        html+=row("Tutup Request","REQUEST_END",cfg.REQUEST_END);
+
+        html+=row("Total OFF+C","LIMIT_OFF_C",cfg.LIMIT_OFF_C);
+        html+=row("Officer OFF+C","LIMIT_OFFICER_OFF_C",cfg.LIMIT_OFFICER_OFF_C);
+
+        html+=row("Total M","LIMIT_M",cfg.LIMIT_M);
+        html+=row("Officer M","LIMIT_OFFICER_M",cfg.LIMIT_OFFICER_M);
+
+        html+=row("M Hari Terakhir","LIMIT_LASTDAY_M",cfg.LIMIT_LASTDAY_M);
+
+        html+=checkRow(
+            "Anti Paste",
+            "ANTI_PASTE",
+            cfg.ANTI_PASTE
+        );
+
+        html+=checkRow(
+            "Auto Backup",
+            "AUTO_BACKUP",
+            cfg.AUTO_BACKUP
+        );
+
+        html+=row(
+            "Config Version",
+            "CONFIG_VERSION",
+            cfg.CONFIG_VERSION,
+            true
+        );
+
+        $("#configBody").html(html);
+
+    });
+
+}
+
+function row(label,key,value,readonly=false){
+
+    return `
+
+    <tr>
+
+        <td>${label}</td>
+
+        <td>
+
+            <input
+                class="form-control"
+                name="${key}"
+                value="${value}"
+                ${readonly?"readonly":""}>
+
+        </td>
+
+    </tr>
+
+    `;
+
+}
+
+function checkRow(label,key,value){
+
+    return `
+
+    <tr>
+
+        <td>${label}</td>
+
+        <td>
+
+            <div class="form-check form-switch">
+
+                <input
+                    class="form-check-input"
+                    type="checkbox"
+                    name="${key}"
+                    ${value?"checked":""}>
+
+            </div>
+
+        </td>
+
+    </tr>
+
+    `;
+
+}
+
+$("#configForm").submit(function(e){
+
+    e.preventDefault();
+
+    let data={};
+
+    $("#configForm input").each(function(){
+
+        if($(this).attr("type")=="checkbox"){
+
+            data[$(this).attr("name")]=$(this).is(":checked");
+
+        }else{
+
+            data[$(this).attr("name")]=$(this).val();
+
+        }
+
+    });
+
+    fetch(API_URL+"?action=saveconfig",{
+
+        method:"POST",
+
+        headers:{
+            "Content-Type":"application/json"
+        },
+
+        body:JSON.stringify(data)
+
+    })
+
+    .then(r=>r.json())
+
+    .then(res=>{
+
+        if(res.status){
+
+            Swal.fire(
+                "Berhasil",
+                res.message,
+                "success"
+            );
+
+        }else{
+
+            Swal.fire(
+                "Gagal",
+                res.message,
+                "error"
+            );
+
+        }
+
+    });
+
+});
+
+</script>
