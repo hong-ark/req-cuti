@@ -13,7 +13,7 @@
 
 <body class="bg-light">
 
-<div class="container py-4">
+<div class="container py-4" style="max-width:650px;">
 
     <div class="card shadow">
 
@@ -41,10 +41,10 @@
 
                     <label class="form-label">Tahun</label>
 
-                    <input
-                        type="number"
-                        class="form-control"
-                        id="YEAR">
+                    <select
+    class="form-select"
+    id="YEAR">
+</select>
 
                 </div>
 
@@ -78,9 +78,9 @@
                     <label class="form-label">Mulai Request</label>
 
                     <input
-                        type="number"
-                        class="form-control"
-                        id="REQUEST_START">
+    type="date"
+    class="form-control"
+    id="REQUEST_START">
 
                 </div>
 
@@ -89,9 +89,9 @@
                     <label class="form-label">Tutup Request</label>
 
                     <input
-                        type="number"
-                        class="form-control"
-                        id="REQUEST_END">
+    type="date"
+    class="form-control"
+    id="REQUEST_END">
 
                 </div>
 
@@ -184,9 +184,59 @@
 <script>
 
 const API="https://script.google.com/macros/s/AKfycbwXX-KPR0qCmrCH4qy6_59gwsHtTSetjwfsWoj5Y9CqjFIE5K5elp09vw5_afv1s3Eg/exec";
+const currentYear = new Date().getFullYear();
+
+for(let y=2022;y<=currentYear+20;y++){
+
+    YEAR.innerHTML += `
+        <option value="${y}">
+            ${y}
+        </option>
+    `;
+
+}
 
 loadConfig();
 
+YEAR.addEventListener("change", updateDate);
+
+MONTH.addEventListener("change", updateDate);
+function setRequestDate(cfg){
+
+    const year = cfg.YEAR;
+
+    const month = String(cfg.MONTH).padStart(2,"0");
+
+    REQUEST_START.value =
+        `${year}-${month}-${String(cfg.REQUEST_START).padStart(2,"0")}`;
+
+    REQUEST_END.value =
+        `${year}-${month}-${String(cfg.REQUEST_END).padStart(2,"0")}`;
+
+}
+function updateDate(){
+
+    const year = YEAR.value;
+
+    const month = String(MONTH.value).padStart(2,"0");
+
+    const startDay =
+        REQUEST_START.value
+        ? REQUEST_START.value.split("-")[2]
+        : "01";
+
+    const endDay =
+        REQUEST_END.value
+        ? REQUEST_END.value.split("-")[2]
+        : "01";
+
+    REQUEST_START.value =
+        `${year}-${month}-${startDay}`;
+
+    REQUEST_END.value =
+        `${year}-${month}-${endDay}`;
+
+}
 function loadConfig(){
 
 fetch(API+"?action=getconfig")
@@ -198,8 +248,7 @@ fetch(API+"?action=getconfig")
 YEAR.value=cfg.YEAR;
 MONTH.value=cfg.MONTH;
 
-REQUEST_START.value=cfg.REQUEST_START;
-REQUEST_END.value=cfg.REQUEST_END;
+setRequestDate(cfg);
 
 LIMIT_OFF_C.value=cfg.LIMIT_OFF_C;
 LIMIT_OFFICER_OFF_C.value=cfg.LIMIT_OFFICER_OFF_C;
@@ -224,8 +273,11 @@ const data={
 YEAR:YEAR.value,
 MONTH:MONTH.value,
 
-REQUEST_START:REQUEST_START.value,
-REQUEST_END:REQUEST_END.value,
+REQUEST_START:
+REQUEST_START.value.split("-")[2],
+
+REQUEST_END:
+REQUEST_END.value.split("-")[2],
 
 LIMIT_OFF_C:LIMIT_OFF_C.value,
 LIMIT_OFFICER_OFF_C:LIMIT_OFFICER_OFF_C.value,
