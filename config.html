@@ -166,12 +166,13 @@
                 </div>
 
                 <button
-                    class="btn btn-primary"
-                    type="submit">
+    class="btn btn-primary"
+    type="submit"
+    id="btnSave">
 
-                    💾 Simpan
+    💾 Simpan
 
-                </button>
+</button>
 
             </form>
 
@@ -183,7 +184,7 @@
 
 <script>
 
-const API="https://script.google.com/macros/s/AKfycbx-9h4V82m7CCTWgZrcqeXRN_HRQamrfpbVu2PkdRqNw3TnkrGuo1SxyxeOZ8OFN7za/exec";
+const API="https://script.google.com/macros/s/AKfycbzNSGlMIo2t1qeN7J2hFQCZ1hu0-MVy1X9eiGDlSLuRxod_z2Yay_zSGomOP2JvIyes/exec";
 const currentYear = new Date().getFullYear();
 
 for(let y=2022;y<=currentYear+20;y++){
@@ -291,6 +292,14 @@ ANTI_PASTE:ANTI_PASTE.checked
 
 };
 
+const btn = document.getElementById("btnSave");
+
+btn.disabled = true;
+btn.innerHTML = `
+<span class="spinner-border spinner-border-sm"></span>
+ Menyimpan...
+`;
+
 const formData = new URLSearchParams(data);
 
 fetch(API + "?action=saveconfig", {
@@ -298,14 +307,25 @@ fetch(API + "?action=saveconfig", {
     body: formData
 })
 
-.then(r=>r.json())
+.then(r => r.json())
 
-.then(res=>{
+.then(res => {
 
-alert(res.message);
+    btn.disabled = false;
+    btn.innerHTML = "💾 Simpan";
+
+    alert(res.message);
+
+})
+
+.catch(err => {
+
+    btn.disabled = false;
+    btn.innerHTML = "💾 Simpan";
+
+    alert(err);
 
 });
-
 });
 
 </script>
