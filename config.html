@@ -291,16 +291,11 @@ ANTI_PASTE:ANTI_PASTE.checked
 
 };
 
-fetch(API+"?action=saveconfig",{
+const formData = new URLSearchParams(data);
 
-method:"POST",
-
-headers:{
-"Content-Type":"application/json"
-},
-
-body:JSON.stringify(data)
-
+fetch(API + "?action=saveconfig", {
+    method: "POST",
+    body: formData
 })
 
 .then(r=>r.json())
