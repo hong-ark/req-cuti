@@ -35,7 +35,21 @@
 
         <div class="card-body">
 
-            <form id="configForm">
+            <div id="loadingConfig" class="text-center py-5">
+
+    <div class="spinner-border text-primary mb-3"></div>
+
+    <h5 class="mb-1">Memuat Konfigurasi...</h5>
+
+    <small class="text-muted">
+        Mengambil data dari Google Sheet
+    </small>
+
+</div>
+
+<div id="configContent" style="display:none;">
+
+<form id="configForm">
 
                 <div class="mb-3">
 
@@ -181,7 +195,6 @@
     </div>
 
 </div>
-
 <script>
 
 const API="https://script.google.com/macros/s/AKfycbzNSGlMIo2t1qeN7J2hFQCZ1hu0-MVy1X9eiGDlSLuRxod_z2Yay_zSGomOP2JvIyes/exec";
@@ -196,7 +209,19 @@ for(let y=2022;y<=currentYear+20;y++){
     `;
 
 }
+function showLoading(){
 
+    loadingConfig.style.display = "block";
+    configContent.style.display = "none";
+
+}
+
+function hideLoading(){
+
+    loadingConfig.style.display = "none";
+    configContent.style.display = "block";
+
+}
 loadConfig();
 
 YEAR.addEventListener("change", updateDate);
@@ -238,30 +263,44 @@ function updateDate(){
         `${year}-${month}-${endDay}`;
 
 }
-function loadConfig(){
+async function loadConfig(){
 
-fetch(API+"?action=getconfig")
+    showLoading();
 
-.then(r=>r.json())
+    try{
 
-.then(cfg=>{
+        const cfg = await (
+            await fetch(API + "?action=getconfig")
+        ).json();
 
-YEAR.value=cfg.YEAR;
-MONTH.value=cfg.MONTH;
+        YEAR.value = cfg.YEAR;
+        MONTH.value = cfg.MONTH;
 
-setRequestDate(cfg);
+        setRequestDate(cfg);
 
-LIMIT_OFF_C.value=cfg.LIMIT_OFF_C;
-LIMIT_OFFICER_OFF_C.value=cfg.LIMIT_OFFICER_OFF_C;
+        LIMIT_OFF_C.value = cfg.LIMIT_OFF_C;
+        LIMIT_OFFICER_OFF_C.value = cfg.LIMIT_OFFICER_OFF_C;
 
-LIMIT_M.value=cfg.LIMIT_M;
-LIMIT_OFFICER_M.value=cfg.LIMIT_OFFICER_M;
+        LIMIT_M.value = cfg.LIMIT_M;
+        LIMIT_OFFICER_M.value = cfg.LIMIT_OFFICER_M;
 
-LIMIT_LASTDAY_M.value=cfg.LIMIT_LASTDAY_M;
+        LIMIT_LASTDAY_M.value = cfg.LIMIT_LASTDAY_M;
 
-ANTI_PASTE.checked=cfg.ANTI_PASTE;
+        ANTI_PASTE.checked =
+            String(cfg.ANTI_PASTE).toLowerCase() === "true";
 
-});
+        hideLoading();
+
+    }catch(err){
+
+        loadingConfig.innerHTML = `
+            <div class="alert alert-danger mb-0">
+                <strong>Gagal memuat konfigurasi.</strong><br>
+                ${err.message}
+            </div>
+        `;
+
+    }
 
 }
 
