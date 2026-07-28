@@ -357,22 +357,29 @@ const localeID = {
   firstDay: 0
 };
 /* ================= HEADER ================= */
-(function(){
+(function () {
   const now = new Date();
   const next = new Date(now.getFullYear(), now.getMonth() + 1, 1);
   const m = monthNames[next.getMonth()].toUpperCase();
 
+  const kuotaLibur = countWeekendNextMonth();
+
   const headerEl = document.getElementById("header-text");
-  const titleEl  = document.getElementById("page-title");
+  const titleEl = document.getElementById("page-title");
   const footerEl = document.getElementById("footer-note");
 
-  if (headerEl) headerEl.textContent = `REQUEST LIBUR / CUTI BULAN ${m}`;
-  if (titleEl)  titleEl.textContent  = `REQUEST LIBUR / CUTI BULAN ${m}`;
+  if (headerEl)
+    headerEl.textContent = `REQUEST LIBUR / CUTI BULAN ${m}`;
+
+  if (titleEl)
+    titleEl.textContent = `REQUEST LIBUR / CUTI BULAN ${m}`;
+
   if (footerEl) {
-    footerEl.innerHTML =
-      `Kuota libur bulan <b>${m}</b>.<br>
-       8 = Lembur 2, 9 = Lembur 1, 10 = Tidak Lembur.<br>
-       Jika kuota hari penuh tidak bisa direquest.`;
+    footerEl.innerHTML = `
+      Kuota maksimal request libur bulan <b>${m}</b> adalah
+      <b>${kuotaLibur} hari</b>.<br>
+      Jika kuota harian penuh, maka tanggal tersebut tidak dapat dipilih.
+    `;
   }
 })();
 
@@ -407,10 +414,10 @@ function countWeekendNextMonth(){
 
   const now = new Date();
 
-  // Request selalu untuk bulan depan
+  // Request untuk bulan berikutnya
   const target = new Date(now.getFullYear(), now.getMonth() + 1, 1);
 
-  const year  = target.getFullYear();
+  const year = target.getFullYear();
   const month = target.getMonth() + 1;
 
   const lastDay = new Date(year, month, 0).getDate();
