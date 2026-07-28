@@ -329,10 +329,11 @@ button:hover{
 <script src="https://cdn.jsdelivr.net/npm/air-datepicker@3.5.0/air-datepicker.min.js"></script>
 <script>
 /* ================= CONFIG ================= */
-const CONFIG_SERVICE_URL =
-"https://script.google.com/macros/s/AKfycbxgdC5vXNNA7LOgEf-WUlpzjx5NZQOG8IxFBkceOl7XOZarDomGSLjEWFvUh6pvjhbo/exec";
-
-let GAS_URL = "";
+/* ================= CONFIG ================= */
+const GAS_URL =
+"https://script.google.com/macros/s/AKfycbyG0rZJNYiFb9k0B_BBy_zmJ1-aZsGqTMxCrXkkwFcDvODC3h0862F_RfmombC3vFo-tw/exec";
+const CONFIG_URL =
+"https://script.google.com/macros/s/AKfycbzNSGlMIo2t1qeN7J2hFQCZ1hu0-MVy1X9eiGDlSLuRxod_z2Yay_zSGomOP2JvIyes/exec";
 let MAX_LIBUR_USER = 0;
 let MAX_KUOTA_HARIAN = 0;   // ⬅️ INI
 let SPECIAL_HOLIDAYS = [];
@@ -394,21 +395,35 @@ nama.value  = qs.get("nama")  || "";
 group.value = qs.get("group") || "";
 
 /* ================= LOAD CONFIG ================= */
-async function loadConfig(){
-  const cfg = await (await fetch(CONFIG_SERVICE_URL + "?mode=getMasterConfig")).json();
-  GAS_URL = cfg.GAS_URL;
+async function loadConfig() {
 
-  const c = await (await fetch(GAS_URL + "?mode=config")).json();
+  // Ambil konfigurasi dari CONFIG GS
+  const c = await (
+    await fetch(CONFIG_URL + "?action=getconfig")
+  ).json();
+
+  // Kuota libur otomatis mengikuti jumlah Sabtu & Minggu bulan berikutnya
   MAX_LIBUR_USER = countWeekendNextMonth();
-MAX_KUOTA_HARIAN = Number(c.MAX_KUOTA_HARIAN || 0);
 
+  // Limit OFF+C mengikuti CONFIG MASTER JADWAL
+  MAX_KUOTA_HARIAN = Number(c.LIMIT_OFF_C || 0);
+
+  // Saat ini tanggal merah belum disimpan di CONFIG GS
   SPECIAL_HOLIDAYS = [];
+
+  // Jika nanti ditambahkan KEY SPECIAL_HOLIDAYS di CONFIG GS,
+  // blok ini tinggal diaktifkan kembali.
   if (c.SPECIAL_HOLIDAYS) {
-    String(c.SPECIAL_HOLIDAYS).split(",").forEach(s => {
-      const d = new Date(s.trim());
-      if (!isNaN(d)) SPECIAL_HOLIDAYS.push(d);
-    });
+    String(c.SPECIAL_HOLIDAYS)
+      .split(",")
+      .forEach(s => {
+        const d = new Date(s.trim());
+        if (!isNaN(d)) {
+          SPECIAL_HOLIDAYS.push(d);
+        }
+      });
   }
+
 }
 function countWeekendNextMonth(){
 
