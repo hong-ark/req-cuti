@@ -392,7 +392,7 @@ async function loadConfig(){
   GAS_URL = cfg.GAS_URL;
 
   const c = await (await fetch(GAS_URL + "?mode=config")).json();
-  MAX_LIBUR_USER   = Number(c.MAX_LIBUR_USER || 0);
+  MAX_LIBUR_USER = countWeekendNextMonth();
 MAX_KUOTA_HARIAN = Number(c.MAX_KUOTA_HARIAN || 0);
 
   SPECIAL_HOLIDAYS = [];
@@ -403,7 +403,33 @@ MAX_KUOTA_HARIAN = Number(c.MAX_KUOTA_HARIAN || 0);
     });
   }
 }
+function countWeekendNextMonth(){
 
+  const now = new Date();
+
+  // Request selalu untuk bulan depan
+  const target = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+
+  const year  = target.getFullYear();
+  const month = target.getMonth() + 1;
+
+  const lastDay = new Date(year, month, 0).getDate();
+
+  let total = 0;
+
+  for(let d = 1; d <= lastDay; d++){
+
+    const day = new Date(year, month - 1, d).getDay();
+
+    if(day === 0 || day === 6){
+      total++;
+    }
+
+  }
+
+  return total;
+
+}
 /* ================= DATEPICKER ================= */
 function initPicker(id, full, raw){
   const el = document.getElementById(id);
