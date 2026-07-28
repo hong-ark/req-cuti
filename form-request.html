@@ -208,9 +208,7 @@ button:hover{
   color:#ff6b6b !important;
 }
 
-.air-datepicker-cell.holiday-red{
-  color:#ff6b6b !important;
-}
+
   /* ===== LOADING DOTS (FIX) ===== */
 .dot-loader{
   display:flex;
@@ -335,8 +333,7 @@ const GAS_URL =
 const CONFIG_URL =
 "https://script.google.com/macros/s/AKfycbzNSGlMIo2t1qeN7J2hFQCZ1hu0-MVy1X9eiGDlSLuRxod_z2Yay_zSGomOP2JvIyes/exec";
 let MAX_LIBUR_USER = 0;
-let MAX_KUOTA_HARIAN = 0;   // ⬅️ INI
-let SPECIAL_HOLIDAYS = [];
+let LIMIT_OFF_C = 0;
 let IS_REVISION = false;
 let quotaMap = {};
 
@@ -406,23 +403,7 @@ async function loadConfig() {
   MAX_LIBUR_USER = countWeekendNextMonth();
 
   // Limit OFF+C mengikuti CONFIG MASTER JADWAL
-  MAX_KUOTA_HARIAN = Number(c.LIMIT_OFF_C || 0);
-
-  // Saat ini tanggal merah belum disimpan di CONFIG GS
-  SPECIAL_HOLIDAYS = [];
-
-  // Jika nanti ditambahkan KEY SPECIAL_HOLIDAYS di CONFIG GS,
-  // blok ini tinggal diaktifkan kembali.
-  if (c.SPECIAL_HOLIDAYS) {
-    String(c.SPECIAL_HOLIDAYS)
-      .split(",")
-      .forEach(s => {
-        const d = new Date(s.trim());
-        if (!isNaN(d)) {
-          SPECIAL_HOLIDAYS.push(d);
-        }
-      });
-  }
+  LIMIT_OFF_C = Number(c.LIMIT_OFF_C || 0);
 
 }
 function countWeekendNextMonth(){
@@ -489,14 +470,10 @@ function initPicker(id, full, raw){
       if (date.getDay() === 0 || date.getDay() === 6)
         cls.push("weekend-red");
 
-      if (SPECIAL_HOLIDAYS.some(h =>
-        h.getFullYear() === date.getFullYear() &&
-        h.getMonth() === date.getMonth() &&
-        h.getDate() === day
-      )) cls.push("holiday-red");
+      
 
       const used = quotaMap?.[day] || 0;
-      const isFull = used >= MAX_KUOTA_HARIAN;
+      const isFull = used >= LIMIT_OFF_C;
 
       // 🔥 FULL → disable kecuali tanggal revisi sendiri
       if (isFull && !selected.includes(day)){
