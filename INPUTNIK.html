@@ -29,7 +29,13 @@
     box-shadow: 0 10px 25px rgba(0,0,0,0.4);
     border: 1px solid rgba(255,255,255,0.05);
   }
-
+  .refresh-note {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #888;
+  text-align: center;
+  font-weight: 500;
+}
   h2 {
   font-family: "Bebas Neue", sans-serif;
   font-size: 32px;
@@ -120,15 +126,13 @@
     <div class="info">
       Periode request dibuka tanggal <strong>1–15</strong> setiap bulan
     </div>
-     <div class="info">
-     Refresh page jika querry nik error
-    </div>
-
     <label for="nik">Masukkan NIK:</label>
     <input type="text" id="nik" placeholder="Contoh: 2012022847" />
 
     <button id="cekBtn" onclick="cekNIK()">Cek Nama & Group</button>
-
+    <div class="refresh-note">
+  ↻ Refresh halaman jika query NIK error
+</div>
     <div id="hasil"></div>
 
     <button id="formCutiBtn" onclick="lanjutForm()">Lanjut ke Form REQUEST</button>
